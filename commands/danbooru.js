@@ -271,8 +271,8 @@ exports.module = {
 								}});
 							}
 						}
-						} catch (e) {
-						console.error("[Danbooru Error]", e);
+					} catch (e) {
+						console.error("[Danbooru Error] " + e);
 
 						if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
 							msg.reply(`An error has occured. Please try again later.\n\n\`\`\`js\n${e}\`\`\`\nURL: ${response.request.uri.href}`);
