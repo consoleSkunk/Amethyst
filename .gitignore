@@ -1,6 +1,9 @@
-# Configuration files
+# Config files
 config/config.json
 config/filter.json
+
+# VSCode config folder
+.vscode/
 
 # Logs
 logs
