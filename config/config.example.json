@@ -1,0 +1,40 @@
+{
+	"prefix": "/",
+
+	"user_agents": {
+		"danbooru": "Amethyst/3.1.0 (by username on Danbooru)",
+		"derpibooru": "Amethyst/3.1.0 (by username on Derpibooru)",
+		"e621": "Amethyst/3.1.0 (by username on e621)"
+	},
+
+	"whitelist": {
+		"guilds": [
+			"<guild ID>",
+			"<guild ID>"
+		],
+		"categories": [
+			"<category ID>",
+			"<category ID>"
+		],
+		"channels": [
+			"<channel ID>",
+			"<channel ID>"
+		],
+		"fetish": [
+			"<channel ID>",
+			"<channel ID>"
+		],
+		"chan_names": [
+			"bot",
+			"<channel name>",
+			"<channel name>"
+		]
+	},
+
+	"blacklist": {
+		"users": [
+			"<user id>",
+			"<user id>"
+		]
+	}
+}

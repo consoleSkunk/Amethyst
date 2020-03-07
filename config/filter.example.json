@@ -1,0 +1,18 @@
+{
+	"nsfw": [
+		"tag1", "tag2", "tagN"
+	],
+	"sfw_only": [
+		"tag1", "tag2", "tagN"
+	],
+	"fetish": [
+		"tag1", "tag2", "tagN"
+	],
+	"blacklist": [
+		"tag1", "tag2", "tagN"
+	],
+	"guilds": {
+		"<guild ID>": ["tag1", "tag2", "tagN"],
+		"<guild ID>": ["tag1", "tag2", "tagN"]
+	}
+}
