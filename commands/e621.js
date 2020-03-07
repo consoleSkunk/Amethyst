@@ -323,7 +323,7 @@ exports.module = {
 										true
 									);
 								}
-								if(post.relationships.has_active_children) {
+								if(post.relationships.children.length > 0) {
 									var children = post.relationships.children;
 									for ( var i = 0; i < children.length; i++ ) {
 										children[i] = (isFiltered(post) ? `#${children[i]}` : `[#${children[i]}](https://${domain}.net/posts/${children[i]})`);
@@ -358,7 +358,7 @@ exports.module = {
 							}
 						}
 						} catch (e) {
-						console.error("[e621 Error]", e);
+							console.error("[e621 Error]", e);
 						if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
 							msg.reply(`An error has occured. Please try again later.\n\n\`\`\`js\n${e}\`\`\`\nURL: ${response.request.uri.href}`);
 						} else {
