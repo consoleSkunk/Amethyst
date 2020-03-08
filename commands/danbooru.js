@@ -167,10 +167,10 @@ exports.module = {
 								if(post.hasOwnProperty('file_url')) {
 									postEmbed.setImage(
 									post.file_ext == "swf" ? "https://static1.e926.net/images/download-preview.png" : 
-									post.file_ext == "webm" || post.file_size > "52428800" ? 
+									post.file_ext == "webm" || post.file_ext == "mp4" || post.file_ext == "zip" || post.file_size > "52428800" ? 
 									(
-										urlRegex.test(post.large_file_url) ? post.large_file_url :
-										post.large_file_url) :
+										urlRegex.test(post.preview_file_url) ? post.preview_file_url :
+										post.preview_file_url) :
 									urlRegex.test(post.file_url) ? post.file_url :
 									post.file_url
 									);
@@ -197,15 +197,15 @@ exports.module = {
 								}
 	
 								// Deleted or SWF/WebM
-								if(post.status == "deleted" || post.file_ext == "swf" || post.file_ext == "webm") {
+								if(post.status == "deleted" || post.file_ext == "swf" || post.file_ext == "webm" || post.file_ext == "mp4" || post.file_ext == "zip") {
 									postEmbed.setThumbnail(
 										post.status == "deleted" ? "https://static1.e926.net/images/deleted-preview.png" :
 										post.file_ext == "swf" ? "https://static1.e926.net/images/download-preview.png" :
-										post.file_ext == "webm" ? "https://static1.e926.net/images/webm-preview.png" :
+										post.file_ext == "webm" || post.file_ext == "mp4" || post.file_ext == "zip" ? "https://static1.e926.net/images/webm-preview.png" :
 										postEmbed.thumbnail
 									);
 	
-									if(postEmbed.image && post.file_ext !== "webm") {
+									if(postEmbed.image && post.file_ext !== "webm" && post.file_ext !== "mp4" && post.file_ext !== "zip") {
 										delete postEmbed.image;
 									}
 								}
