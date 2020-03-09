@@ -434,7 +434,7 @@ var DTextMap = new Map([
 	[/\[s\]([\s\S]+?)\[\/s\]/gi,'~~$1~~'],
 	[/\[code\]([\s\S]+?)\[\/code\]/gi,'```$1```'],
 	[/\[spoiler\]([\s\S]+?)\[\/spoiler\]/gi,'||$1||'],
-	[/\[section(?:,expanded)?\]([\s\S]+?)(?:\[\/section\])/gi,'**Section:**\n$1'],
+	[/\[section(?:,expanded)?\]([\s\S]+?)(?:\[\/section\])?/gi,'**Section:**\n$1'],
 	[/\[section(?:,expanded)?\="?([^\]]+?)"?\]([\s\S]+?)(?:\[\/section\])?/gi,'**$1:**\n$2'],
 
 	//disabled since there's no Discord equivalent
