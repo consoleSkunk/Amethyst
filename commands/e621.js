@@ -103,17 +103,26 @@ exports.module = {
 				} else if ((!error && response.statusCode == 200) || response.statusCode == 404) {
 					try {
 						var api = JSON.parse(body);
+
+						var concatTags = function(tags) {
+							// concatenate all tag groups into one array
+							var array = [], keys = Object.keys(tags);
+							for(var i in keys) {
+								array = array.concat(tags[keys[i]])
+							}
+							return array;
+						};
+
 						var isFiltered = function(post){
-							var all_tags = Array.prototype.concat(
-								post.tags.general, post.tags.species, post.tags.character, post.tags.copyright,
-								post.tags.artist, post.tags.invalid, post.tags.lore, post.tags.meta
-							);
+							var all_tags = concatTags(post.tags);
+
 							return (sfwMode && filter.nsfw.some(r=> all_tags.includes(r))) ||
 							(post.rating !== "s" && filter.sfw_only.some(r=> all_tags.includes(r))) ||
 							(whitelist.fetish.indexOf(msg.channel.id) == -1 && filter.fetish.some(r=> all_tags.includes(r))) ||
 							(filter.blacklist.some(r=> all_tags.includes(r))) ||
 							(filter.guilds[msg.guild.id] && filter.guilds[msg.guild.id].some(r=> all_tags.includes(r)))
-						}
+						};
+
 						var singleImage = api.post ? true : false;
 						var posts = api.post ? [api.post] : api.posts;
 						if(typeof (posts) !== "undefined") {
@@ -128,10 +137,7 @@ exports.module = {
 								}
 							});
 
-							var all_tags = Array.prototype.concat(
-								post.tags.general, post.tags.species, post.tags.character, post.tags.copyright,
-								post.tags.artist, post.tags.invalid, post.tags.lore, post.tags.meta
-							);
+							var all_tags = concatTags(post.tags);
 
 							// Blacklisted image
 							let blacklistedTags = [];
@@ -269,9 +275,9 @@ exports.module = {
 								
 								// Pools
 								if(post.pools.length > 0) {
-									var pools =	post.pools;
-									for ( var i = 0; i < pools.length; i++ ) {
-										pools[i] = (isFiltered(post) ? `#${pools[i]}` : `[#${pools[i]}](https://${domain}.net/pools/${pools[i]})`);
+									var pools =	[];
+									for ( var i in post.pools ) {
+										pools.push(isFiltered(post) ? `#${post.pools[i]}` : `[#${post.pools[i]}](https://${domain}.net/pools/${post.pools[i]})`);
 									}
 									postEmbed.addField(
 										`Pool${pools.length > 1 ? 's' : ''}`,
@@ -325,7 +331,7 @@ exports.module = {
 								}
 								if(post.relationships.children.length > 0) {
 									var children = post.relationships.children;
-									for ( var i = 0; i < children.length; i++ ) {
+									for ( var i in children ) {
 										children[i] = (isFiltered(post) ? `#${children[i]}` : `[#${children[i]}](https://${domain}.net/posts/${children[i]})`);
 									}
 									postEmbed.addField(

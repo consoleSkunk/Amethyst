@@ -242,7 +242,7 @@ exports.module = {
 								// post children have been hidden from the Danbooru API by default
 								/* if(post.has_visible_children) {
 									var children = post.children_ids.split(",");
-									for ( var i = 0; i < children.length; i++ ) {
+									for ( var i in children.length ) {
 										children[i] = (isFiltered(post) ? `#${children[i]}` : `[#${children[i]}](https://${domain}/posts/${children[i]})`);
 									}
 									postEmbed.addField(
