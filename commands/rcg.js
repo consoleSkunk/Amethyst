@@ -1,6 +1,4 @@
-var qs = require("querystring"),
-    Discord = require("discord.js"),
-    request = require("request"),
+var request = require("request"),
     name = require('../package.json').name,
     version = require('../package.json').version;
 
