@@ -20,15 +20,16 @@ exports.module = {
 				.join(" ");
 		}
 		var paramsLC = params.toLowerCase();
+		var paramArray = paramsLC.replace(/\~/g,"").split(" ");
 		var sfwMode = !msg.channel.nsfw;
 		var domain = `${sfwMode ? "safe" : "dan"}booru.donmai.us`;
 		var urlRegex = /^https?:\/\/(?:[-0-9A-Za-z]+\.)+[-0-9A-Za-z]+\/.*/;
 		if(
-			(sfwMode && filter.nsfw.some(r=> paramsLC.replace(/\~/g,"").split(" ").includes(r))) ||
-			(!sfwMode && filter.sfw_only.some(r=> paramsLC.replace(/\~/g,"").split(" ").includes(r))) ||
-			(whitelist.fetish.indexOf(msg.channel.id) == -1 && filter.fetish.some(r=> paramsLC.replace(/\~/g,"").split(" ").includes(r))) ||
-			(filter.blacklist.some(r=> paramsLC.replace(/\~/g,"").split(" ").includes(r))) ||
-			(filter.guilds[msg.guild.id] && filter.guilds[msg.guild.id].some(r=> paramsLC.replace(/\~/g,"").split(" ").includes(r)))
+			((sfwMode || paramArray.includes("rating:safe") || paramArray.includes("rating:s")) && filter.nsfw.some(r=> paramArray.includes(r))) ||
+			((!sfwMode && !paramArray.includes("rating:safe") && !paramArray.includes("rating:s")) && filter.sfw_only.some(r=> paramArray.includes(r))) ||
+			(whitelist.fetish.indexOf(msg.channel.id) == -1 && filter.fetish.some(r=> paramArray.includes(r))) ||
+			(filter.blacklist.some(r=> paramArray.includes(r))) ||
+			(filter.guilds[msg.guild.id] && filter.guilds[msg.guild.id].some(r=> paramArray.includes(r)))
 		){
 			msg.reply("Your search contains tags that are blacklisted in this channel.");
 			return;
