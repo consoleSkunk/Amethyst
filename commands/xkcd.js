@@ -1,6 +1,7 @@
 var qs = require("querystring"),
     Discord = require("discord.js"),
     request = require("request"),
+    moment = require('moment'),
     name = require('../package.json').name,
     version = require('../package.json').version;
 
@@ -110,20 +111,9 @@ exports.module = {
 						
 						// special fixes
 						if(comic.num == "1335") {
-							/*var arr = [];
-							for (var i = 0; i < 365; i++) {
-								var d = new Date();
-								d.setDate(i);
-								newoffset = d.getTimezoneOffset();
-								arr.push(newoffset);
-							}
-							DST = Math.min.apply(null, arr);
-							nonDST = Math.max.apply(null, arr); */
 
 							var date = new Date()
-								 /*dst = false; //date.getTimezoneOffset() == DST;
-								 hrs = date.getUTCHours() + (dst ? 13 : 12) // match UTC+12, or UTC+13 if DST*/
-								 hrs = date.getUTCHours() + 12 // match UTC+12
+								 hrs = date.getUTCHours() + (moment().isDST() ? 12 : 11) // match UTC+12, or UTC+11 if DST
 								 hrs = (hrs >= 24 ? hrs - 24 : hrs), // make sure that it's within 00-23
 								 hrs = hrs.toString().padStart(2, "0"); // add leading zero
 								mins = ((Math.round(date.getUTCMinutes()/15) * 15) % 60), // get minutes
