@@ -113,7 +113,7 @@ exports.module = {
 						if(comic.num == "1335") {
 
 							var date = new Date()
-								 hrs = date.getUTCHours() + (moment().isDST() ? 12 : 11) // match UTC+12, or UTC+11 if DST
+								 hrs = date.getUTCHours() + (moment().isDST() ? 12 : 11) // match UTC+12 if DST, or UTC+11 otherwise
 								 hrs = (hrs >= 24 ? hrs - 24 : hrs), // make sure that it's within 00-23
 								 hrs = hrs.toString().padStart(2, "0"); // add leading zero
 								mins = ((Math.round(date.getUTCMinutes()/15) * 15) % 60), // get minutes
