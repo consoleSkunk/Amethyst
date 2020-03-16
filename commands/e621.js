@@ -191,9 +191,6 @@ exports.module = {
 							} else {
 								var description = DText(post.description).replace(/\]\(https\:\/\/e926.net\//g,`](https://${domain}.net/`);
 								artists = post.tags.artist.join(", ").replace(/_\(artist\)/g,"").replace(/_/g, " ");
-								if(post.file.url == undefined && !post.flags.deleted) {
-									description = "**You must be logged in to view this image.**\n\n" + description; 
-								}
 								var postEmbed = new Discord.MessageEmbed({
 									author: {
 										name: (post.tags.artist.length ? (artists.length > 64 ? artists.substr(0,63) + "…" : artists) : (srcUrls ? srcUrls[0] : null)),
@@ -304,6 +301,16 @@ exports.module = {
 										blacklistedTags.join(", ").replace(/_/g, " "),
 										false
 									);
+								}
+
+								if(post.file.url == undefined && !post.flags.deleted && !isFiltered(post)) {
+									postEmbed.addField("\u200B","**You must be logged in to view this image.**",false); 
+								}
+								else if(post.file.ext == "swf" || post.file.ext == "webm") {
+									postEmbed.addField(
+										"\u200B",
+										`[**\u25B6\uFE0F Play/Download this ${post.file.ext == "swf" ? "Flash" : post.file.ext == "webm" ? "WebM" : "file"}**](${post.file.url})`,
+										false); 
 								}
 
 								// Deleted or SWF/WebM

@@ -196,6 +196,13 @@ exports.module = {
 										false
 									);
 								}
+
+								if(post.file_ext == "swf" || post.file_ext == "webm" || post.file_ext == "mp4" || post.file_ext == "zip") {
+									postEmbed.addField(
+										"\u200B",
+										`[**\u25B6\uFE0F Play/Download this ${post.file_ext == "swf" ? "Flash" : post.file_ext == "zip" ? "ugoira" : "video"}**](${post.file_ext == "zip" ? post.large_file_url : post.file_url})`,
+										false); 
+								}
 	
 								// Deleted or SWF/WebM
 								if(post.status == "deleted" || post.file_ext == "swf" || post.file_ext == "webm" || post.file_ext == "mp4" || post.file_ext == "zip") {
