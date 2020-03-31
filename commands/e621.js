@@ -309,7 +309,7 @@ exports.module = {
 								else if(post.file.ext == "swf" || post.file.ext == "webm") {
 									postEmbed.addField(
 										"\u200B",
-										`[**\u25B6\uFE0F Play/Download this ${post.file.ext == "swf" ? "Flash" : post.file.ext == "webm" ? "WebM" : "file"}**](${post.file.url})`,
+										`**[\u25B6\uFE0F Play/Download this ${post.file.ext == "swf" ? "Flash" : post.file.ext == "webm" ? "WebM" : "file"}](${post.file.url})**`,
 										false); 
 								}
 
