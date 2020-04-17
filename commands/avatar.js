@@ -3,7 +3,7 @@ exports.module = {
 	description: "Retrieves the mentioned user's avatar, or yours if not specified.",
 	syntax: "[@mention or user ID]",
 	tags: [],
-	process: function(client, msg, params){
+	process: function(client, msg, params) {
 		function displayAvatar(user) {
 			if(user.avatar != null) {
 				if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
@@ -17,7 +17,7 @@ exports.module = {
 							url: user.displayAvatarURL({size:2048}).replace(".webp",".png")
 						},
 						url: user.displayAvatarURL({size:2048}).replace(".webp",".png"),
-						color: 16426522
+						color: [7506394,7634829,4437377,16426522,15746887][user.discriminator % 5]
 					}});
 				}
 			} else {
@@ -38,20 +38,7 @@ exports.module = {
 			}
 		}
 		else {
-			if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
-				msg.reply(msg.author.displayAvatarURL({size:2048}).replace(".webp",".png"));
-			} else {
-				msg.reply(undefined, {embed: {
-					author: {
-						name: `${msg.author.tag}'s avatar`
-					},
-					image: {
-						url: msg.author.displayAvatarURL({size:2048}).replace(".webp",".png")
-					},
-					url: msg.author.displayAvatarURL({size:2048}).replace(".webp",".png"),
-					color: 16426522
-				}});
-			}
+			displayAvatar(msg.author);
 		}
 	}
 };
