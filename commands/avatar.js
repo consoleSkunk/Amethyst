@@ -11,7 +11,8 @@ exports.module = {
 				} else {
 					msg.reply(undefined, {embed: {
 						author: {
-							name: `${user.tag}'s avatar`
+							name: `${user.tag}'s avatar`,
+							iconURL: user.defaultAvatarURL
 						},
 						image: {
 							url: user.displayAvatarURL({size:4096,format:"png",dynamic:true})
