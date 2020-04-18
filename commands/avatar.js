@@ -7,16 +7,16 @@ exports.module = {
 		function displayAvatar(user) {
 			if(user.avatar != null) {
 				if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
-					msg.reply(user.displayAvatarURL({size:2048}).replace(".webp",".png"));
+					msg.reply(user.displayAvatarURL({size:4096,format:"png",dynamic:true}));
 				} else {
 					msg.reply(undefined, {embed: {
 						author: {
 							name: `${user.tag}'s avatar`
 						},
 						image: {
-							url: user.displayAvatarURL({size:2048}).replace(".webp",".png")
+							url: user.displayAvatarURL({size:4096,format:"png",dynamic:true})
 						},
-						url: user.displayAvatarURL({size:2048}).replace(".webp",".png"),
+						url: user.displayAvatarURL({size:4096,format:"png",dynamic:true}),
 						color: [7506394,7634829,4437377,16426522,15746887][user.discriminator % 5]
 					}});
 				}
