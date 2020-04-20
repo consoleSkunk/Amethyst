@@ -12,7 +12,7 @@ exports.module = {
 				var response = eval(params);
 				var respString = util.inspect(response,{depth:0}).replace(/([a-zA-Z0-9]{24}\.[a-zA-Z0-9_\-]{6}\.[a-zA-Z0-9_\-]{27}|mfa\.[a-zA-Z0-9_\-]{84})/g,"{TOKEN REMOVED}");
 
-				if(respString !== ("Promise { <pending> }")) { // hide unresolved Promise responses
+				if(typeof response !== "undefined" && respString !== ("Promise { <pending> }")) { // hide Promise responses
 					if(respString.length <= 1991) { // taking into account the markdown required for the code block
 						msg.reply(respString,{code:"js"});
 					} else {
