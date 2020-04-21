@@ -45,7 +45,7 @@ exports.module = {
 				redirect: 'manual'
 			})
 				.then(res => {
-					if (res.status < 300 || res.status > 399) {
+					if (res.status >= 300 && res.status <= 399) {
 						var id = /^https?:\/\/xkcd.com\/(\d+)\/$/.exec(res.headers.get("Location"))[1];
 						// call ourself with the ID
 						exports.module.process(client, msg, id, true);
