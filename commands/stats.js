@@ -17,7 +17,6 @@ exports.module = {
 	description: "See some info about the bot, like uptime and some system information.",
 	syntax: "[basic]",
 	tags: [],
-	permissions: [],
 	process: function(client, msg, params){
 		var uptime = moment.preciseDiff(moment(moment.unix(client.readyTimestamp/1000)),moment());
 		if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS") || params.toLowerCase() == "basic") {

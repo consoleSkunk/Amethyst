@@ -7,7 +7,6 @@ exports.module = {
 	description: "Returns a random comic from Explosm.net's [Random Comic Generator](http://explosm.net/rcg).\nPanel locking is currently unsupported.",
 	syntax: null,
 	tags: [],
-	permissions: [],
 	process: function(client, msg, params) {
 		msg.channel.startTyping();
 		var options = {
