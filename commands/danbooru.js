@@ -1,9 +1,9 @@
 var qs = require("querystring"),
     Discord = require("discord.js"),
-    request = require("request"),
+    fetch = require("node-fetch"),
     prettysize = require('prettysize'),
-    whitelist = require("../config/config.json").whitelist,
-    userAgent = require("../config/config.json").user_agents.danbooru,
+	{ name, version } = require('../package.json'),
+    { user_agents, whitelist } = require("../config/config.json"),
     filter = require("../config/filter.json");
 
 exports.module = {
@@ -54,253 +54,238 @@ exports.module = {
 			};
 			//console.log(searchURL);
 			msg.channel.startTyping();
-			request({
+			fetch(searchURL, {
 				url: searchURL,
 				headers: {
-					'User-Agent': userAgent
+					'User-Agent': `${name}/${version} ${user_agents.danbooru}`
 				}
-			},
-			function (error, response, body) {
-				if ((!error && response.statusCode == 200)) {
-					try {
-						var json = JSON.parse(body);
-						var isFiltered = function(post){
-							return (sfwMode && filter.nsfw.some(r=> post.tag_string.split(" ").includes(r))) ||
-							(post.rating !== "s" && filter.sfw_only.some(r=> post.tag_string.split(" ").includes(r))) ||
-							(whitelist.fetish.indexOf(msg.channel.id) == -1 && filter.fetish.some(r=> post.tag_string.split(" ").includes(r))) ||
-							(filter.blacklist.some(r=> post.tag_string.split(" ").includes(r))) ||
-							(filter.guilds[msg.guild.id] && filter.guilds[msg.guild.id].some(r=> post.tag_string.split(" ").includes(r)))
+			})
+			.then(res => res.json())
+			.then(json => {
+				if(json.success !== undefined && json.success == false) {
+					if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
+						msg.reply(json.message || json.reason);
+					} else {
+						msg.reply(undefined,{embed: {
+							title: `Error`,
+							description: json.message || json.reason,
+							color: 15597568,
+							footer: {
+								icon_url: "https://i.imgur.com/SSQuBPx.png",
+								text: sfwMode ? "Safebooru" : "Danbooru"
+							}
+						}});
+					}
+				}
+				else {
+					var isFiltered = function(post) {
+						return (sfwMode && filter.nsfw.some(r=> post.tag_string.split(" ").includes(r))) ||
+						(post.rating !== "s" && filter.sfw_only.some(r=> post.tag_string.split(" ").includes(r))) ||
+						(whitelist.fetish.indexOf(msg.channel.id) == -1 && filter.fetish.some(r=> post.tag_string.split(" ").includes(r))) ||
+						(filter.blacklist.some(r=> post.tag_string.split(" ").includes(r))) ||
+						(filter.guilds[msg.guild.id] && filter.guilds[msg.guild.id].some(r=> post.tag_string.split(" ").includes(r)))
+					}
+					if (typeof (json) !== "undefined" && Object.keys(json).length > 0) {
+					var post = 
+						singleImage ? json :
+						params.indexOf("order:") != -1 ? json[Math.floor(Math.random() * json.length)] :
+						json[0]
+
+						// Blacklisted image
+						let blacklistedTags = [];
+						if(isFiltered(post)) {
+							let tags = post.tag_string.split(" ");
+							if(sfwMode && filter.nsfw.some(r=> tags.includes(r))) {
+								filter.nsfw.map((first) => {
+									blacklistedTags[tags.findIndex(def => def === first)] = first;
+								});
+							}
+
+							if(post.rating !== "s" && filter.sfw_only.some(r=> tags.includes(r))) {
+								filter.sfw_only.map((first) => {
+									blacklistedTags[tags.findIndex(def => def === first)] = first;
+								});
+							}
+
+							if(whitelist.fetish.indexOf(msg.channel.id) == -1 && filter.fetish.some(r=> tags.includes(r))) {
+								filter.fetish.map((first) => {
+									blacklistedTags[tags.findIndex(def => def === first)] = first;
+								});
+							}
+
+							if(filter.blacklist.some(r=> tags.includes(r))) {
+								filter.blacklist.map((first) => {
+									blacklistedTags[tags.findIndex(def => def === first)] = first;
+								});
+							}
+
+							if(filter.guilds[msg.guild.id] && filter.guilds[msg.guild.id].some(r=> tags.includes(r))) {
+								filter.guilds[msg.guild.id].map((first) => {
+									blacklistedTags[tags.findIndex(def => def === first)] = first;
+								});
+							}
+							blacklistedTags = blacklistedTags.filter(v => v);
 						}
-						if (typeof (json) !== "undefined" && Object.keys(json).length > 0) {
-						var post = 
-							singleImage ? json :
-							params.indexOf("order:") != -1 ? json[Math.floor(Math.random() * json.length)] :
-							json[0]
+
+						var rating = (
+							post.rating == "s" ? "Safe" : 
+							post.rating == "e" ? "Explicit" : 
+							post.rating == "q" ? "Questionable" :
+							"Unknown");
+						if(sfwMode && post.rating !== "s") {
+							msg.reply(`Sorry, the post you requested is not appropriate for this channel. (${rating})`);
+						}
+						else if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
+							if(isFiltered(post)) {
+								msg.reply(
+									`Image #${post.id} (${rating	}${post.is_deleted ? ", Deleted" : ""}) has th${blacklistedTags.length > 1 ? 'ese' : 'is'} blacklisted tag${blacklistedTags.length > 1 ? 's' : ''}:` +
+									`${blacklistedTags.length > 3 ? '\n' : ' '}${blacklistedTags.join(", ").replace(/_/g, " ")}`
+								);
+							} else {
+								msg.reply(`https://${domain}/posts/${post.id} (${rating}${post.is_deleted ? ", Deleted" : ""})`);
+							}
+						} else {
+							//var description = DText.parse(post.description).replace(/\]\(https\:\/\/DTextDomain\//g,`](https://${domain}/`);
+							var artist = (post.tag_string_artist.length ? post.tag_string_artist.replace(/_\(artist\)/g,"").split(" ").join(", ").replace(/_/g, " ") : "");
+							var postEmbed = new Discord.MessageEmbed({
+								author: {
+									name: (
+										post.tag_string_artist.length ? (
+											artist.length > 64 ?
+											artist.substr(0,63) + "…" :
+											artist
+										) : (
+											post.pixiv_id !== null ? "Pixiv #" + post.pixiv_id
+											: urlRegex.test(post.source) ? (
+												post.source.length > 64 ? 
+												post.source.substr(0,63) + "…" :
+												post.source
+											)
+											: null
+										)
+									),
+									// Override post source if Pixiv ID is available
+									url: post.pixiv_id !== null ? "https://www.pixiv.net/en/artworks/" + post.pixiv_id :
+									(urlRegex.test(post.source) ? post.source : null),
+								},
+								title:
+								`${sfwMode ? "Safebooru" : "Danbooru"} - #${post.id} (${rating}${post.is_deleted ? ", Deleted" : ""})`,
+								url: `https://${domain}/posts/${post.id}?q=${qs.escape(params)}`,
+								color: 29695,
+								footer: {
+									text: `${prettysize(post.file_size)} | ${(post.score > 0 ? "\u2b06" : (post.score < 0 ? "\u2b07" : "\u2195")) + "\ufe0f " + Math.abs(post.score)} \u2665\ufe0f ${post.fav_count}`,
+									icon_url: 'https://i.imgur.com/SSQuBPx.png'
+								},
+								timestamp: post.created_at
+							});
+							// add image after the fact because some posts don't have one
+							if(post.hasOwnProperty('file_url')) {
+								postEmbed.setImage(
+								post.file_ext == "swf" ? "https://static1.e926.net/images/download-preview.png" : 
+								post.file_ext == "webm" || post.file_ext == "mp4" || post.file_ext == "zip" || post.file_size > "52428800" ? 
+								(
+									urlRegex.test(post.preview_file_url) ? post.preview_file_url :
+									post.preview_file_url) :
+								urlRegex.test(post.file_url) ? post.file_url :
+								post.file_url
+								);
+							}
 
 							// Blacklisted image
-							let blacklistedTags = [];
-							if(isFiltered(post)) {
-								let tags = post.tag_string.split(" ");
-								if(sfwMode && filter.nsfw.some(r=> tags.includes(r))) {
-									filter.nsfw.map((first) => {
-										blacklistedTags[tags.findIndex(def => def === first)] = first;
-									});
+							if(isFiltered(post)){
+								postEmbed.setThumbnail("https://static1.e926.net/images/blacklisted-preview.png");
+								if(postEmbed.image) {
+									delete postEmbed.image;
+								}
+								if(postEmbed.url) {
+									delete postEmbed.url;
+								}
+								if(postEmbed.author.url) {
+									delete postEmbed.author.url;
 								}
 
-								if(post.rating !== "s" && filter.sfw_only.some(r=> tags.includes(r))) {
-									filter.sfw_only.map((first) => {
-										blacklistedTags[tags.findIndex(def => def === first)] = first;
-									});
-								}
-
-								if(whitelist.fetish.indexOf(msg.channel.id) == -1 && filter.fetish.some(r=> tags.includes(r))) {
-									filter.fetish.map((first) => {
-										blacklistedTags[tags.findIndex(def => def === first)] = first;
-									});
-								}
-
-								if(filter.blacklist.some(r=> tags.includes(r))) {
-									filter.blacklist.map((first) => {
-										blacklistedTags[tags.findIndex(def => def === first)] = first;
-									});
-								}
-
-								if(filter.guilds[msg.guild.id] && filter.guilds[msg.guild.id].some(r=> tags.includes(r))) {
-									filter.guilds[msg.guild.id].map((first) => {
-										blacklistedTags[tags.findIndex(def => def === first)] = first;
-									});
-								}
-								blacklistedTags = blacklistedTags.filter(v => v);
+								postEmbed.addField(
+									`Blacklisted tag${blacklistedTags.length > 1 ? 's' : ''}`,
+									blacklistedTags.join(", ").replace(/_/g, " "),
+									false
+								);
 							}
 
-							var rating = (
-								post.rating == "s" ? "Safe" : 
-								post.rating == "e" ? "Explicit" : 
-								post.rating == "q" ? "Questionable" :
-								"Unknown");
-							if(sfwMode && post.rating !== "s") {
-								msg.reply(`Sorry, the post you requested is not appropriate for this channel. (${rating})`);
+							if(post.file_ext == "swf" || post.file_ext == "webm" || post.file_ext == "mp4" || post.file_ext == "zip") {
+								postEmbed.addField(
+									"\u200B",
+									`**[\u25B6\uFE0F Play/Download this ${post.file_ext == "swf" ? "Flash" : post.file_ext == "zip" ? "ugoira" : "video"}](${post.file_ext == "zip" ? post.large_file_url : post.file_url})**`,
+									false); 
 							}
-							else if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
-								if(isFiltered(post)) {
-									msg.reply(
-										`Image #${post.id} (${rating	}${post.is_deleted ? ", Deleted" : ""}) has th${blacklistedTags.length > 1 ? 'ese' : 'is'} blacklisted tag${blacklistedTags.length > 1 ? 's' : ''}:` +
-										`${blacklistedTags.length > 3 ? '\n' : ' '}${blacklistedTags.join(", ").replace(/_/g, " ")}`
-									);
-								} else {
-									msg.reply(`https://${domain}/posts/${post.id} (${rating}${post.is_deleted ? ", Deleted" : ""})`);
-								}
-							} else {
-								//var description = DText.parse(post.description).replace(/\]\(https\:\/\/DTextDomain\//g,`](https://${domain}/`);
-								var artist = (post.tag_string_artist.length ? post.tag_string_artist.replace(/_\(artist\)/g,"").split(" ").join(", ").replace(/_/g, " ") : "");
-								var postEmbed = new Discord.MessageEmbed({
-									author: {
-										name: (
-											post.tag_string_artist.length ? (
-												artist.length > 64 ?
-												artist.substr(0,63) + "…" :
-												artist
-											) : (
-												post.pixiv_id !== null ? "Pixiv #" + post.pixiv_id
-												: urlRegex.test(post.source) ? (
-													post.source.length > 64 ? 
-													post.source.substr(0,63) + "…" :
-													post.source
-												)
-												: null
-											)
-										),
-										// Override post source if Pixiv ID is available
-										url: post.pixiv_id !== null ? "https://www.pixiv.net/en/artworks/" + post.pixiv_id :
-										(urlRegex.test(post.source) ? post.source : null),
-									},
-									title:
-									`${sfwMode ? "Safebooru" : "Danbooru"} - #${post.id} (${rating}${post.is_deleted ? ", Deleted" : ""})`,
-									url: `https://${domain}/posts/${post.id}?q=${qs.escape(params)}`,
-									color: 29695,
-									footer: {
-										text: `${prettysize(post.file_size)} | ${(post.score > 0 ? "\u2b06" : (post.score < 0 ? "\u2b07" : "\u2195")) + "\ufe0f " + Math.abs(post.score)} \u2665\ufe0f ${post.fav_count}`,
-										icon_url: 'https://i.imgur.com/SSQuBPx.png'
-									},
-									timestamp: post.created_at
-								});
-								// add image after the fact because some posts don't have one
-								if(post.hasOwnProperty('file_url')) {
-									postEmbed.setImage(
-									post.file_ext == "swf" ? "https://static1.e926.net/images/download-preview.png" : 
-									post.file_ext == "webm" || post.file_ext == "mp4" || post.file_ext == "zip" || post.file_size > "52428800" ? 
-									(
-										urlRegex.test(post.preview_file_url) ? post.preview_file_url :
-										post.preview_file_url) :
-									urlRegex.test(post.file_url) ? post.file_url :
-									post.file_url
-									);
-								}
-	
-								// Blacklisted image
-								if(isFiltered(post)){
-									postEmbed.setThumbnail("https://static1.e926.net/images/blacklisted-preview.png");
-									if(postEmbed.image) {
-										delete postEmbed.image;
-									}
-									if(postEmbed.url) {
-										delete postEmbed.url;
-									}
-									if(postEmbed.author.url) {
-										delete postEmbed.author.url;
-									}
-	
-									postEmbed.addField(
-										`Blacklisted tag${blacklistedTags.length > 1 ? 's' : ''}`,
-										blacklistedTags.join(", ").replace(/_/g, " "),
-										false
-									);
-								}
 
-								if(post.file_ext == "swf" || post.file_ext == "webm" || post.file_ext == "mp4" || post.file_ext == "zip") {
-									postEmbed.addField(
-										"\u200B",
-										`**[\u25B6\uFE0F Play/Download this ${post.file_ext == "swf" ? "Flash" : post.file_ext == "zip" ? "ugoira" : "video"}](${post.file_ext == "zip" ? post.large_file_url : post.file_url})**`,
-										false); 
-								}
-	
-								// Deleted or SWF/WebM
-								if(post.status == "deleted" || post.file_ext == "swf" || post.file_ext == "webm" || post.file_ext == "mp4" || post.file_ext == "zip") {
-									postEmbed.setThumbnail(
-										post.status == "deleted" ? "https://static1.e926.net/images/deleted-preview.png" :
-										post.file_ext == "swf" ? "https://static1.e926.net/images/download-preview.png" :
-										post.file_ext == "webm" || post.file_ext == "mp4" || post.file_ext == "zip" ? "https://static1.e926.net/images/webm-preview.png" :
-										postEmbed.thumbnail
-									);
-	
-									if(postEmbed.image && post.file_ext !== "webm" && post.file_ext !== "mp4" && post.file_ext !== "zip") {
-										delete postEmbed.image;
-									}
-								}
+							// Deleted or SWF/WebM
+							if(post.status == "deleted" || post.file_ext == "swf" || post.file_ext == "webm" || post.file_ext == "mp4" || post.file_ext == "zip") {
+								postEmbed.setThumbnail(
+									post.status == "deleted" ? "https://static1.e926.net/images/deleted-preview.png" :
+									post.file_ext == "swf" ? "https://static1.e926.net/images/download-preview.png" :
+									post.file_ext == "webm" || post.file_ext == "mp4" || post.file_ext == "zip" ? "https://static1.e926.net/images/webm-preview.png" :
+									postEmbed.thumbnail
+								);
 
-								// Characters and copyright
-								if(post.tag_string_character.length !== 0) {
-									var chars = post.tag_string_character.split(" ").join(", ")
-										.replace(/_\([^),]+\)/g,"") // remove parentheses from character tags
-										.replace(/_/g, " "); // replace all underscores with spaces
-									postEmbed.addField(
-										`Character${post.tag_string_character.split(" ").length > 1 ? `s (${post.tag_string_character.split(" ").length})` : ''}`,
-										(chars.length > 280 ? chars.substr(0,279) + "…" : chars),
-										true
-									);
+								if(postEmbed.image && post.file_ext !== "webm" && post.file_ext !== "mp4" && post.file_ext !== "zip") {
+									delete postEmbed.image;
 								}
-								if(post.tag_string_copyright.length !== 0) {
-									var copy = post.tag_string_copyright.split(" ").join(", ")
-										.replace(/_\(series\)/g,"")
-										.replace(/_/g, " ");
-									postEmbed.addField(
-										`Copyright${post.tag_string_copyright.split(" ").length > 1 ? `s (${post.tag_string_copyright.split(" ").length})` : ''}`,
-										(copy.length > 280 ? copy.substr(0,279) + "…" : copy),
-										true
-									);
-								}
-								
-								if(post.parent_id != null) {
-									postEmbed.addField(
-										`Parent`,
-										(isFiltered(post) ? `#${post.parent_id}` : `[#${post.parent_id}](https://${domain}/posts/${post.parent_id})`),
-										true
-									);
-								}
-								// post children have been hidden from the Danbooru API by default
-								/* if(post.has_visible_children) {
-									var children = post.children_ids.split(",");
-									for ( var i in children.length ) {
-										children[i] = (isFiltered(post) ? `#${children[i]}` : `[#${children[i]}](https://${domain}/posts/${children[i]})`);
-									}
-									postEmbed.addField(
-										`Child${children.length > 1 ? 'ren' : ''}`,
-										children.join(", "),
-										true
-									);
-								} */
-								msg.reply(undefined, {embed: postEmbed});
 							}
-	
+
+							// Characters and copyright
+							if(post.tag_string_character.length !== 0) {
+								var chars = post.tag_string_character.split(" ").join(", ")
+									.replace(/_\([^),]+\)/g,"") // remove parentheses from character tags
+									.replace(/_/g, " "); // replace all underscores with spaces
+								postEmbed.addField(
+									`Character${post.tag_string_character.split(" ").length > 1 ? `s (${post.tag_string_character.split(" ").length})` : ''}`,
+									(chars.length > 280 ? chars.substr(0,279) + "…" : chars),
+									true
+								);
+							}
+							if(post.tag_string_copyright.length !== 0) {
+								var copy = post.tag_string_copyright.split(" ").join(", ")
+									.replace(/_\(series\)/g,"")
+									.replace(/_/g, " ");
+								postEmbed.addField(
+									`Copyright${post.tag_string_copyright.split(" ").length > 1 ? `s (${post.tag_string_copyright.split(" ").length})` : ''}`,
+									(copy.length > 280 ? copy.substr(0,279) + "…" : copy),
+									true
+								);
+							}
+							
+							if(post.parent_id != null) {
+								postEmbed.addField(
+									`Parent`,
+									(isFiltered(post) ? `#${post.parent_id}` : `[#${post.parent_id}](https://${domain}/posts/${post.parent_id})`),
+									true
+								);
+							}
+							// post children have been hidden from the Danbooru API by default
+							/* if(post.has_visible_children) {
+								var children = post.children_ids.split(",");
+								for ( var i in children.length ) {
+									children[i] = (isFiltered(post) ? `#${children[i]}` : `[#${children[i]}](https://${domain}/posts/${children[i]})`);
+								}
+								postEmbed.addField(
+									`Child${children.length > 1 ? 'ren' : ''}`,
+									children.join(", "),
+									true
+								);
+							} */
+							msg.reply(undefined, {embed: postEmbed});
 						}
-						else {
-							if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
-								msg.reply(singleImage ? "The post you requested does not exist." : "No posts matched your search.");
-							} else {
-								msg.reply(undefined,{embed: {
-									title: sfwMode ? "Safebooru" : "Danbooru",
-									url: searchURL.replace(/\.json|limit=1&|&random=true/gi,""),
-									description: singleImage ? "The post you requested does not exist." : "No posts matched your search.",
-									color: 8529960,
-									footer: {
-										icon_url: "https://i.imgur.com/SSQuBPx.png",
-										text: sfwMode ? "Safebooru" : "Danbooru"
-									}
-								}});
-							}
-						}
-					} catch (e) {
-						console.error("[Danbooru Error] " + e);
 
+					}
+					else {
 						if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
-							msg.reply(`An error has occured. Please try again later.\n\n\`\`\`js\n${e}\`\`\`\nURL: ${response.request.uri.href}`);
+							msg.reply(singleImage ? "The post you requested does not exist." : "No posts matched your search.");
 						} else {
 							msg.reply(undefined,{embed: {
 								title: sfwMode ? "Safebooru" : "Danbooru",
-								description: `Sorry, an error occured while getting your image. Please try again later.`,
+								url: searchURL.replace(/\.json|limit=1&|&random=true/gi,""),
+								description: singleImage ? "The post you requested does not exist." : "No posts matched your search.",
 								color: 8529960,
-								fields: [
-									{
-										name: "Error Message",
-										value: "```js\n" + e + "```",
-										inline: false
-									},
-									{
-										name: "URL",
-										value: response.request.uri.href,
-										inline: false
-									}
-								],
 								footer: {
 									icon_url: "https://i.imgur.com/SSQuBPx.png",
 									text: sfwMode ? "Safebooru" : "Danbooru"
@@ -309,29 +294,28 @@ exports.module = {
 						}
 					}
 				}
-				else {
-					try {
-						var error = JSON.parse(body);
-					} catch(e) {
-						var error = {
-							success: false,
-							message: "A server error occured. Please try again later.",
-							backtrace: []
-						}
-					}
-					if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
-						msg.reply(error.message || error.reason);
-					} else {
-						msg.reply(undefined,{embed: {
-							title: `${response.statusCode} ${response.statusMessage}`,
-							description: error.message || error.reason,
-							color: 15597568,
-							footer: {
-								icon_url: "https://i.imgur.com/SSQuBPx.png",
-								text: sfwMode ? "Safebooru" : "Danbooru"
+			}).catch(e => {
+				console.error("[Danbooru Error] " + e.stack);
+
+				if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
+					msg.reply("An error has occurred. Please try again later.\n\n```js\n" + e + "```");
+				} else {
+					msg.reply(undefined,{embed: {
+						title: sfwMode ? "Safebooru" : "Danbooru",
+						description: `Sorry, an error has occurred. Please try again later.`,
+						color: 8529960,
+						fields: [
+							{
+								name: "Error Message",
+								value: "```js\n" + e + "```",
+								inline: false
 							}
-						}});
-					}
+						],
+						footer: {
+							icon_url: "https://i.imgur.com/SSQuBPx.png",
+							text: sfwMode ? "Safebooru" : "Danbooru"
+						}
+					}});
 				}
 			});
 			msg.channel.stopTyping();

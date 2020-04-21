@@ -2,9 +2,9 @@
 	"prefix": "/",
 
 	"user_agents": {
-		"danbooru": "Amethyst/3.1.0 (by username on Danbooru)",
-		"derpibooru": "Amethyst/3.1.0 (by username on Derpibooru)",
-		"e621": "Amethyst/3.1.0 (by username on e621)"
+		"danbooru": "(by username on Danbooru)",
+		"derpibooru": "(by username on Derpibooru)",
+		"e621": "(by username on e621)"
 	},
 
 	"whitelist": {

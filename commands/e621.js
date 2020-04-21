@@ -3,10 +3,10 @@ clearModule("../config/filter.json"); // remove old filter from cache
 
 var qs = require("querystring"),
     Discord = require("discord.js"),
-    request = require("request"),
-	prettysize = require('prettysize'),
-    whitelist = require("../config/config.json").whitelist,
-    userAgent = require("../config/config.json").user_agents.e621,
+    fetch = require("node-fetch"),
+    prettysize = require('prettysize'),
+	{ name, version } = require('../package.json'),
+    { user_agents, whitelist } = require("../config/config.json"),
     filter = require("../config/filter.json");
 
 exports.module = {
@@ -50,369 +50,277 @@ exports.module = {
 				}&tags=${paramsLC.indexOf("order:") != -1 ? "" : "order:random+"}${qs.escape(params + (sfwMode ? " rating:safe" : ""))}`;
 			};
 			msg.channel.startTyping();
-			var search = request({
-				url: searchURL,
+			fetch(searchURL, {
 				headers: {
-					'User-Agent': userAgent
+					'User-Agent': `${name}/${version} ${user_agents.e621}`
 				}
-			},
-			function (error, response, body) {
-				if(error !== null) {
-					if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
-						msg.reply(`An error has occured. Please try again later..\n\n\`\`\`js\n${error}\`\`\`\nURL: ${searchURL}`);
-					} else {
-						msg.reply(undefined,{embed: {
-							title: domain,
-							description: `Sorry, an error has occured. Please try again later.`,
-							color: 8529960,
-							fields: [
-								{
-									name: "Error Message",
-									value: "```js\n" + error + "```",
-									inline: false
-								},
-								{
-									name: "URL",
-									value: searchURL,
-									inline: false
-								}
-							],
-							footer: {
-								icon_url: "https://e926.net/android-chrome-192x192.png",
-								text: domain
-							}
-						}});
+			})
+			.then(res => {
+				if (res.ok) {
+					return res.json()
+				} else {
+					throw new Error(`${res.status} ${res.statusText}`);
+				}
+			})
+			.then(api => {
+				var concatTags = function(tags) {
+					// concatenate all tag groups into one array
+					var array = [], keys = Object.keys(tags);
+					for(var i in keys) {
+						array = array.concat(tags[keys[i]])
 					}
-				} else if(body.indexOf("<title>e621 Maintenance</title>") != -1) { // a crude way to support the maintenance page
-					if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
-						msg.reply("e621 is currently performing server maintenance. Please try again later.\nYou may want to check https://twitter.com/e621dotnet for more information.");
-					} else {
-						msg.reply(undefined,{embed: {
-							title: `${domain} - Maintenance`,
-							description: "e621 is currently performing server maintenance. Please try again later.\nYou may want to check [@e621dotnet](https://twitter.com/e621dotnet) for more information.",
-							color: 8529960,
-							footer: {
-								icon_url: "https://e926.net/android-chrome-192x192.png",
-								text: domain
-							}
-						}});
-					}
-				} else if ((!error && response.statusCode == 200) || response.statusCode == 404) {
-					try {
-						var api = JSON.parse(body);
+					return array;
+				};
 
-						var concatTags = function(tags) {
-							// concatenate all tag groups into one array
-							var array = [], keys = Object.keys(tags);
-							for(var i in keys) {
-								array = array.concat(tags[keys[i]])
-							}
-							return array;
-						};
+				var isFiltered = function(post){
+					var all_tags = concatTags(post.tags);
 
-						var isFiltered = function(post){
-							var all_tags = concatTags(post.tags);
+					return (sfwMode && filter.nsfw.some(r=> all_tags.includes(r))) ||
+					(post.rating !== "s" && filter.sfw_only.some(r=> all_tags.includes(r))) ||
+					(whitelist.fetish.indexOf(msg.channel.id) == -1 && filter.fetish.some(r=> all_tags.includes(r))) ||
+					(filter.blacklist.some(r=> all_tags.includes(r))) ||
+					(filter.guilds[msg.guild.id] && filter.guilds[msg.guild.id].some(r=> all_tags.includes(r)))
+				};
 
-							return (sfwMode && filter.nsfw.some(r=> all_tags.includes(r))) ||
-							(post.rating !== "s" && filter.sfw_only.some(r=> all_tags.includes(r))) ||
-							(whitelist.fetish.indexOf(msg.channel.id) == -1 && filter.fetish.some(r=> all_tags.includes(r))) ||
-							(filter.blacklist.some(r=> all_tags.includes(r))) ||
-							(filter.guilds[msg.guild.id] && filter.guilds[msg.guild.id].some(r=> all_tags.includes(r)))
-						};
-
-						var singleImage = api.post ? true : false;
-						var posts = api.post ? [api.post] : api.posts;
-						if(typeof (posts) !== "undefined") {
-							var trueCount = Object.keys(posts).length;
-							posts = singleImage ? posts : posts.filter(function(element){ return !isFiltered(element) })
+				var singleImage = api.post ? true : false;
+				var posts = api.post ? [api.post] : api.posts;
+				if(typeof (posts) !== "undefined") {
+					var trueCount = Object.keys(posts).length;
+					posts = singleImage ? posts : posts.filter(function(element){ return !isFiltered(element) })
+				}
+				if (typeof (posts) !== "undefined" && Object.keys(posts).length > 0) {
+						var post = singleImage ? api.post : posts[Math.floor(Math.random() * posts.length)];
+					var srcUrls = (post.sources ? post.sources : []).filter(function(srcValue){
+						if(srcValue) {
+							return urlRegex = /^https?:\/\/(?:[-0-9A-Za-z]+\.)+[-0-9A-Za-z]+\/.*/.test(srcValue);
 						}
-						if (typeof (posts) !== "undefined" && Object.keys(posts).length > 0) {
-								var post = singleImage ? api.post : posts[Math.floor(Math.random() * posts.length)];
-							var srcUrls = (post.sources ? post.sources : []).filter(function(srcValue){
-								if(srcValue) {
-									return urlRegex = /^https?:\/\/(?:[-0-9A-Za-z]+\.)+[-0-9A-Za-z]+\/.*/.test(srcValue);
-								}
+					});
+
+					var all_tags = concatTags(post.tags);
+
+					// Blacklisted image
+					let blacklistedTags = [];
+					if(isFiltered(post)) {
+						if(sfwMode && filter.nsfw.some(r=> all_tags.includes(r))) {
+							filter.nsfw.map((first) => {
+								blacklistedTags[all_tags.findIndex(def => def === first)] = first;
 							});
-
-							var all_tags = concatTags(post.tags);
-
-							// Blacklisted image
-							let blacklistedTags = [];
-							if(isFiltered(post)) {
-								if(sfwMode && filter.nsfw.some(r=> all_tags.includes(r))) {
-									filter.nsfw.map((first) => {
-										blacklistedTags[all_tags.findIndex(def => def === first)] = first;
-									});
-								}
-
-								if(post.rating !== "s" && filter.sfw_only.some(r=> all_tags.includes(r))) {
-									filter.sfw_only.map((first) => {
-										blacklistedTags[all_tags.findIndex(def => def === first)] = first;
-									});
-								}
-
-								if(whitelist.fetish.indexOf(msg.channel.id) == -1 && filter.fetish.some(r=> all_tags.includes(r))) {
-									filter.fetish.map((first) => {
-										blacklistedTags[all_tags.findIndex(def => def === first)] = first;
-									});
-								}
-
-								if(filter.blacklist.some(r=> all_tags.includes(r))) {
-									filter.blacklist.map((first) => {
-										blacklistedTags[all_tags.findIndex(def => def === first)] = first;
-									});
-								}
-
-								if(filter.guilds[msg.guild.id] && filter.guilds[msg.guild.id].some(r=> all_tags.includes(r))) {
-									filter.guilds[msg.guild.id].map((first) => {
-										blacklistedTags[all_tags.findIndex(def => def === first)] = first;
-									});
-								}
-								blacklistedTags = blacklistedTags.filter(v => v);
-							}
-
-							var rating = (
-							post.rating == "s" ? "Safe" : 
-							post.rating == "e" ? "Explicit" : 
-							post.rating == "q" ? "Questionable" :
-							"Unknown");
-							if(sfwMode && post.rating !== "s" && post.status !== "deleted") {
-								msg.reply(`Sorry, the post you requested is not appropriate for this channel. (${rating})`);
-							}
-							else if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
-								if(isFiltered(post)) {
-									msg.reply(
-										`Image #${post.id} (${rating}) has th${blacklistedTags.length > 1 ? 'ese' : 'is'} blacklisted tag${blacklistedTags.length > 1 ? 's' : ''}:` +
-										`${blacklistedTags.length > 3 ? '\n' : ' '}${blacklistedTags.join(", ").replace(/_/g, " ")}`
-									);
-								} else {
-									msg.reply(`https://${domain}.net/posts/${post.id} (${rating})`);
-								}
-							} else {
-								var description = DText(post.description).replace(/\]\(https\:\/\/e926.net\//g,`](https://${domain}.net/`);
-								artists = post.tags.artist.join(", ").replace(/_\(artist\)/g,"").replace(/_/g, " ");
-								var postEmbed = new Discord.MessageEmbed({
-									author: {
-										name: (post.tags.artist.length ? (artists.length > 64 ? artists.substr(0,63) + "…" : artists) : (srcUrls ? srcUrls[0] : null)),
-										url: (srcUrls ? srcUrls[0] : null),
-									},
-									title:
-									`${domain} - #${post.id} (${rating})`,
-									url: `https://${domain}.net/posts/${post.id}?q=${qs.escape(params)}`,
-									description: (description.length > 280 ? description.substr(0,279) + "…" : description),
-									color: 77398,
-									image: {
-										url: (
-										post.flags.deleted ? "https://static1.e926.net/images/deleted-preview.png" :
-										post.file.ext == "swf" ? "https://static1.e926.net/images/download-preview.png" : 
-										post.file.ext == "webm" ? post.sample.url : 
-										post.file.size > "52428800" ? post.sample.url : 
-										post.file.url
-										)
-									},
-									footer: {
-										text: `${prettysize(post.file.size)} | ${(post.score.total > 0 ? "\u2b06" : (post.score.total < 0 ? "\u2b07" : "\u2195")) + "\ufe0f " + Math.abs(post.score.total)} \u2665\ufe0f ${post.fav_count} \u{1f5e8}\ufe0f ${post.comment_count}`,
-										icon_url: 'https://e926.net/android-chrome-192x192.png'
-									},
-									timestamp: post.created_at
-								});
-								// Deleted post
-								/*if(post.flags.deleted) {
-									postEmbed.addField(
-										`Reason for deletion`,
-										DText(post.delreason).replace(/\]\(https\:\/\/e926.net\//g,`](https://${domain}.net/`),
-										false
-									);
-								}*/
-
-								// Characters, copyright, and lore
-								if(post.tags.character.length > 0) {
-									var chars = post.tags.character.join(", ")
-										.replace(/_\([^),]+\)/g,"") // remove parentheses from character tags
-										.replace(/_/g, " "); // replace all underscores with spaces
-									postEmbed.addField(
-										`Character${post.tags.character.length > 1 ? `s (${post.tags.character.length})` : ''}`,
-										(chars.length > 200 ? chars.substr(0,199) + "…" : chars),
-										true
-									);
-								}
-								if(post.tags.copyright.length > 0) {
-									var copy = post.tags.copyright.join(", ")
-										.replace(/_\(series\)/g,"")
-										.replace(/_/g, " ");
-									postEmbed.addField(
-										`Copyright${post.tags.copyright.length > 1 ? `s (${post.tags.copyright.length})` : ''}`,
-										(copy.length > 200 ? copy.substr(0,199) + "…" : copy),
-										true
-									);
-								}
-								if(post.tags.lore.length > 0) {
-									var lore = post.tags.lore.join(", ")
-										.replace(/_\(lore\)/g,"")
-										.replace(/_/g, " ");
-									postEmbed.addField(
-										`Lore`,
-										(lore.length > 200 ? lore.substr(0,199) + "…" : lore),
-										true
-									);
-								}
-								if(post.tags.species.length > 0) {
-									var species = post.tags.species.join(", ")
-										.replace(/_\(species\)/g,"")
-										.replace(/_/g, " ");
-									postEmbed.addField(
-										`Species${post.tags.species.length > 4 ? ` (${post.tags.species.length})` : ''}`,
-										(species.length > 200 ? species.substr(0,199) + "…" : species),
-										false
-									);
-								}
-								
-								// Pools
-								if(post.pools.length > 0) {
-									var pools =	[];
-									for ( var i in post.pools ) {
-										pools.push(isFiltered(post) ? `#${post.pools[i]}` : `[#${post.pools[i]}](https://${domain}.net/pools/${post.pools[i]})`);
-									}
-									postEmbed.addField(
-										`Pool${pools.length > 1 ? 's' : ''}`,
-										pools.join(", "),
-										true
-									);
-								}
-
-								if(isFiltered(post)) {
-									// prevent blacklisted posts from being linked to
-									// this is only done if you access a post directly
-
-									postEmbed.setThumbnail("https://static1.e926.net/images/blacklisted-preview.png");
-
-									if(postEmbed.image) {
-										delete postEmbed.image;
-									}
-									if(postEmbed.url) {
-										delete postEmbed.url;
-									}
-									if(postEmbed.author.url) {
-										delete postEmbed.author.url;
-									}
-
-									postEmbed.addField(
-										`Blacklisted tag${blacklistedTags.length > 1 ? 's' : ''}`,
-										blacklistedTags.join(", ").replace(/_/g, " "),
-										false
-									);
-								}
-
-								if(post.file.url == undefined && !post.flags.deleted && !isFiltered(post)) {
-									postEmbed.addField("\u200B","**You must be logged in to view this image.**",false); 
-								}
-								else if(post.file.ext == "swf" || post.file.ext == "webm") {
-									postEmbed.addField(
-										"\u200B",
-										`**[\u25B6\uFE0F Play/Download this ${post.file.ext == "swf" ? "Flash" : post.file.ext == "webm" ? "WebM" : "file"}](${post.file.url})**`,
-										false); 
-								}
-
-								// Deleted or SWF/WebM
-								if(post.flags.deleted || post.file.ext == "swf" || post.file.ext == "webm") {
-									postEmbed.setThumbnail(
-										post.flags.deleted ? "https://static1.e926.net/images/deleted-preview.png" :
-										post.file.ext == "swf" ? "https://static1.e926.net/images/download-preview.png" :
-										post.file.ext == "webm" ? "https://static1.e926.net/images/webm-preview.png" :
-										postEmbed.thumbnail
-									);
-
-									if(postEmbed.image && post.file.ext !== "webm") {
-										delete postEmbed.image;
-									}
-								}
-								if(post.relationships.parent_id != null) {
-									postEmbed.addField(
-										`Parent`,
-										(isFiltered(post) ? `#${post.relationships.parent_id}` : `[#${post.relationships.parent_id}](https://${domain}.net/posts/${post.relationships.parent_id})`),
-										true
-									);
-								}
-								if(post.relationships.children.length > 0) {
-									var children = post.relationships.children;
-									for ( var i in children ) {
-										children[i] = (isFiltered(post) ? `#${children[i]}` : `[#${children[i]}](https://${domain}.net/posts/${children[i]})`);
-									}
-									postEmbed.addField(
-										`Child${children.length > 1 ? 'ren' : ''}`,
-										children.join(", "),
-										true
-									);
-								}
-								msg.reply(undefined, {embed: postEmbed});
-							}
-
 						}
-						else {
-							var response = singleImage ? "The post you requested does not exist." : trueCount > 0 ? "Your search returned only filtered images." : "No posts matched your search.";
-							if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
-								msg.reply(response);
-							}
-							else {
-								msg.reply(undefined,{embed: {
-									title:
-									`${domain}`,
-									url: searchURL.replace(/\.json|limit=1&|order:random\+/gi,""),
-									description: response,
-									color: 8529960,
-									footer: {
-										icon_url: "https://e926.net/android-chrome-192x192.png",
-										text: domain
-									}
-								}});
-							}
-						}
-					} catch (e) {
-						console.error("[e621 Error] " + e);
 
-						if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
-							msg.reply(`An error has occured. Please try again later.\n\n\`\`\`js\n${e}\`\`\`\nURL: ${response.request.uri.href}`);
-						} else {
-							msg.reply(undefined,{embed: {
-								title: domain,
-								description: `Sorry, an error occured while an error occured while getting your image. Please try again later.`,
-								color: 8529960,
-								fields: [
-									{
-										name: "Error Message",
-										value: "```js\n" + e + "```",
-										inline: false
-									},
-									{
-										name: "URL",
-										value: response.request.uri.href,
-										inline: false
-									}
-								],
-								footer: {
-									icon_url: "https://e926.net/android-chrome-192x192.png",
-									text: domain
-								}
-							}});
+						if(post.rating !== "s" && filter.sfw_only.some(r=> all_tags.includes(r))) {
+							filter.sfw_only.map((first) => {
+								blacklistedTags[all_tags.findIndex(def => def === first)] = first;
+							});
 						}
+
+						if(whitelist.fetish.indexOf(msg.channel.id) == -1 && filter.fetish.some(r=> all_tags.includes(r))) {
+							filter.fetish.map((first) => {
+								blacklistedTags[all_tags.findIndex(def => def === first)] = first;
+							});
+						}
+
+						if(filter.blacklist.some(r=> all_tags.includes(r))) {
+							filter.blacklist.map((first) => {
+								blacklistedTags[all_tags.findIndex(def => def === first)] = first;
+							});
+						}
+
+						if(filter.guilds[msg.guild.id] && filter.guilds[msg.guild.id].some(r=> all_tags.includes(r))) {
+							filter.guilds[msg.guild.id].map((first) => {
+								blacklistedTags[all_tags.findIndex(def => def === first)] = first;
+							});
+						}
+						blacklistedTags = blacklistedTags.filter(v => v);
 					}
+
+					var rating = (
+					post.rating == "s" ? "Safe" : 
+					post.rating == "e" ? "Explicit" : 
+					post.rating == "q" ? "Questionable" :
+					"Unknown");
+					if(sfwMode && post.rating !== "s" && post.status !== "deleted") {
+						msg.reply(`Sorry, the post you requested is not appropriate for this channel. (${rating})`);
+					}
+					else if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
+						if(isFiltered(post)) {
+							msg.reply(
+								`Image #${post.id} (${rating}) has th${blacklistedTags.length > 1 ? 'ese' : 'is'} blacklisted tag${blacklistedTags.length > 1 ? 's' : ''}:` +
+								`${blacklistedTags.length > 3 ? '\n' : ' '}${blacklistedTags.join(", ").replace(/_/g, " ")}`
+							);
+						} else {
+							msg.reply(`https://${domain}.net/posts/${post.id} (${rating})`);
+						}
+					} else {
+						var description = DText(post.description).replace(/\]\(https\:\/\/e926.net\//g,`](https://${domain}.net/`);
+						artists = post.tags.artist.join(", ").replace(/_\(artist\)/g,"").replace(/_/g, " ");
+						var postEmbed = new Discord.MessageEmbed({
+							author: {
+								name: (post.tags.artist.length ? (artists.length > 64 ? artists.substr(0,63) + "…" : artists) : (srcUrls ? srcUrls[0] : null)),
+								url: (srcUrls ? srcUrls[0] : null),
+							},
+							title:
+							`${domain} - #${post.id} (${rating})`,
+							url: `https://${domain}.net/posts/${post.id}?q=${qs.escape(params)}`,
+							description: (description.length > 280 ? description.substr(0,279) + "…" : description),
+							color: 77398,
+							image: {
+								url: (
+								post.flags.deleted ? "https://static1.e926.net/images/deleted-preview.png" :
+								post.file.ext == "swf" ? "https://static1.e926.net/images/download-preview.png" : 
+								post.file.ext == "webm" ? post.sample.url : 
+								post.file.size > "52428800" ? post.sample.url : 
+								post.file.url
+								)
+							},
+							footer: {
+								text: `${prettysize(post.file.size)} | ${(post.score.total > 0 ? "\u2b06" : (post.score.total < 0 ? "\u2b07" : "\u2195")) + "\ufe0f " + Math.abs(post.score.total)} \u2665\ufe0f ${post.fav_count} \u{1f5e8}\ufe0f ${post.comment_count}`,
+								icon_url: 'https://e926.net/android-chrome-192x192.png'
+							},
+							timestamp: post.created_at
+						});
+						// Deleted post
+						/*if(post.flags.deleted) {
+							postEmbed.addField(
+								`Reason for deletion`,
+								DText(post.delreason).replace(/\]\(https\:\/\/e926.net\//g,`](https://${domain}.net/`),
+								false
+							);
+						}*/
+
+						// Characters, copyright, and lore
+						if(post.tags.character.length > 0) {
+							var chars = post.tags.character.join(", ")
+								.replace(/_\([^),]+\)/g,"") // remove parentheses from character tags
+								.replace(/_/g, " "); // replace all underscores with spaces
+							postEmbed.addField(
+								`Character${post.tags.character.length > 1 ? `s (${post.tags.character.length})` : ''}`,
+								(chars.length > 200 ? chars.substr(0,199) + "…" : chars),
+								true
+							);
+						}
+						if(post.tags.copyright.length > 0) {
+							var copy = post.tags.copyright.join(", ")
+								.replace(/_\(series\)/g,"")
+								.replace(/_/g, " ");
+							postEmbed.addField(
+								`Copyright${post.tags.copyright.length > 1 ? `s (${post.tags.copyright.length})` : ''}`,
+								(copy.length > 200 ? copy.substr(0,199) + "…" : copy),
+								true
+							);
+						}
+						if(post.tags.lore.length > 0) {
+							var lore = post.tags.lore.join(", ")
+								.replace(/_\(lore\)/g,"")
+								.replace(/_/g, " ");
+							postEmbed.addField(
+								`Lore`,
+								(lore.length > 200 ? lore.substr(0,199) + "…" : lore),
+								true
+							);
+						}
+						if(post.tags.species.length > 0) {
+							var species = post.tags.species.join(", ")
+								.replace(/_\(species\)/g,"")
+								.replace(/_/g, " ");
+							postEmbed.addField(
+								`Species${post.tags.species.length > 4 ? ` (${post.tags.species.length})` : ''}`,
+								(species.length > 200 ? species.substr(0,199) + "…" : species),
+								false
+							);
+						}
+						
+						// Pools
+						if(post.pools.length > 0) {
+							var pools =	[];
+							for ( var i in post.pools ) {
+								pools.push(isFiltered(post) ? `#${post.pools[i]}` : `[#${post.pools[i]}](https://${domain}.net/pools/${post.pools[i]})`);
+							}
+							postEmbed.addField(
+								`Pool${pools.length > 1 ? 's' : ''}`,
+								pools.join(", "),
+								true
+							);
+						}
+
+						if(isFiltered(post)) {
+							// prevent blacklisted posts from being linked to
+							// this is only done if you access a post directly
+
+							postEmbed.setThumbnail("https://static1.e926.net/images/blacklisted-preview.png");
+
+							if(postEmbed.image) {
+								delete postEmbed.image;
+							}
+							if(postEmbed.url) {
+								delete postEmbed.url;
+							}
+							if(postEmbed.author.url) {
+								delete postEmbed.author.url;
+							}
+
+							postEmbed.addField(
+								`Blacklisted tag${blacklistedTags.length > 1 ? 's' : ''}`,
+								blacklistedTags.join(", ").replace(/_/g, " "),
+								false
+							);
+						}
+
+						if(post.file.url == undefined && !post.flags.deleted && !isFiltered(post)) {
+							postEmbed.addField("\u200B","**You must be logged in to view this image.**",false); 
+						}
+						else if(post.file.ext == "swf" || post.file.ext == "webm") {
+							postEmbed.addField(
+								"\u200B",
+								`**[\u25B6\uFE0F Play/Download this ${post.file.ext == "swf" ? "Flash" : post.file.ext == "webm" ? "WebM" : "file"}](${post.file.url})**`,
+								false); 
+						}
+
+						// Deleted or SWF/WebM
+						if(post.flags.deleted || post.file.ext == "swf" || post.file.ext == "webm") {
+							postEmbed.setThumbnail(
+								post.flags.deleted ? "https://static1.e926.net/images/deleted-preview.png" :
+								post.file.ext == "swf" ? "https://static1.e926.net/images/download-preview.png" :
+								post.file.ext == "webm" ? "https://static1.e926.net/images/webm-preview.png" :
+								postEmbed.thumbnail
+							);
+
+							if(postEmbed.image && post.file.ext !== "webm") {
+								delete postEmbed.image;
+							}
+						}
+						if(post.relationships.parent_id != null) {
+							postEmbed.addField(
+								`Parent`,
+								(isFiltered(post) ? `#${post.relationships.parent_id}` : `[#${post.relationships.parent_id}](https://${domain}.net/posts/${post.relationships.parent_id})`),
+								true
+							);
+						}
+						if(post.relationships.children.length > 0) {
+							var children = post.relationships.children;
+							for ( var i in children ) {
+								children[i] = (isFiltered(post) ? `#${children[i]}` : `[#${children[i]}](https://${domain}.net/posts/${children[i]})`);
+							}
+							postEmbed.addField(
+								`Child${children.length > 1 ? 'ren' : ''}`,
+								children.join(", "),
+								true
+							);
+						}
+						msg.reply(undefined, {embed: postEmbed});
+					}
+
 				}
 				else {
-					try {
-						var error = JSON.parse(body);
-					} catch(e) {
-						var error = {
-							success: false,
-							message: "A server error occured. Please try again later.",
-							backtrace: []
-						}
-					}
+					var response = singleImage ? "The post you requested does not exist." : trueCount > 0 ? "Your search returned only filtered images." : "No posts matched your search.";
 					if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
-						msg.reply(error.message || error.reason);
-					} else {
+						msg.reply(response);
+					}
+					else {
 						msg.reply(undefined,{embed: {
-							title: `${response.statusCode} ${response.statusMessage}`,
-							description: error.message || error.reason,
+							title:
+							`${domain}`,
+							url: searchURL.replace(/\.json|limit=1&|order:random\+/gi,""),
+							description: response,
 							color: 8529960,
 							footer: {
 								icon_url: "https://e926.net/android-chrome-192x192.png",
@@ -421,8 +329,30 @@ exports.module = {
 						}});
 					}
 				}
-			});
-			msg.channel.stopTyping();
+			})
+			.catch(error => {
+				console.error("[e621 Error] " + error.stack);
+				if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
+					msg.reply(`An error has occurred. Please try again later..\n\n\`\`\`js\n${error}\`\`\`\nURL: ${searchURL}`);
+				} else {
+					msg.reply(undefined,{embed: {
+						title: domain,
+						description: `Sorry, an error has occurred. Please try again later.`,
+						color: 8529960,
+						fields: [
+							{
+								name: "Error Message",
+								value: "```js\n" + error + "```",
+								inline: false
+							}
+						],
+						footer: {
+							icon_url: "https://e926.net/android-chrome-192x192.png",
+							text: domain
+						}
+					}});
+				}
+			}).finally(() => msg.channel.stopTyping());
 		}
 	}
 };
