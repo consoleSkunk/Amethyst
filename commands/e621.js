@@ -47,7 +47,7 @@ exports.module = {
 			} else { // regular search
 				searchURL = `https://${domain}.net/posts.json?limit=${
 					paramsLC.indexOf("order:") != -1 ? "75" : "10"
-				}&tags=${paramsLC.indexOf("order:") != -1 ? "" : "order:random+"}${qs.escape(params + (sfwMode ? " rating:safe" : ""))}`;
+				}&tags=${paramsLC.indexOf("order:") != -1 ? "" : "order:random+"}${qs.escape(params)}`;
 			};
 			msg.channel.startTyping();
 			fetch(searchURL, {
