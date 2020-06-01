@@ -5,7 +5,7 @@ exports.module = {
 	tags: [],
 	process: function(client, msg){
 		var today = new Date();
-		var year = today.getFullYear() - (today.getMonth() < 6 ? 1 : 0);
+		var year = today.getFullYear() - (today.getMonth() < 5 ? 1 : 0);
 		var june = new Date(year,5,1);
 		var dayDiff = Math.ceil(
 			Math.abs(
