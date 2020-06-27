@@ -55,14 +55,25 @@ exports.module = {
 					'User-Agent': `${name}/${version} ${user_agents.e621}`
 				}
 			})
-			.then(res => {
-				if (res.ok) {
-					return res.json()
-				} else {
-					throw new Error(`${res.status} ${res.statusText}`);
-				}
-			})
+			.then(res => res.json())
 			.then(api => {
+				if(api.success !== undefined && api.success == false) {
+					if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
+						msg.reply(api.message || api.reason);
+					} else {
+						msg.reply(undefined,{embed: {
+							title: `Error`,
+							description: api.message || api.reason,
+							color: 15597568,
+							footer: {
+								icon_url: "https://e926.net/android-chrome-192x192.png",
+								text: domain
+							}
+						}});
+					}
+					return;
+				}
+
 				var concatTags = function(tags) {
 					// concatenate all tag groups into one array
 					var array = [], keys = Object.keys(tags);
