@@ -18,8 +18,14 @@ try {
 }
 
 let client = new Discord.Client({
-	disableEveryone: true,
-	disabledEvents:	['TYPING_START']
+	allowedMentions: {parse:['users']},
+	disabledEvents: ['TYPING_START'],
+	presence: {
+		activity: {
+			type: "LISTENING",
+			name: `${config.prefix}help`
+		}
+	}
 });
 
 if(!client.token) {
@@ -95,12 +101,6 @@ function loadCommands(log) {
 
 let application;
 client.on('ready', () => {
-	client.user.setPresence({
-		activity: {
-			type: "LISTENING",
-			name: `${config.prefix}help`
-		}
-	});
 	console.log(`Logged in as ${client.user.username}#${client.user.discriminator}`)
 
 	client.fetchApplication().then(app => {
