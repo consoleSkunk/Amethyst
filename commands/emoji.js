@@ -8,15 +8,18 @@ exports.module = {
 	process: function(client, msg, params) {
 		if (params.length > 0) {
 			var emojiRegex = /<(a?):(\w+):(\d+)>/;
+			var idRegex = /^\d+$/;
 			if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
 				var regex = emojiRegex.exec(msg.content);
-				msg.reply(`https://cdn.discordapp.com/emojis/${regex[3]}.${regex[1] == "a" ? "gif" : "png"}?v=1`);
+				if(params.match(emojiRegex)) {
+					msg.reply(`https://cdn.discordapp.com/emojis/${regex[3]}.${regex[1] == "a" ? "gif" : "png"}?v=1`);
+				}
 			} else {
 				if(params.match(emojiRegex)) {
 					var regex = emojiRegex.exec(msg.content),
 						emoji = client.emojis.resolve(regex[3]),
 						embed = new Discord.MessageEmbed({
-						title: `:${emoji !== null ? emoji.name : regex[2]}:`,
+						title: `${emoji !== null ? (emoji.requiresColons ? ":"+emoji.name+":" : emoji.name) : ":" + regex[2] + ":"}`,
 						image: {
 							url: `https://cdn.discordapp.com/emojis/${regex[3]}.${regex[1] == "a" ? "gif" : "png"}?v=1`
 						},
@@ -25,7 +28,23 @@ exports.module = {
 						color: 16426522
 					});
 					if(emoji !== null) {
-						embed.setFooter(emoji.guild.name,emoji.guild.iconURL({size:2048}).replace(".webp",".png"));
+						embed.setFooter(emoji.guild.name,emoji.guild.iconURL({size:4096,format:"png",dynamic:true}));
+					}
+					msg.reply(undefined,{embed: embed});
+				} else if(idRegex.test(params)) {
+					var id = params;
+						emoji = client.emojis.resolve(id),
+						embed = new Discord.MessageEmbed({
+						image: {
+							url: `https://cdn.discordapp.com/emojis/${id}.${emoji !== null && emoji.animated ? "gif" : "png"}?v=1`
+						},
+						url: `https://cdn.discordapp.com/emojis/${id}.${emoji !== null && emoji.animated ? "gif" : "png"}?v=1`,
+						timestamp: Discord.SnowflakeUtil.deconstruct(id).date,
+						color: 16426522
+					});
+					if(emoji !== null) {
+						embed.setTitle(emoji.requiresColons ? ":"+emoji.name+":" : emoji.name);
+						embed.setFooter(emoji.guild.name,emoji.guild.iconURL({size:4096,format:"png",dynamic:true}));
 					}
 					msg.reply(undefined,{embed: embed});
 				}
