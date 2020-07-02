@@ -3,7 +3,6 @@
 
 	"user_agents": {
 		"danbooru": "(by username on Danbooru)",
-		"derpibooru": "(by username on Derpibooru)",
 		"e621": "(by username on e621)"
 	},
 
