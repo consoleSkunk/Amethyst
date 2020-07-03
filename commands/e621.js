@@ -33,7 +33,7 @@ exports.module = {
 			(filter.blocked.some(r=> paramArray.includes(r))) ||
 			(filter.guilds[msg.guild.id] && filter.guilds[msg.guild.id].some(r=> paramArray.includes(r)))
 		){
-			msg.reply("Your search contains tags that are filtered in this channel.");
+			msg.reply("Your search contains tags that are blocked in this channel.");
 			return;
 		}
 		else {
