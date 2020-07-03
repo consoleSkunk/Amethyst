@@ -30,10 +30,10 @@ exports.module = {
 			((sfwMode || paramArray.includes("rating:safe") || paramArray.includes("rating:s")) && filter.nsfw.some(r=> paramArray.includes(r))) ||
 			((!sfwMode && !paramArray.includes("rating:safe") && !paramArray.includes("rating:s")) && filter.sfw_only.some(r=> paramArray.includes(r))) ||
 			(whitelist.fetish.indexOf(msg.channel.id) == -1 && filter.fetish.some(r=> paramArray.includes(r))) ||
-			(filter.blacklist.some(r=> paramArray.includes(r))) ||
+			(filter.blocked.some(r=> paramArray.includes(r))) ||
 			(filter.guilds[msg.guild.id] && filter.guilds[msg.guild.id].some(r=> paramArray.includes(r)))
 		){
-			msg.reply("Your search contains tags that are blacklisted in this channel.");
+			msg.reply("Your search contains tags that are filtered in this channel.");
 			return;
 		}
 		else {
@@ -89,7 +89,7 @@ exports.module = {
 					return (sfwMode && filter.nsfw.some(r=> all_tags.includes(r))) ||
 					(post.rating !== "s" && filter.sfw_only.some(r=> all_tags.includes(r))) ||
 					(whitelist.fetish.indexOf(msg.channel.id) == -1 && filter.fetish.some(r=> all_tags.includes(r))) ||
-					(filter.blacklist.some(r=> all_tags.includes(r))) ||
+					(filter.blocked.some(r=> all_tags.includes(r))) ||
 					(filter.guilds[msg.guild.id] && filter.guilds[msg.guild.id].some(r=> all_tags.includes(r)))
 				};
 
@@ -109,39 +109,39 @@ exports.module = {
 
 					var all_tags = concatTags(post.tags);
 
-					// Blacklisted image
-					let blacklistedTags = [];
+					// Filtered image
+					let filteredTags = [];
 					if(isFiltered(post)) {
 						if(sfwMode && filter.nsfw.some(r=> all_tags.includes(r))) {
 							filter.nsfw.map((first) => {
-								blacklistedTags[all_tags.findIndex(def => def === first)] = first;
+								filteredTags[all_tags.findIndex(def => def === first)] = first;
 							});
 						}
 
 						if(post.rating !== "s" && filter.sfw_only.some(r=> all_tags.includes(r))) {
 							filter.sfw_only.map((first) => {
-								blacklistedTags[all_tags.findIndex(def => def === first)] = first;
+								filteredTags[all_tags.findIndex(def => def === first)] = first;
 							});
 						}
 
 						if(whitelist.fetish.indexOf(msg.channel.id) == -1 && filter.fetish.some(r=> all_tags.includes(r))) {
 							filter.fetish.map((first) => {
-								blacklistedTags[all_tags.findIndex(def => def === first)] = first;
+								filteredTags[all_tags.findIndex(def => def === first)] = first;
 							});
 						}
 
-						if(filter.blacklist.some(r=> all_tags.includes(r))) {
-							filter.blacklist.map((first) => {
-								blacklistedTags[all_tags.findIndex(def => def === first)] = first;
+						if(filter.blocked.some(r=> all_tags.includes(r))) {
+							filter.blocked.map((first) => {
+								filteredTags[all_tags.findIndex(def => def === first)] = first;
 							});
 						}
 
 						if(filter.guilds[msg.guild.id] && filter.guilds[msg.guild.id].some(r=> all_tags.includes(r))) {
 							filter.guilds[msg.guild.id].map((first) => {
-								blacklistedTags[all_tags.findIndex(def => def === first)] = first;
+								filteredTags[all_tags.findIndex(def => def === first)] = first;
 							});
 						}
-						blacklistedTags = blacklistedTags.filter(v => v);
+						filteredTags = filteredTags.filter(v => v);
 					}
 
 					var rating = (
@@ -155,8 +155,8 @@ exports.module = {
 					else if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
 						if(isFiltered(post)) {
 							msg.reply(
-								`Image #${post.id} (${rating}) has th${blacklistedTags.length > 1 ? 'ese' : 'is'} blacklisted tag${blacklistedTags.length > 1 ? 's' : ''}:` +
-								`${blacklistedTags.length > 3 ? '\n' : ' '}${blacklistedTags.join(", ").replace(/_/g, " ")}`
+								`Image #${post.id} (${rating}) has th${filteredTags.length > 1 ? 'ese' : 'is'} blocked tag${filteredTags.length > 1 ? 's' : ''}:` +
+								`${filteredTags.length > 3 ? '\n' : ' '}${filteredTags.join(", ").replace(/_/g, " ")}`
 							);
 						} else {
 							msg.reply(`https://${domain}.net/posts/${post.id} (${rating})`);
@@ -254,7 +254,7 @@ exports.module = {
 						}
 
 						if(isFiltered(post)) {
-							// prevent blacklisted posts from being linked to
+							// prevent blocked posts from being linked to
 							// this is only done if you access a post directly
 
 							postEmbed.setThumbnail("https://static1.e926.net/images/blacklisted-preview.png");
@@ -270,8 +270,8 @@ exports.module = {
 							}
 
 							postEmbed.addField(
-								`Blacklisted tag${blacklistedTags.length > 1 ? 's' : ''}`,
-								blacklistedTags.join(", ").replace(/_/g, " "),
+								`Blocked tag${filteredTags.length > 1 ? 's' : ''}`,
+								filteredTags.join(", ").replace(/_/g, " "),
 								false
 							);
 						}

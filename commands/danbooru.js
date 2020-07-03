@@ -28,10 +28,10 @@ exports.module = {
 			((sfwMode || paramArray.includes("rating:safe") || paramArray.includes("rating:s")) && filter.nsfw.some(r=> paramArray.includes(r))) ||
 			((!sfwMode && !paramArray.includes("rating:safe") && !paramArray.includes("rating:s")) && filter.sfw_only.some(r=> paramArray.includes(r))) ||
 			(whitelist.fetish.indexOf(msg.channel.id) == -1 && filter.fetish.some(r=> paramArray.includes(r))) ||
-			(filter.blacklist.some(r=> paramArray.includes(r))) ||
+			(filter.blocked.some(r=> paramArray.includes(r))) ||
 			(filter.guilds[msg.guild.id] && filter.guilds[msg.guild.id].some(r=> paramArray.includes(r)))
 		){
-			msg.reply("Your search contains tags that are blacklisted in this channel.");
+			msg.reply("Your search contains tags that are blocked in this channel.");
 			return;
 		}
 		else {
@@ -82,7 +82,7 @@ exports.module = {
 						return (sfwMode && filter.nsfw.some(r=> post.tag_string.split(" ").includes(r))) ||
 						(post.rating !== "s" && filter.sfw_only.some(r=> post.tag_string.split(" ").includes(r))) ||
 						(whitelist.fetish.indexOf(msg.channel.id) == -1 && filter.fetish.some(r=> post.tag_string.split(" ").includes(r))) ||
-						(filter.blacklist.some(r=> post.tag_string.split(" ").includes(r))) ||
+						(filter.blocked.some(r=> post.tag_string.split(" ").includes(r))) ||
 						(filter.guilds[msg.guild.id] && filter.guilds[msg.guild.id].some(r=> post.tag_string.split(" ").includes(r)))
 					}
 					if (typeof (json) !== "undefined" && Object.keys(json).length > 0) {
@@ -92,39 +92,39 @@ exports.module = {
 						json[0]
 
 						// Blacklisted image
-						let blacklistedTags = [];
+						let filteredTags = [];
 						if(isFiltered(post)) {
 							let tags = post.tag_string.split(" ");
 							if(sfwMode && filter.nsfw.some(r=> tags.includes(r))) {
 								filter.nsfw.map((first) => {
-									blacklistedTags[tags.findIndex(def => def === first)] = first;
+									filteredTags[tags.findIndex(def => def === first)] = first;
 								});
 							}
 
 							if(post.rating !== "s" && filter.sfw_only.some(r=> tags.includes(r))) {
 								filter.sfw_only.map((first) => {
-									blacklistedTags[tags.findIndex(def => def === first)] = first;
+									filteredTags[tags.findIndex(def => def === first)] = first;
 								});
 							}
 
 							if(whitelist.fetish.indexOf(msg.channel.id) == -1 && filter.fetish.some(r=> tags.includes(r))) {
 								filter.fetish.map((first) => {
-									blacklistedTags[tags.findIndex(def => def === first)] = first;
+									filteredTags[tags.findIndex(def => def === first)] = first;
 								});
 							}
 
-							if(filter.blacklist.some(r=> tags.includes(r))) {
-								filter.blacklist.map((first) => {
-									blacklistedTags[tags.findIndex(def => def === first)] = first;
+							if(filter.blocked.some(r=> tags.includes(r))) {
+								filter.blocked.map((first) => {
+									filteredTags[tags.findIndex(def => def === first)] = first;
 								});
 							}
 
 							if(filter.guilds[msg.guild.id] && filter.guilds[msg.guild.id].some(r=> tags.includes(r))) {
 								filter.guilds[msg.guild.id].map((first) => {
-									blacklistedTags[tags.findIndex(def => def === first)] = first;
+									filteredTags[tags.findIndex(def => def === first)] = first;
 								});
 							}
-							blacklistedTags = blacklistedTags.filter(v => v);
+							filteredTags = filteredTags.filter(v => v);
 						}
 
 						var rating = (
@@ -138,8 +138,8 @@ exports.module = {
 						else if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
 							if(isFiltered(post)) {
 								msg.reply(
-									`Image #${post.id} (${rating	}${post.is_deleted ? ", Deleted" : ""}) has th${blacklistedTags.length > 1 ? 'ese' : 'is'} blacklisted tag${blacklistedTags.length > 1 ? 's' : ''}:` +
-									`${blacklistedTags.length > 3 ? '\n' : ' '}${blacklistedTags.join(", ").replace(/_/g, " ")}`
+									`Image #${post.id} (${rating	}${post.is_deleted ? ", Deleted" : ""}) has th${filteredTags.length > 1 ? 'ese' : 'is'} blocked tag${filteredTags.length > 1 ? 's' : ''}:` +
+									`${filteredTags.length > 3 ? '\n' : ' '}${filteredTags.join(", ").replace(/_/g, " ")}`
 								);
 							} else {
 								msg.reply(`https://${domain}/posts/${post.id} (${rating}${post.is_deleted ? ", Deleted" : ""})`);
@@ -191,7 +191,7 @@ exports.module = {
 								);
 							}
 
-							// Blacklisted image
+							// Filtered image
 							if(isFiltered(post)){
 								postEmbed.setThumbnail("https://static1.e926.net/images/blacklisted-preview.png");
 								if(postEmbed.image) {
@@ -205,8 +205,8 @@ exports.module = {
 								}
 
 								postEmbed.addField(
-									`Blacklisted tag${blacklistedTags.length > 1 ? 's' : ''}`,
-									blacklistedTags.join(", ").replace(/_/g, " "),
+									`Blocked tag${filteredTags.length > 1 ? 's' : ''}`,
+									filteredTags.join(", ").replace(/_/g, " "),
 									false
 								);
 							}
