@@ -14,7 +14,8 @@ exports.module = {
 	description: "Returns a random image from [e621](https://e621.net/) or [e926](https://e926.net/), depending on the channel.\n[Cheatsheet available here](https://e621.net/help/show/cheatsheet).",
 	syntax: "tag_1 tag_2 tag_3",
 	tags: [],
-	process: function(client, msg, params) {
+	process: function(client, msg, argv) {
+		var params = argv.splice(1).join(" ");
 		if(params.includes(",")) {
 			params = 
 				params

@@ -26,12 +26,12 @@ exports.module = {
 			}
 		}
 
-		if (params.length > 0) {
+		if (params[1] !== undefined) {
 			if (msg.mentions.users.array()[0] != null) {
 				var mention = msg.mentions.users.array()[0];
 				displayAvatar(mention);
-			} else if (/^\d+$/.test(params) && client.users.cache.get(params) !== undefined) {
-				client.users.fetch(params).then(user => {
+			} else if (/^\d+$/.test(params[1]) && client.users.cache.get(params[1]) !== undefined) {
+				client.users.fetch(params[1]).then(user => {
 					displayAvatar(user);
 				});
 			} else {

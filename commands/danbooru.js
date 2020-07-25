@@ -11,7 +11,8 @@ exports.module = {
 	description: "Returns a random image from Danbooru or Safebooru, depending on the channel.\n[Cheatsheet available here](https://safebooru.donmai.us/wiki_pages/43049).",
 	syntax: "tag_1 tag_2",
 	tags: [],
-	process: function(client, msg, params) {
+	process: function(client, msg, argv) {
+		var params = argv.splice(1).join(" ");
 		if(params.includes(", ")) {
 			params = 
 				params

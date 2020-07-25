@@ -80,6 +80,11 @@ function loadCommands(log) {
 		try {
 			clearModule(filename);
 			let command = require.main.require(filename);
+			if(typeof command.module.setup !== 'undefined') {
+				// code to run when command is loaded
+				if(log) console.log(`\x1b[1;34mRunning setup script for ${file}...\x1b[0m`);
+				command.module.setup();
+			}
 			loaded_commands.push(command.module);
 			if(log) console.log(`\x1b[1;34mSuccessfully loaded ${file}\x1b[0m`);
 			count++;
@@ -138,13 +143,13 @@ client.on("message", function (msg) {
 			return;
 		}
 
-		var msgcmd = msg.content.substring(config.prefix.length,msg.content.length).split(" ")[0].toLowerCase(),
-			params = msg.content.slice(config.prefix.length+msgcmd.length).trim();
+		var argv = msg.content.substring(config.prefix.length,msg.content.length).trim().split(" "),
+		    argc = argv[0].toLowerCase();
 
 		var cmd = {commands:[],description:"",syntax:"",tags:[],process:function(){}}
 
 		for (let module of loaded_commands) {
-			if (module.commands.includes(msgcmd)) {
+			if (module.commands.includes(argc)) {
 				var cmd = module;
 				break;
 			}
@@ -161,14 +166,14 @@ client.on("message", function (msg) {
 					msg.reply("Sorry, you cannot use this command.")
 				} else {
 					if(cmd.commands[0] == "help") { // needs access to the loaded commands
-						cmd.process(client, msg, params, loaded_commands, isOwner);
+						cmd.process(client, msg, argv, loaded_commands, isOwner);
 					} else {
-						cmd.process(client, msg, params);
+						cmd.process(client, msg, argv);
 					}
 				}
 			} catch(err) {
 				msg.reply("\u274c ERROR:```js\n" + err + "```");
-				console.error(`\x1b[1;31mError running command ${msgcmd}:`);
+				console.error(`\x1b[1;31mError running command ${argc}:`);
 				console.error(err);
 				console.error("\x1b[0m");
 				msg.channel.stopTyping();

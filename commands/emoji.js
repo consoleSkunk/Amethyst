@@ -5,7 +5,8 @@ exports.module = {
 	description: "View the details of a custom emoji, or list the custom emojis in this server.",
 	syntax: ":emoji:",
 	tags: [],
-	process: function(client, msg, params) {
+	process: function(client, msg, argv) {
+		var params = argv.splice(1).join(" ");
 		if (params.length > 0) {
 			var emojiRegex = /<(a?):(\w+):(\d+)>/;
 			var idRegex = /^\d+$/;

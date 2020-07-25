@@ -3,7 +3,8 @@ exports.module = {
 	description: "Converts the Blockland key ID to BL_ID or vice versa.",
 	syntax: "[Key ID or BL_ID]",
 	tags: [],
-	process: function(client, msg, params){
+	process: function(client, msg, argv) {
+		var params = argv.splice(1).join(" ");
 		var charlist = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 		function getChars(num, res) {

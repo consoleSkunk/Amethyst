@@ -3,7 +3,8 @@ exports.module = {
 	description: "Deletes the specified amount of messages.",
 	syntax: "[number between 1 and 100]",
 	tags: ["MOD"],
-	process: function(client, msg, params){
+	process: function(client, msg, argv) {
+		var params = argv.splice(1).join(" ");
 		var channel = msg.channel;
 		if(params) {
 			var count = parseInt(params);

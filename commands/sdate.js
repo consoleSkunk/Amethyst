@@ -3,7 +3,8 @@ exports.module = {
 	description: "Check what day of [Eternal September](https://en.wikipedia.org/wiki/Eternal_September) it is.",
 	syntax: "[YYYY-MM]",
 	tags: [],
-	process: function(client, msg, params) {
+	process: function(client, msg, argv) {
+		var params = argv.splice(1).join(" ");
 		var epochRegex = /^(\d{4})-(\d{2})$/
 		if(!epochRegex.test(params))
 			params = "1993-09";

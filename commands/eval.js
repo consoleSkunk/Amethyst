@@ -6,7 +6,8 @@ exports.module = {
 	description: "Send a raw JavaScript command.",
 	syntax: "[command]",
 	tags: ["OWNER"],
-	process: function(client, msg, params){
+	process: function(client, msg, argv) {
+		var params = argv.splice(1).join(" ");
 		if(params) {
 			try {
 				var response = eval(params);

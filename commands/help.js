@@ -6,7 +6,8 @@ exports.module = {
 	description: "Shows the help message, or help for a specific command.",
 	syntax: "[command]",
 	tags: [],
-	process: function(client, msg, params, commands, isOwner){
+	process: function(client, msg, argv, commands, isOwner) {
+		var params = argv.splice(1).join(" ");
 		var cmd = params.replace(prefix,"").trim().toLowerCase();
 		var embed = new Discord.MessageEmbed({
 			author: {

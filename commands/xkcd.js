@@ -9,7 +9,8 @@ exports.module = {
 	description: "Returns the latest comic, a specified comic, or a random comic from [xkcd](https://xkcd.com/).",
 	syntax: "[comic ID or \"random\"]",
 	tags: [],
-	process: function (client, msg, params, random) {
+	process: function (client, msg, argv, random) {
+		var params = argv.splice(1).join(" ");
 		// fake 404 response, using the image from explain xkcd
 		if (params == "404") {
 			if (msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
