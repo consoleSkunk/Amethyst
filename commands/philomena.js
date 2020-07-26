@@ -36,11 +36,11 @@ exports.module = {
 				});
 			}
 		}
-		var params = argv.splice(1).join(" ");
 		var config = philomena.filter(site => {
 			return site.commands.includes(argv[0].toLowerCase())
 		})[0];
 		
+		var params = argv.splice(1).join(" ");
 		if(config == undefined)
 			return;
 
@@ -130,7 +130,7 @@ exports.module = {
 								`${config.name} - Image #${image.id}` + (
 									image.original_format == 'webm' ? ' [WebM]' : ''
 								) + ` (${ratings})`,
-							url: `https://${config.domain}/images/${image.id}${argv ? "?q=" + qs.escape(argv) : ''}`,
+							url: `https://${config.domain}/images/${image.id}${params !== "*" ? "?q=" + qs.escape(params) : ''}`,
 							description: description.length > 420 ? description.substr(0, 420) + "…" : description,
 							color: config.color,
 							image: {
