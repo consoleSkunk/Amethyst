@@ -1,13 +1,5 @@
 {
-	"philomena": [ 
-		{
-			"commands": ["derpibooru", "derpi"],
-			"domain": "derpibooru.org",
-			"name": "Derpibooru",
-			"icon": "https://i.imgur.com/Ua41CZX.png",
-			"color": 6393795,
-			"filter_id": 37432
-		},
+	"philomena": [
 		{
 			"commands": ["furbooru","fur"],
 			"domain": "furbooru.org",
@@ -15,6 +7,42 @@
 			"icon": "https://furrycdn.org/img/2020/4/20/0/thumb_small.png",
 			"color": 10129881,
 			"filter_id": 62
+		}
+	],
+	"e621": [
+		{
+			"commands": ["e621","e6"],
+			"domain": "e621.net",
+			"name": "e621",
+			"icon": "https://e621.net/android-chrome-192x192.png",
+			"color": 77398,
+			"nsfw": true
+		},
+		{
+			"commands": ["e926","e9"],
+			"domain": "e926.net",
+			"name": "e926",
+			"icon": "https://e926.net/android-chrome-192x192.png",
+			"color": 77398,
+			"nsfw": false
+		}
+	],
+	"danbooru": [
+		{
+			"commands": ["danbooru","dan"],
+			"domain": "danbooru.donmai.us",
+			"name": "Danbooru",
+			"icon": "https://i.imgur.com/SSQuBPx.png",
+			"color": 29695,
+			"nsfw": true
+		},
+		{
+			"commands": ["safebooru","safe"],
+			"domain": "safebooru.donmai.us",
+			"name": "Safebooru",
+			"icon": "https://i.imgur.com/SSQuBPx.png",
+			"color": 29695,
+			"nsfw": false
 		}
 	]
 }
