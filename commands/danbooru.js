@@ -79,7 +79,7 @@ exports.module = {
 				searchURL = `https://${config.domain}/posts.json?limit=25&tags=${qs.escape(params)}`;
 				singleImage = false;
 			} else { // random search
-				searchURL = `https://${config.domain}/posts.json?limit=10&tags=${qs.escape(params)}`;
+				searchURL = `https://${config.domain}/posts.json?limit=75&tags=${qs.escape(params)}`;
 				singleImage = false;
 			};
 			//console.log(searchURL);
@@ -115,9 +115,7 @@ exports.module = {
 					}
 					if (typeof (json) !== "undefined" && Object.keys(json).length > 0) {
 					var post = 
-						singleImage ? json :
-						params.indexOf("order:") != -1 ? json[Math.floor(Math.random() * json.length)] :
-						json[0]
+						singleImage ? json : json[Math.floor(Math.random() * json.length)]
 
 						// Filtered image
 						let filteredTags = [];
