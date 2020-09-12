@@ -136,7 +136,7 @@ client.on("message", function (msg) {
 		|| config.whitelist.guilds.indexOf(msg.guild.id) != -1
 		|| config.whitelist.categories.indexOf(msg.channel.parentID) != -1
 		|| config.whitelist.chan_names.some(function(v) { return msg.channel.name.indexOf(v) != -1; })
-		//|| isOwner
+		|| msg.channel.permissionsFor(msg.author).has("ADMINISTRATOR")
 	)) {
 
 		if(msg.author.id == client.user.id) {
@@ -163,7 +163,8 @@ client.on("message", function (msg) {
 						!msg.channel.permissionsFor(msg.author).has("MANAGE_MESSAGES"))
 					)
 				) {
-					msg.reply("Sorry, you cannot use this command.")
+					if(isOwner)
+						msg.reply("Sorry, you cannot use this command.")
 				} else {
 					if(cmd.commands[0] == "help") { // needs access to the loaded commands
 						cmd.process(client, msg, argv, loaded_commands, isOwner);

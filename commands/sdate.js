@@ -13,10 +13,8 @@ exports.module = {
 
 		var today = new Date();
 		var epochDate = new Date(epoch[1],epoch[2]-1,1);
-		if(epochDate > today)
-			epochDate = new Date(today.getFullYear(),today.getMonth(),1);
 		var dayDiff = Math.ceil(
-			Math.abs(
+			(
 				today.getTime() - epochDate.getTime()
 			) / (1000 * 3600 *24)
 		);

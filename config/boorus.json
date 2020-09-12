@@ -1,6 +1,14 @@
 {
 	"philomena": [
 		{
+			"commands": ["derpibooru", "derpi"],
+			"domain": "derpibooru.org",
+			"name": "Derpibooru",
+			"icon": "https://i.imgur.com/Ua41CZX.png",
+			"color": 6393795,
+			"filter_id": 37432
+		},
+		{
 			"commands": ["furbooru","fur"],
 			"domain": "furbooru.org",
 			"name": "Furbooru",

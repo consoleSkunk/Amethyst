@@ -25,7 +25,7 @@ exports.module = {
 		}
 		var paramsLC = params.toLowerCase();
 		var paramArray = paramsLC.replace(/\~/g,"").split(" ");
-		var sfwMode = !msg.channel.nsfw;
+		var sfwMode = (!msg.channel.nsfw || argv[0].toLowerCase() == "e926" || argv[0].toLowerCase() == "e9");
 		var domain = `e${sfwMode ? "926" : "621"}`;
 		if(
 			((sfwMode || paramArray.includes("rating:safe") || paramArray.includes("rating:s")) && filter.nsfw.some(r=> paramArray.includes(r))) ||
