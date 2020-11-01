@@ -1,3 +1,5 @@
+var Discord = require("discord.js");
+
 exports.module = {
 	commands: ["avatar","avie","av"],
 	description: "Retrieves the mentioned user's avatar, or yours if not specified.",
@@ -30,10 +32,17 @@ exports.module = {
 			if (msg.mentions.users.array()[0] != null) {
 				var mention = msg.mentions.users.array()[0];
 				displayAvatar(mention);
-			} else if (/^\d+$/.test(params[1]) && client.users.cache.get(params[1]) !== undefined) {
-				client.users.fetch(params[1]).then(user => {
-					displayAvatar(user);
-				});
+			} else if (/^\d+$/.test(params[1])) {
+				if(client.users.cache.get(params[1]) !== undefined) {
+					client.users.fetch(params[1]).then(user => {
+						displayAvatar(user);
+					});
+				}
+				else {
+					new Discord.User(client,{id:params[1]}).fetch().then(user => {
+						displayAvatar(user);
+					}).catch(e => msg.reply("I could not find the user you requested." + ` (${e})`));
+				}
 			} else {
 				msg.reply("I could not find the user you requested.");
 			}
