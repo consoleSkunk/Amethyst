@@ -34,9 +34,7 @@ exports.module = {
 				displayAvatar(mention);
 			} else if (/^\d+$/.test(params[1])) {
 				if(client.users.cache.get(params[1]) !== undefined) {
-					client.users.fetch(params[1]).then(user => {
-						displayAvatar(user);
-					});
+					displayAvatar(client.users.cache.get(params[1]));
 				}
 				else {
 					new Discord.User(client,{id:params[1]}).fetch().then(user => {
