@@ -25,7 +25,7 @@ exports.module = {
 				`**Uptime**: ${uptime}\n\n` +
 				`**Process ID:** ${process.pid}\n` +
 				`**OS:** ${os.platform() == "linux" ? lsb_release.description : os.platform()} ${os.release().includes("Microsoft") ? " (on Windows 10)" : ""}\n` +
-				(os.platform() == "linux" ? `**Release:** ${lsb_release.release} ${lsb_release.codename}\n` : "") +
+				(os.platform() == "linux" ? `**Release:** ${lsb_release.release} ${lsb_release.codename ? lsb_release.codename : ""}\n` : "") +
 				`**${os.platform() == "linux" ? "Kernel" : "Release"}:** ${os.release()}\n`
 			);
 		} else {
