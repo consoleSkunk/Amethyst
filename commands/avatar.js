@@ -1,5 +1,3 @@
-var fetch = require("node-fetch");
-
 exports.module = {
 	commands: ["avatar","avie","av"],
 	description: "Retrieves the mentioned user's avatar, or yours if not specified.",
