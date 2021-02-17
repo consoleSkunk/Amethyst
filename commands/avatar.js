@@ -1,4 +1,4 @@
-var Discord = require("discord.js");
+var fetch = require("node-fetch");
 
 exports.module = {
 	commands: ["avatar","avie","av"],
@@ -33,14 +33,9 @@ exports.module = {
 				var mention = msg.mentions.users.array()[0];
 				displayAvatar(mention);
 			} else if (/^\d+$/.test(params[1])) {
-				if(client.users.cache.get(params[1]) !== undefined) {
-					displayAvatar(client.users.cache.get(params[1]));
-				}
-				else {
-					new Discord.User(client,{id:params[1]}).fetch().then(user => {
-						displayAvatar(user);
-					}).catch(e => msg.reply("I could not find the user you requested." + ` (${e})`));
-				}
+				client.users.fetch(params[1]).then(user => {
+					displayAvatar(user);
+				}).catch(e => msg.reply("I could not find the user you requested." + ` (${e})`));
 			} else {
 				msg.reply("I could not find the user you requested.");
 			}
