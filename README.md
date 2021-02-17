@@ -4,7 +4,7 @@ A modular Discord bot written with [Discord.js](https://discord.js.org/)
 ## Getting Started
 
 1. Install [Node.js](https://nodejs.org) if it hasn't been installed yet.
-2. Clone the repository: `git clone https://github.com/ErikaIsGirl/Amethyst`
+2. Clone the repository: `git clone https://github.com/Enbika/Amethyst`
 3. Rename `config.example.json` and `filter.example.json` in `config` to `config.json` and `filter.json` respectively, and modify them accordingly.
 4. Do `npm install` to install the required dependencies.
 5. Set the `DISCORD_TOKEN` environment variable:
