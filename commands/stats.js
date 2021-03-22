@@ -18,7 +18,7 @@ exports.module = {
 	syntax: "[basic]",
 	tags: [],
 	process: function(client, msg, argv) {
-		var params = argv.splice(1).join(" ");
+		var params = argv.slice(1).join(" ");
 		var uptime = moment.preciseDiff(moment(moment.unix(client.readyTimestamp/1000)),moment());
 		if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS") || params.toLowerCase() == "basic") {
 			msg.reply(

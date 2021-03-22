@@ -40,7 +40,7 @@ exports.module = {
 			return site.commands.includes(argv[0].toLowerCase())
 		})[0];
 		
-		var params = argv.splice(1).join(" ");
+		var params = argv.slice(1).join(" ");
 		if(config == undefined)
 			return;
 

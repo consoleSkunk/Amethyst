@@ -4,7 +4,7 @@ exports.module = {
 	syntax: "[number between 1 and 100]",
 	tags: ["MOD"],
 	process: function(client, msg, argv) {
-		var params = argv.splice(1).join(" ");
+		var params = argv.slice(1).join(" ");
 		var channel = msg.channel;
 		if(params) {
 			var count = parseInt(params);

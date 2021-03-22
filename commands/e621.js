@@ -15,7 +15,7 @@ exports.module = {
 	syntax: "tag_1 tag_2 tag_3",
 	tags: [],
 	process: function(client, msg, argv) {
-		var params = argv.splice(1).join(" ");
+		var params = argv.slice(1).join(" ");
 		if(params.includes(",")) {
 			params = 
 				params

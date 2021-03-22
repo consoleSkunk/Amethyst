@@ -143,12 +143,12 @@ client.on("message", function (msg) {
 		}
 
 		var argv = msg.content.substring(config.prefix.length,msg.content.length).trim().split(" "),
-		    argc = argv[0].toLowerCase();
+		    command = argv[0].toLowerCase();
 
 		var cmd = {commands:[],description:"",syntax:"",tags:[],process:function(){}}
 
 		for (let module of loaded_commands) {
-			if (module.commands.includes(argc)) {
+			if (module.commands.includes(command)) {
 				var cmd = module;
 				break;
 			}

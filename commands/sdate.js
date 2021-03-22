@@ -4,7 +4,7 @@ exports.module = {
 	syntax: "[YYYY-MM]",
 	tags: [],
 	process: function(client, msg, argv) {
-		var params = argv.splice(1).join(" ");
+		var params = argv.slice(1).join(" ");
 		var epochRegex = /^(\d{4})-(\d{2})$/
 		if(!epochRegex.test(params))
 			params = "1993-09";

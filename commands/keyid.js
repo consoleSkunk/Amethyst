@@ -4,7 +4,7 @@ exports.module = {
 	syntax: "[Key ID or BL_ID]",
 	tags: [],
 	process: function(client, msg, argv) {
-		var params = argv.splice(1).join(" ");
+		var params = argv.slice(1).join(" ");
 		var charlist = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 		function getChars(num, res) {

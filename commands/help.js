@@ -7,7 +7,7 @@ exports.module = {
 	syntax: "[command]",
 	tags: [],
 	process: function(client, msg, argv, commands, isOwner) {
-		var params = argv.splice(1).join(" ");
+		var params = argv.slice(1).join(" ");
 		var cmd = params.replace(prefix,"").trim().toLowerCase();
 		var embed = new Discord.MessageEmbed({
 			author: {

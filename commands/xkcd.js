@@ -10,7 +10,7 @@ exports.module = {
 	syntax: "[comic ID or \"random\"]",
 	tags: [],
 	process: function (client, msg, argv, random) {
-		var params = argv.splice(1).join(" ");
+		var params = argv.slice(1).join(" ");
 		// fake 404 response, using the image from explain xkcd
 		if (params == "404") {
 			if (msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
