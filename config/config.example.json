@@ -1,5 +1,5 @@
 {
-	"prefix": "/",
+	"prefix": "%",
 
 	"user_agents": {
 		"danbooru": "(by username on Danbooru)",
