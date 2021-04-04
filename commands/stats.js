@@ -20,13 +20,16 @@ exports.module = {
 	process: function(client, msg, argv) {
 		var params = argv.slice(1).join(" ");
 		var uptime = moment.preciseDiff(moment(moment.unix(client.readyTimestamp/1000)),moment());
+		var os_info =
+				`**OS:** ${os.platform() == "linux" ? (lsb_release ? lsb_release.description : "Linux") : os.platform()} ${os.release().includes("Microsoft") ? " (on Windows 10)" : ""}\n` +
+				(os.platform() == "linux" && lsb_release ? `**Release:** ${lsb_release.release} ${lsb_release.codename ? lsb_release.codename : ""}\n` : "") +
+				`**${os.platform() == "linux" ? "Kernel" : "Release"}:** ${os.release()}\n`;
+
 		if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS") || params.toLowerCase() == "basic") {
 			msg.reply(
 				`**Uptime**: ${uptime}\n\n` +
 				`**Process ID:** ${process.pid}\n` +
-				`**OS:** ${os.platform() == "linux" ? lsb_release.description : os.platform()} ${os.release().includes("Microsoft") ? " (on Windows 10)" : ""}\n` +
-				(os.platform() == "linux" ? `**Release:** ${lsb_release.release} ${lsb_release.codename ? lsb_release.codename : ""}\n` : "") +
-				`**${os.platform() == "linux" ? "Kernel" : "Release"}:** ${os.release()}\n`
+				os_info
 			);
 		} else {
 			client.fetchApplication().then(application => {
@@ -59,9 +62,7 @@ exports.module = {
 						},
 						{
 							name: 'System:',
-							value: `**OS:** ${os.platform() == "linux" ? lsb_release.description  : os.platform()} ${os.release().includes("Microsoft") ? " (on Windows 10)" : ""}\n` +
-							(os.platform() == "linux" ? `**Release:** ${lsb_release.release} ${lsb_release.codename == undefined ? "" : lsb_release.codename}\n` : "") +
-							`**${os.platform() == "linux" ? "Kernel" : "Release"}:** ${os.release()}\n` +
+							value: os_info +
 							`**Arch:** ${os.arch()}\n` +
 							`**Node.js Version:** ${process.version}\n` +
 							`**Process ID:** ${process.pid}\n` +
