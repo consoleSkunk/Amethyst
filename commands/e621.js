@@ -10,12 +10,19 @@ var qs = require("querystring"),
     filter = require("../config/filter.json");
 
 exports.module = {
-	commands: ["e621","e6","e926","e9","e"],
-	description: "Returns a random image from [e621](https://e621.net/) or [e926](https://e926.net/), depending on the channel.\n[Cheatsheet available here](https://e621.net/help/show/cheatsheet).",
-	syntax: "tag_1 tag_2 tag_3",
-	tags: [],
-	process: function(client, msg, argv) {
-		var params = argv.slice(1).join(" ");
+	name: "e621",
+	description: "Returns a random image from e621.",
+	options: [{
+		name: 'tags',
+		type: 'STRING',
+		description: "Space-delimited list of tags, e.g. tag_1 tag_2 tag_3",
+		required: false,
+	}],
+	process: function(interaction, client) {
+		var params = "";
+		if(interaction.options.length > 0)
+			params = interaction.options.find(obj => obj.name == 'tags').value;
+
 		if(params.includes(",")) {
 			params = 
 				params
@@ -25,16 +32,16 @@ exports.module = {
 		}
 		var paramsLC = params.toLowerCase();
 		var paramArray = paramsLC.replace(/\~/g,"").split(" ");
-		var sfwMode = (!msg.channel.nsfw || argv[0].toLowerCase() == "e926" || argv[0].toLowerCase() == "e9");
+		var sfwMode = !interaction.channel.nsfw;
 		var domain = `e${sfwMode ? "926" : "621"}`;
 		if(
 			((sfwMode || paramArray.includes("rating:safe") || paramArray.includes("rating:s")) && filter.nsfw.some(r=> paramArray.includes(r))) ||
 			((!sfwMode && !paramArray.includes("rating:safe") && !paramArray.includes("rating:s")) && filter.sfw_only.some(r=> paramArray.includes(r))) ||
-			(whitelist.fetish.indexOf(msg.channel.id) == -1 && filter.fetish.some(r=> paramArray.includes(r))) ||
+			(whitelist.fetish.indexOf(interaction.channel.id) == -1 && filter.fetish.some(r=> paramArray.includes(r))) ||
 			(filter.blocked.some(r=> paramArray.includes(r))) ||
-			(filter.guilds[msg.guild.id] && filter.guilds[msg.guild.id].some(r=> paramArray.includes(r)))
+			(filter.guilds[interaction.guild.id] && filter.guilds[interaction.guild.id].some(r=> paramArray.includes(r)))
 		){
-			msg.reply("Your search contains tags that are blocked in this channel.");
+			interaction.reply("Your search contains tags that are blocked in this channel.",{ephemeral: true});
 			return;
 		}
 		else {
@@ -50,7 +57,6 @@ exports.module = {
 					paramsLC.indexOf("order:") != -1 ? "75" : "10"
 				}&tags=${paramsLC.indexOf("order:") != -1 ? "" : "order:random+"}${qs.escape(params)}`;
 			};
-			msg.channel.startTyping();
 			fetch(searchURL, {
 				headers: {
 					'User-Agent': `${name}/${version} ${user_agents.e621}`
@@ -59,10 +65,10 @@ exports.module = {
 			.then(res => res.json())
 			.then(api => {
 				if(api.success !== undefined && api.success == false) {
-					if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
-						msg.reply(api.message || api.reason);
-					} else {
-						msg.reply(undefined,{embed: {
+					//if(!interaction.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
+						interaction.reply(`\u26a0\ufe0f **Error:** ${api.message || api.reason}`, {ephemeral: true});
+					/*} else {
+						interaction.reply(undefined,{embed: {
 							title: `Error`,
 							description: api.message || api.reason,
 							color: 15597568,
@@ -71,7 +77,7 @@ exports.module = {
 								text: domain
 							}
 						}});
-					}
+					}*/
 					return;
 				}
 
@@ -89,9 +95,9 @@ exports.module = {
 
 					return (sfwMode && filter.nsfw.some(r=> all_tags.includes(r))) ||
 					(post.rating !== "s" && filter.sfw_only.some(r=> all_tags.includes(r))) ||
-					(whitelist.fetish.indexOf(msg.channel.id) == -1 && filter.fetish.some(r=> all_tags.includes(r))) ||
+					(whitelist.fetish.indexOf(interaction.channel.id) == -1 && filter.fetish.some(r=> all_tags.includes(r))) ||
 					(filter.blocked.some(r=> all_tags.includes(r))) ||
-					(filter.guilds[msg.guild.id] && filter.guilds[msg.guild.id].some(r=> all_tags.includes(r)))
+					(filter.guilds[interaction.guild.id] && filter.guilds[interaction.guild.id].some(r=> all_tags.includes(r)))
 				};
 
 				var singleImage = api.post ? true : false;
@@ -125,7 +131,7 @@ exports.module = {
 							});
 						}
 
-						if(whitelist.fetish.indexOf(msg.channel.id) == -1 && filter.fetish.some(r=> all_tags.includes(r))) {
+						if(whitelist.fetish.indexOf(interaction.channel.id) == -1 && filter.fetish.some(r=> all_tags.includes(r))) {
 							filter.fetish.map((first) => {
 								filteredTags[all_tags.findIndex(def => def === first)] = first;
 							});
@@ -137,8 +143,8 @@ exports.module = {
 							});
 						}
 
-						if(filter.guilds[msg.guild.id] && filter.guilds[msg.guild.id].some(r=> all_tags.includes(r))) {
-							filter.guilds[msg.guild.id].map((first) => {
+						if(filter.guilds[interaction.guild.id] && filter.guilds[interaction.guild.id].some(r=> all_tags.includes(r))) {
+							filter.guilds[interaction.guild.id].map((first) => {
 								filteredTags[all_tags.findIndex(def => def === first)] = first;
 							});
 						}
@@ -151,16 +157,16 @@ exports.module = {
 					post.rating == "q" ? "Questionable" :
 					"Unknown");
 					if(sfwMode && post.rating !== "s" && post.status !== "deleted") {
-						msg.reply(`Sorry, the post you requested is not appropriate for this channel. (${rating})`);
+						interaction.reply(`Sorry, the post you requested is not appropriate for this channel. (${rating})`, {ephemeral: true});
 					}
-					else if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
+					else if(!interaction.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
 						if(isFiltered(post)) {
-							msg.reply(
+							interaction.reply(
 								`Image #${post.id} (${rating}) has th${filteredTags.length > 1 ? 'ese' : 'is'} blocked tag${filteredTags.length > 1 ? 's' : ''}:` +
 								`${filteredTags.length > 3 ? '\n' : ' '}${filteredTags.join(", ").replace(/_/g, " ")}`
 							);
 						} else {
-							msg.reply(`https://${domain}.net/posts/${post.id} (${rating})`);
+							interaction.reply(`https://${domain}.net/posts/${post.id} (${rating})`);
 						}
 					} else {
 						var description = DText(post.description).replace(/\]\(https\:\/\/e926.net\//g,`](https://${domain}.net/`);
@@ -318,17 +324,17 @@ exports.module = {
 								true
 							);
 						}
-						msg.reply(undefined, {embed: postEmbed});
+						interaction.reply(undefined, {embed: postEmbed});
 					}
 
 				}
 				else {
 					var response = singleImage ? "The post you requested does not exist." : trueCount > 0 ? "Your search returned only filtered images." : "No posts matched your search.";
-					if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
-						msg.reply(response);
-					}
+					//if(!interaction.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
+						interaction.reply(response, {ephemeral: true});
+					/*}
 					else {
-						msg.reply(undefined,{embed: {
+						interaction.reply(undefined,{embed: {
 							title:
 							`${domain}`,
 							url: searchURL.replace(/\.json|limit=1&|order:random\+/gi,""),
@@ -339,15 +345,15 @@ exports.module = {
 								text: domain
 							}
 						}});
-					}
+					}*/
 				}
 			})
 			.catch(error => {
 				console.error("[e621 Error] " + error.stack);
-				if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
-					msg.reply(`An error has occurred. Please try again later..\n\n\`\`\`js\n${error}\`\`\`\nURL: ${searchURL}`);
-				} else {
-					msg.reply(undefined,{embed: {
+				//if(!interaction.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
+					interaction.reply(`An error has occurred. Please try again later.\n\n\`\`\`js\n${error}\`\`\`\nURL: ${searchURL}`, {ephemeral: true});
+				/*} else {
+					interaction.reply(undefined,{embed: {
 						title: domain,
 						description: `Sorry, an error has occurred. Please try again later.`,
 						color: 8529960,
@@ -363,8 +369,8 @@ exports.module = {
 							text: domain
 						}
 					}});
-				}
-			}).finally(() => msg.channel.stopTyping());
+				}*/
+			})
 		}
 	}
 };

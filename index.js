@@ -9,8 +9,8 @@ try {
 
 try {
 	var Discord = require("discord.js"),
-	    clearModule = require('clear-module'),
-	    name = require('./package.json').name,
+	clearModule = require('clear-module'),
+	name = require('./package.json').name,
 	    version = require('./package.json').version;
 } catch(e) {
 	console.error("ERROR: The required modules were not found. Please run 'npm install' first.");
@@ -18,14 +18,9 @@ try {
 }
 
 let client = new Discord.Client({
-	allowedMentions: {parse:['users']},
+	allowedMentions: {repliedUser: true},
 	disabledEvents: ['TYPING_START'],
-	presence: {
-		activity: {
-			type: "LISTENING",
-			name: `${config.prefix}help`
-		}
-	}
+	intents: ['GUILDS', 'GUILD_EMOJIS', 'GUILD_MESSAGES']
 });
 
 if(!client.token) {
@@ -34,7 +29,7 @@ if(!client.token) {
 	return;
 }
 
-// /reload is a special command
+/* // /reload is a special command
 let reload = {
 	commands: ["reload"],
 	description: "Reloads the bot's commands.",
@@ -60,16 +55,15 @@ let reload = {
 			m.edit(status);
 		});
 	}
-}
+} */
 
-var loaded_commands = [reload];
+var loaded_commands = [];
 var errors = [];
 
 console.log(`Running ${name} ${version} on PID ${process.pid}`);
-loadCommands(true);
 
 function loadCommands(log) {
-	loaded_commands = [reload];
+	loaded_commands = [];
 	errors = [];
 	count = 0;
 	let files = fs.readdirSync("./commands/");
@@ -85,7 +79,30 @@ function loadCommands(log) {
 				if(log) console.log(`\x1b[1;34mRunning setup script for ${file}...\x1b[0m`);
 				command.module.setup();
 			}
+			
+			let commandData = {
+				name: command.module.name,
+				description: command.module.description,
+				options: command.module.options,
+			};
+
+			if(command.module.syntax !== undefined || command.module.commands !== undefined)
+				throw new Error("Command needs to be updated.");
+
+			if(commandData.name == undefined || commandData.description == undefined)
+				throw new Error("One or more required fields were not specified.");
+			
 			loaded_commands.push(command.module);
+
+			// make sure the command hasn't already been registered and if not, register it
+			if(client.application.commands.cache.find(cmd => cmd.name === commandData.name) == undefined) {
+				client.application.commands.create(commandData).catch(error => {
+					console.error(`\x1b[1;31mFailed to register command ${file}`);
+					console.error(error);
+					console.error("\x1b[0m");
+				});
+			}
+			
 			if(log) console.log(`\x1b[1;34mSuccessfully loaded ${file}\x1b[0m`);
 			count++;
 		} catch(error) {
@@ -96,103 +113,51 @@ function loadCommands(log) {
 		}
 	}
 
-	// sort the list so /help appears alphabetically, regardless of load order
-	loaded_commands.sort(function (a, b) {
-		var a = a.commands[0], b = b.commands[0];
-		return (a < b ? -1 : a > b ? 1 : 0);
-	});
 	return count;
 }
 
-let application;
-client.on('ready', () => {
-	console.log(`Logged in as ${client.user.username}#${client.user.discriminator}`)
+client.once('ready', () => {
+	console.log(`Logged in as ${client.user.username}#${client.user.discriminator}`);
 
-	client.fetchApplication().then(app => {
-		application = app;
-	}).catch(err => {
-		console.error("[App Error]",err);
-		
-		// log out since we can't do things properly
-		exit(-1);
-	})
+	client.application.commands.fetch().then(() => loadCommands(true));
+
+	if(client.application.partial) {
+		client.application.fetch().catch(err => {
+			console.error("[Application Fetch Error]",err);
+		})
+	}
 });
 
-client.on("message", function (msg) {
-	var isOwner = (
-		application.owner.members // check if bot is part of a team application
-		? application.owner.members.find(user => user.id === msg.author.id) !== undefined // check for team membership
-		: application.owner.id === msg.author.id
-	);
+client.on("interaction", interaction => {
+		// If the interaction isn't a slash command, return
+		if (!interaction.isCommand()) return;
 
-	if (msg.channel.type !== "text") {
-		return;
-	}
+		console.log(interaction);
 
-	if (msg.author.id != client.user.id && 
-		msg.content.substr(0,config.prefix.length) === config.prefix && 
-	(
-		config.whitelist.channels.indexOf(msg.channel.id) != -1
-		|| config.whitelist.guilds.indexOf(msg.guild.id) != -1
-		|| config.whitelist.categories.indexOf(msg.channel.parentID) != -1
-		|| config.whitelist.chan_names.some(function(v) { return msg.channel.name.indexOf(v) != -1; })
-	)) {
+		var cmd;
 
-		if(msg.author.id == client.user.id) {
-			return;
-		}
-
-		var argv = msg.content.substring(config.prefix.length,msg.content.length).trim().split(" "),
-		    command = argv[0].toLowerCase();
-
-		var cmd = {commands:[],description:"",syntax:"",tags:[],process:function(){}}
-
+		// find the command the user wants
 		for (let module of loaded_commands) {
-			if (module.commands.includes(command)) {
-				var cmd = module;
+			if (module.name == interaction.commandName) {
+				cmd = module;
 				break;
 			}
 		}
 		if(cmd !== undefined) {
 			try {
-				if(
-					(cmd.tags.includes("OWNER") && !isOwner) || 
-					(cmd.tags.includes("MOD") && (
-						!msg.channel.permissionsFor(client.user).has("MANAGE_MESSAGES") ||
-						!msg.channel.permissionsFor(msg.author).has("MANAGE_MESSAGES"))
-					)
-				) {
-					if(isOwner)
-						msg.reply("Sorry, you cannot use this command.")
-				} else {
-					if(cmd.commands[0] == "help") { // needs access to the loaded commands
-						cmd.process(client, msg, argv, loaded_commands, isOwner);
-					} else {
-						cmd.process(client, msg, argv);
-					}
-				}
+				cmd.process(interaction, client);
 			} catch(err) {
-				msg.reply("\u274c ERROR:```js\n" + err + "```");
-				console.error(`\x1b[1;31mError running command ${argc}:`);
+				interaction.reply("\u274c ERROR:```js\n" + err + "```",{ephemeral: true});
+				console.error(`\x1b[1;31mError running command ${cmd.name}:`);
 				console.error(err);
 				console.error("\x1b[0m");
-				msg.channel.stopTyping();
 			}
+		} else {
+			interaction.reply("\u274c This command has either failed to load or been removed.",{ephemeral: true});
 		}
-	}
 });
 
 client.on("messageDelete", (msg) => {
-	if(msg.content.substr(0,config.prefix.length) === config.prefix) { // look for commands
-		msg.channel.messages.fetch({limit: 1, after: msg.id}).then(messages => {
-			if(messages.array().length == 0) return;
-			var botmsg = messages.array()[0];
-			if(msg.content.substr(0,config.prefix.length) === config.prefix && (botmsg.author.id == client.user.id)
-				&& (botmsg.mentions.users.has(msg.author.id))) {
-				botmsg.delete();
-			}
-		}).catch(error => console.log(error));
-	}
 	// write to the server's delete log if it exists
 	var delete_channel = msg.guild.channels.cache.find(val => val.name.includes('delet'));
 	if(!delete_channel) return;

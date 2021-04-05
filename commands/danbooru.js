@@ -8,38 +8,34 @@ var qs = require("querystring"),
     { danbooru } = require("../config/boorus.json");
 
 exports.module = {
-	commands: [],
-	description: "Returns a random image from Danbooru or Safebooru, depending on the channel.\n[Cheatsheet available here](https://safebooru.donmai.us/wiki_pages/43049).",
-	syntax: "tag_1 tag_2",
-	tags: [],
-	setup: function() {
-		// add domains specified in boorus.json to alias list
-		for (i in danbooru) {
-			exports.module.commands = exports.module.commands.concat(danbooru[i].commands);
-		}
-	},
-	process: function(client, msg, argv) {		
-		var config = danbooru.filter(site => {
-			return site.commands.includes(argv[0].toLowerCase())
-		})[0];
-		
-		var params = argv.slice(1).join(" ");
-		if(config == undefined)
-			return;
+	name: "danbooru",
+	description: "Returns a random image from Danbooru.",
+	options: [{
+		name: 'tags',
+		type: 'STRING',
+		description: "Space-delimited list of tags, e.g. tag_1 tag_2 tag_3",
+		required: false,
+	}],
+	process: function(interaction, client) {
+		var params = "";
+		if(interaction.options.length > 0)
+			params = interaction.options.find(obj => obj.name == 'tags').value;
 
-		if(config.nsfw && !msg.channel.nsfw) {
-			msg.reply("This site is NSFW and cannot be used in this this channel.");
-			return;
+		if(params.includes(",")) {
+			params = 
+				params
+				.split(",")
+				.map(s => s.trim().replace(/ /g,"_"))
+				.join(" ");
 		}
-
 		var isFiltered = function(post){
 			var all_tags = post.tag_string.split(" ");
 
 			return (sfwMode && filter.nsfw.some(r=> all_tags.includes(r))) ||
 			(post.rating !== "s" && filter.sfw_only.some(r=> all_tags.includes(r))) ||
-			(whitelist.fetish.indexOf(msg.channel.id) == -1 && filter.fetish.some(r=> all_tags.includes(r))) ||
+			(whitelist.fetish.indexOf(interaction.channel.id) == -1 && filter.fetish.some(r=> all_tags.includes(r))) ||
 			(filter.blocked.some(r=> all_tags.includes(r))) ||
-			(filter.guilds[msg.guild.id] && filter.guilds[msg.guild.id].some(r=> all_tags.includes(r))) ||
+			(filter.guilds[interaction.guild.id] && filter.guilds[interaction.guild.id].some(r=> all_tags.includes(r))) ||
 			post.is_banned || post.id == undefined
 		};
 
@@ -52,16 +48,18 @@ exports.module = {
 		}
 		var paramsLC = params.toLowerCase();
 		var paramArray = paramsLC.replace(/\~/g,"").split(" ");
-		var sfwMode = !msg.channel.nsfw;
+		var sfwMode = !interaction.channel.nsfw;
+		var site = `${sfwMode ? "Safe" : "Dan"}booru`;
+		var domain = `${sfwMode ? "safe" : "dan"}booru.donmai.us`;
 		var urlRegex = /^https?:\/\/(?:[-0-9A-Za-z]+\.)+[-0-9A-Za-z]+\/.*/;
 		if(
 			((sfwMode || paramArray.includes("rating:safe") || paramArray.includes("rating:s")) && filter.nsfw.some(r=> paramArray.includes(r))) ||
 			((!sfwMode && !paramArray.includes("rating:safe") && !paramArray.includes("rating:s")) && filter.sfw_only.some(r=> paramArray.includes(r))) ||
-			(whitelist.fetish.indexOf(msg.channel.id) == -1 && filter.fetish.some(r=> paramArray.includes(r))) ||
+			(whitelist.fetish.indexOf(interaction.channel.id) == -1 && filter.fetish.some(r=> paramArray.includes(r))) ||
 			(filter.blocked.some(r=> paramArray.includes(r))) ||
-			(filter.guilds[msg.guild.id] && filter.guilds[msg.guild.id].some(r=> paramArray.includes(r)))
+			(filter.guilds[interaction.guild.id] && filter.guilds[interaction.guild.id].some(r=> paramArray.includes(r)))
 		){
-			msg.reply("Your search contains tags that are blocked in this channel.");
+			interaction.reply("Your search contains tags that are blocked in this channel.");
 			return;
 		}
 		else {
@@ -70,20 +68,18 @@ exports.module = {
 			var md5Reg = /^(?:md5:)?([0-9a-f]{32})$/i;
 			var idReg = /^(?:id:|#)(\d+)$/i;
 			if(md5Reg.test(params)) { // md5
-				searchURL = `https://${config.domain}/posts.json?md5=${qs.escape(md5Reg.exec(params)[1])}`;
+				searchURL = `https://${domain}/posts.json?md5=${qs.escape(md5Reg.exec(params)[1])}`;
 				singleImage = true;
 			} else if(idReg.test(params)) { // post ID
-				searchURL = `https://${config.domain}/posts/${qs.escape(idReg.exec(params)[1])}.json`;
+				searchURL = `https://${domain}/posts/${qs.escape(idReg.exec(params)[1])}.json`;
 				singleImage = true;
 			} else if(params.indexOf("order:") != -1) { // ordered search
-				searchURL = `https://${config.domain}/posts.json?limit=25&tags=${qs.escape(params)}`;
+				searchURL = `https://${domain}/posts.json?limit=25&tags=${qs.escape(params)}`;
 				singleImage = false;
 			} else { // random search
-				searchURL = `https://${config.domain}/posts.json?limit=75&tags=${qs.escape(params)}`;
+				searchURL = `https://${domain}/posts.json?limit=75&tags=${qs.escape(params)}`;
 				singleImage = false;
 			};
-			//console.log(searchURL);
-			msg.channel.startTyping();
 			fetch(searchURL, {
 				url: searchURL,
 				headers: {
@@ -93,19 +89,19 @@ exports.module = {
 			.then(res => res.json())
 			.then(json => {
 				if(json.success !== undefined && json.success == false) {
-					if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
-						msg.reply(json.message || json.reason);
-					} else {
-						msg.reply(undefined,{embed: {
+					//if(!interaction.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
+						interaction.reply(`\u26a0\ufe0f **Error:** ${json.message || json.reason}`, {ephemeral: true});
+					/*} else {
+						interaction.reply(undefined,{embed: {
 							title: `Error`,
 							description: json.message || json.reason,
 							color: 15597568,
 							footer: {
-								icon_url: config.icon,
-								text: config.name
+								icon_url: "https://i.imgur.com/SSQuBPx.png",
+								text: site
 							}
 						}});
-					}
+					}*/
 				}
 				else {
 					if(typeof (json) !== "undefined") {
@@ -133,7 +129,7 @@ exports.module = {
 								});
 							}
 	
-							if(whitelist.fetish.indexOf(msg.channel.id) == -1 && filter.fetish.some(r=> all_tags.includes(r))) {
+							if(whitelist.fetish.indexOf(interaction.channel.id) == -1 && filter.fetish.some(r=> all_tags.includes(r))) {
 								filter.fetish.map((first) => {
 									filteredTags[all_tags.findIndex(def => def === first)] = first;
 								});
@@ -145,8 +141,8 @@ exports.module = {
 								});
 							}
 	
-							if(filter.guilds[msg.guild.id] && filter.guilds[msg.guild.id].some(r=> all_tags.includes(r))) {
-								filter.guilds[msg.guild.id].map((first) => {
+							if(filter.guilds[interaction.guild.id] && filter.guilds[interaction.guild.id].some(r=> all_tags.includes(r))) {
+								filter.guilds[interaction.guild.id].map((first) => {
 									filteredTags[all_tags.findIndex(def => def === first)] = first;
 								});
 							}
@@ -159,22 +155,22 @@ exports.module = {
 							post.rating == "q" ? "Questionable" :
 							"Unknown");
 						if(sfwMode && post.rating !== "s") {
-							msg.reply(`Sorry, the post you requested is not appropriate for this channel. (${rating})`);
+							interaction.reply(`Sorry, the post you requested is not appropriate for this channel. (${rating})`, {ephemeral: true});
 						}
 						else if(post.id == undefined) {
-							msg.reply("The API did not appear to return an ID for the fetched post. Sorry.");
+							interaction.reply("The API did not appear to return an ID for the fetched post. Sorry.", {ephemeral: true});
 						}
-						else if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
+						else if(!interaction.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
 							if(isFiltered(post)) {
-								msg.reply(
+								interaction.reply(
 									`Image #${post.id} (${rating}${post.is_deleted ? ", Deleted" : ""}) has th${filteredTags.length > 1 ? 'ese' : 'is'} blocked tag${filteredTags.length > 1 ? 's' : ''}:` +
 									`${filteredTags.length > 3 ? '\n' : ' '}${filteredTags.join(", ").replace(/_/g, " ")}`
 								);
 							} else {
-								msg.reply(`https://${config.domain}/posts/${post.id} (${rating}${post.is_deleted ? ", Deleted" : ""})`);
+								interaction.reply(`https://${domain}/posts/${post.id} (${rating}${post.is_deleted ? ", Deleted" : ""})`);
 							}
 						} else {
-							//var description = DText.parse(post.description).replace(/\]\(https\:\/\/DTextDomain\//g,`](https://${config.domain}/`);
+							//var description = DText.parse(post.description).replace(/\]\(https\:\/\/DTextDomain\//g,`](https://${domain}/`);
 							var artist = (post.tag_string_artist.length ? post.tag_string_artist.replace(/_\(artist\)/g,"").split(" ").join(", ").replace(/_/g, " ") : "");
 							var postEmbed = new Discord.MessageEmbed({
 								author: {
@@ -198,9 +194,9 @@ exports.module = {
 									(urlRegex.test(post.source) ? post.source : null),
 								},
 								title:
-								`${config.name} - #${post.id} (${rating}${post.is_deleted ? ", Deleted" : ""})`,
-								url: `https://${config.domain}/posts/${post.id}?q=${qs.escape(params)}`,
-								color: config.color,
+								`${site} - #${post.id} (${rating}${post.is_deleted ? ", Deleted" : ""})`,
+								url: `https://${domain}/posts/${post.id}?q=${qs.escape(params)}`,
+								color: 29695,
 								footer: {
 									text: `${prettysize(post.file_size)} | ${(post.score > 0 ? "\u2b06" : (post.score < 0 ? "\u2b07" : "\u2195")) + "\ufe0f " + Math.abs(post.score)} \u2665\ufe0f ${post.fav_count}`,
 									icon_url: 'https://i.imgur.com/SSQuBPx.png'
@@ -289,7 +285,7 @@ exports.module = {
 							if(post.parent_id != null) {
 								postEmbed.addField(
 									`Parent`,
-									(isFiltered(post) ? `#${post.parent_id}` : `[#${post.parent_id}](https://${config.domain}/posts/${post.parent_id})`),
+									(isFiltered(post) ? `#${post.parent_id}` : `[#${post.parent_id}](https://${domain}/posts/${post.parent_id})`),
 									true
 								);
 							}
@@ -297,7 +293,7 @@ exports.module = {
 							/* if(post.has_visible_children) {
 								var children = post.children_ids.split(",");
 								for ( var i in children.length ) {
-									children[i] = (isFiltered(post) ? `#${children[i]}` : `[#${children[i]}](https://${config.domain}/posts/${children[i]})`);
+									children[i] = (isFiltered(post) ? `#${children[i]}` : `[#${children[i]}](https://${domain}/posts/${children[i]})`);
 								}
 								postEmbed.addField(
 									`Child${children.length > 1 ? 'ren' : ''}`,
@@ -305,36 +301,36 @@ exports.module = {
 									true
 								);
 							} */
-							msg.reply(undefined, {embed: postEmbed});
+							interaction.reply(undefined, {embed: postEmbed});
 						}
 
 					}
 					else {
 						var response = singleImage ? "The post you requested does not exist." : trueCount > 0 ? "Your search returned only filtered images." : "No posts matched your search.";
-						if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
-							msg.reply(response);
-						} else {
-							msg.reply(undefined,{embed: {
-								title: config.name,
+						//if(!interaction.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
+							interaction.reply(response, {ephemeral: true});
+						/*} else {
+							interaction.reply(undefined,{embed: {
+								title: site,
 								url: searchURL.replace(/\.json|limit=1&|&random=true/gi,""),
 								description: response,
 								color: 8529960,
 								footer: {
-									icon_url: config.icon,
-									text: config.name
+									icon_url: "https://i.imgur.com/SSQuBPx.png",
+									text: site
 								}
 							}});
-						}
+						}*/
 					}
 				}
 			}).catch(e => {
 				console.error("[Danbooru Error] " + e.stack);
 
-				if(!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
-					msg.reply("An error has occurred. Please try again later.\n\n```js\n" + e + "```");
-				} else {
-					msg.reply(undefined,{embed: {
-						title: config.name,
+				//if(!interaction.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
+					interaction.reply("An error has occurred. Please try again later.\n\n```js\n" + e + "```", {ephemeral: true});
+				/*} else {
+					interaction.reply(undefined,{embed: {
+						title: site,
 						description: `Sorry, an error has occurred. Please try again later.`,
 						color: 8529960,
 						fields: [
@@ -345,13 +341,12 @@ exports.module = {
 							}
 						],
 						footer: {
-							icon_url: config.icon,
-							text: config.name
+							icon_url: "https://i.imgur.com/SSQuBPx.png",
+							text: site
 						}
 					}});
-				}
+				}*/
 			});
-			msg.channel.stopTyping();
 		}
 	}
 }

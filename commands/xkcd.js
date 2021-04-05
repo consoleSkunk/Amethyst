@@ -5,16 +5,23 @@ var qs = require("querystring"),
     { name, version } = require('../package.json');
 
 exports.module = {
-	commands: ["xkcd"],
-	description: "Returns the latest comic, a specified comic, or a random comic from [xkcd](https://xkcd.com/).",
-	syntax: "[comic ID or \"random\"]",
-	tags: [],
-	process: function (client, msg, argv, random) {
-		var params = argv.slice(1).join(" ");
+	name: "xkcd",
+	description: "Returns the latest comic or a specified comic from xkcd.",
+	options: [{
+		name: 'comic',
+		type: 'INTEGER',
+		description: "the ID of the comic",
+		required: false,
+	}],
+	process: function (interaction, client) {
+		var params = "";
+		if(interaction.options.length > 0)
+			params = interaction.options.find(obj => obj.name == 'comic').value;
+
 		// fake 404 response, using the image from explain xkcd
 		if (params == "404") {
-			if (msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
-				msg.reply(undefined, {
+			if (interaction.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
+				interaction.reply(undefined, {
 					embed: {
 						title: `#404 - Not Found`,
 						author: {
@@ -30,46 +37,11 @@ exports.module = {
 					}
 				});
 			} else {
-				msg.reply("#404 - Not Found: https://xkcd.com/404")
+				interaction.reply("#404 - Not Found: https://xkcd.com/404")
 			}
-			if (random) msg.channel.stopTyping();
 			return;
 		}
 
-		if (!random) msg.channel.startTyping();
-		// hacky way of implementing random comics
-		if (params.toLowerCase() == "random" && !random) {
-			fetch('https://c.xkcd.com/random/comic/', {
-				headers: {
-					'User-Agent': `${name}/${version}`
-				},
-				redirect: 'manual'
-			})
-				.then(res => {
-					if (res.status >= 300 && res.status <= 399) {
-						var id = /^https?:\/\/xkcd.com\/(\d+)\/$/.exec(res.headers.get("Location"))[1];
-						// call ourself with the ID
-						exports.module.process(client, msg, id, true);
-					} else {
-						throw new Error(`${res.status} ${res.statusText}`);
-					}
-				})
-				.catch(err => {
-					msg.reply("Failed to fetch random comic: ```js\n" + err + "```")
-					console.error("[xkcd Error]", err);
-				})
-				.finally(() => msg.channel.stopTyping());
-			return;
-		}
-
-		if (params.toLowerCase() == "now") {
-			params = "1335"
-		}
-		make_it_better = false;
-		if (params.toLowerCase() == "851_make_it_better") {
-			params = "851"
-			make_it_better = true;
-		}
 		fetch(`https://xkcd.com/${/^(\d+)$/.test(params) ? qs.escape(params) + "/" : ""}info.0.json`, {
 			headers: {
 				'User-Agent': `${name}/${version}`
@@ -83,8 +55,8 @@ exports.module = {
 			}
 		})
 		.then(comic => {
-			if (!msg.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
-				msg.reply(`#${comic.num} - ${comic.safe_title}: ${comic.img}\n*${comic.alt}*`);
+			if (!interaction.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
+				interaction.reply(`#${comic.num} - ${comic.safe_title}: ${comic.img}\n*${comic.alt}*`);
 			} else {
 				var xkEmbed = new Discord.MessageEmbed({
 					title: `#${comic.num} - ${comic.safe_title}`,
@@ -126,16 +98,16 @@ exports.module = {
 					xkEmbed.setURL("https://xkcd.com/851_make_it_better");
 				}
 
-				msg.reply(undefined, { embed: xkEmbed });
+				interaction.reply(undefined, { embed: xkEmbed });
 			}
 		}).catch(err => {
 			if(err.message = "404 Not Found") {
-				msg.reply("That comic does not exist.");
+				interaction.reply("That comic does not exist.", {ephemeral: true});
 			} else {
-				msg.reply("Failed to fetch xkcd comic: ```js\n" + err + "```")
+				interaction.reply("Failed to fetch xkcd comic: ```js\n" + err + "```", {ephemeral: true})
 				console.error("[xkcd Error]",err);
 			}
-		}).finally(() => msg.channel.stopTyping());
+		});
 
 	}
 };

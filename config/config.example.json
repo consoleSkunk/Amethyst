@@ -1,6 +1,4 @@
 {
-	"prefix": "%",
-
 	"user_agents": {
 		"danbooru": "(by username on Danbooru)",
 		"e621": "(by username on e621)"
