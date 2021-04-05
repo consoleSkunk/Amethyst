@@ -160,7 +160,8 @@ client.on("message", function (msg) {
 					(cmd.tags.includes("MOD") && (
 						!msg.channel.permissionsFor(client.user).has("MANAGE_MESSAGES") ||
 						!msg.channel.permissionsFor(msg.author).has("MANAGE_MESSAGES"))
-					)
+					) ||
+					(cmd.tags.includes("BOORU") && config.blacklist.boorus.includes(msg.guild.id))
 				) {
 					if(isOwner)
 						msg.reply("Sorry, you cannot use this command.")

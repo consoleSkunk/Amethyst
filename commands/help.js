@@ -28,6 +28,7 @@ exports.module = {
 			if(info.tags.length > 0) {
 				const permMap = new Map([
 					["HIDDEN", "Hidden"],
+					["BOORU", "Booru"],
 					["NSFW", "NSFW Channel"],
 					["MOD", "Moderator"],
 					["ADMIN", "Administrator"],
@@ -37,7 +38,7 @@ exports.module = {
 				info.tags.forEach((value) => {
 					perms.push(permMap.get(value));
 				});
-				embed.addField("Restricted to",perms.join(", "),false);
+				embed.addField("Tags",perms.join(", "),false);
 			}
 		} else {
 			embed.setTitle("Commands available to you");
@@ -45,6 +46,7 @@ exports.module = {
 			commands.forEach(function(elem) {
 				if(
 					(elem.tags.includes("HIDDEN")) ||
+					(elem.tags.includes("BOORU")) && msg.channel||
 					(elem.tags.includes("NSFW") && !msg.channel.nsfw) ||
 					(elem.tags.includes("ADMIN") && !msg.member.hasPermission("ADMINISTRATOR")) ||
 					(elem.tags.includes("MOD") && (!msg.channel.permissionsFor(msg.author.id).has("MANAGE_MESSAGES") || !msg.channel.permissionsFor(client.user).has("MANAGE_MESSAGES"))) ||

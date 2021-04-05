@@ -11,7 +11,7 @@ exports.module = {
 	commands: [],
 	description: "Returns a random image from Danbooru or Safebooru, depending on the channel.\n[Cheatsheet available here](https://safebooru.donmai.us/wiki_pages/43049).",
 	syntax: "tag_1 tag_2",
-	tags: [],
+	tags: ["BOORU"],
 	setup: function() {
 		// add domains specified in boorus.json to alias list
 		for (i in danbooru) {

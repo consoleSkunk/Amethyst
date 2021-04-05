@@ -13,7 +13,7 @@ exports.module = {
 	commands: ["e621","e6","e926","e9","e"],
 	description: "Returns a random image from [e621](https://e621.net/) or [e926](https://e926.net/), depending on the channel.\n[Cheatsheet available here](https://e621.net/help/show/cheatsheet).",
 	syntax: "tag_1 tag_2 tag_3",
-	tags: [],
+	tags: ["BOORU"],
 	process: function(client, msg, argv) {
 		var params = argv.slice(1).join(" ");
 		if(params.includes(",")) {

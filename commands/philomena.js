@@ -9,7 +9,7 @@ exports.module = {
 	commands: ["philomena"],
 	description: "Returns a random image from supported Philomena-based boorus.\n[Cheatsheet available here](https://derpibooru.org/search/syntax).",
 	syntax: "[tag 1, tag 2, tag 3]",
-	tags: [],
+	tags: ["BOORU"],
 	setup: function() {
 		// add domains specified in boorus.json to alias list
 		for (i in philomena) {

@@ -31,6 +31,10 @@
 	},
 
 	"blacklist": {
+		"boorus": [
+			"<guild ID>",
+			"<guild ID>"
+		],
 		"users": [
 			"<user id>",
 			"<user id>"
