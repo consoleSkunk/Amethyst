@@ -134,8 +134,6 @@ client.on("interaction", interaction => {
 		// If the interaction isn't a slash command, return
 		if (!interaction.isCommand()) return;
 
-		console.log(interaction);
-
 		var cmd;
 
 		// find the command the user wants
