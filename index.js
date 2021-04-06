@@ -96,7 +96,9 @@ function loadCommands(log) {
 
 			// make sure the command hasn't already been registered and if not, register it
 			if(client.application.commands.cache.find(cmd => cmd.name === commandData.name) == undefined) {
-				client.application.commands.create(commandData).catch(error => {
+				client.application.commands.create(commandData).then(() => {
+					console.log(`\x1b[1;34mCommand ${commandData.name} successfully registered.\x1b[0m`);
+				}).catch(error => {
 					console.error(`\x1b[1;31mFailed to register command ${file}`);
 					console.error(error);
 					console.error("\x1b[0m");
