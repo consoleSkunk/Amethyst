@@ -12,15 +12,15 @@ exports.module = {
 	],
 	process: function(interaction) {
 		var date;
+		var epochRegex = /^(\d{4})[-\/](\d{2})$/
 		if(interaction.options.find(obj => obj.name == 'date')) {
-			var epochRegex = /^(\d{4})[-\/](\d{2})$/
 			if(!epochRegex.test(interaction.options.find(obj => obj.name == 'date').value))
 				interaction.reply(`That doesn't appear to be a valid date.`, {ephemeral: true});
 			else
 				date = interaction.options.find(obj => obj.name == 'date').value;
 		} else
 			date = "1993-09";
-		
+
 		var epoch = epochRegex.exec(date);
 
 		var today = new Date();
