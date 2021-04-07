@@ -20,7 +20,7 @@ exports.module = {
 
 		// fake 404 response, using the image from explain xkcd
 		if (params == "404") {
-			if (interaction.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
+			//if (interaction.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
 				interaction.reply(undefined, {
 					embed: {
 						title: `#404 - Not Found`,
@@ -36,9 +36,9 @@ exports.module = {
 						timestamp: '2008-04-01T04:00:00.000Z'
 					}
 				});
-			} else {
+			/*} else {
 				interaction.reply("#404 - Not Found: https://xkcd.com/404")
-			}
+			}*/
 			return;
 		}
 
@@ -55,9 +55,9 @@ exports.module = {
 			}
 		})
 		.then(comic => {
-			if (!interaction.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
+			/*if (!interaction.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
 				interaction.reply(`#${comic.num} - ${comic.safe_title}: ${comic.img}\n*${comic.alt}*`);
-			} else {
+			} else { */
 				var xkEmbed = new Discord.MessageEmbed({
 					title: `#${comic.num} - ${comic.safe_title}`,
 					author: {
@@ -99,7 +99,7 @@ exports.module = {
 				}
 
 				interaction.reply(undefined, { embed: xkEmbed });
-			}
+			//}
 		}).catch(err => {
 			if(err.message = "404 Not Found") {
 				interaction.reply("That comic does not exist.", {ephemeral: true});
