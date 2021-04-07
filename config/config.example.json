@@ -1,9 +1,4 @@
 {
-	"user_agents": {
-		"danbooru": "(by username on Danbooru)",
-		"e621": "(by username on e621)"
-	},
-
 	"whitelist": {
 		"guilds": [
 			"<guild ID>",
@@ -14,10 +9,6 @@
 			"<category ID>"
 		],
 		"channels": [
-			"<channel ID>",
-			"<channel ID>"
-		],
-		"fetish": [
 			"<channel ID>",
 			"<channel ID>"
 		],
