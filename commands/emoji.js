@@ -31,7 +31,7 @@ exports.module = {
 					color: 16426522
 				});
 				if(emoji !== null) {
-					embed.setFooter(emoji.guild.name,emoji.guild.iconURL({size:4096,format:"png",dynamic:true}));
+					embed.setFooter(emoji.guild.name,emoji.guild.iconURL({size:128,format:"png",dynamic:true}));
 				}
 				interaction.reply(undefined,{embed: embed});
 			} else if(idRegex.test(params)) {
@@ -47,7 +47,7 @@ exports.module = {
 				});
 				if(emoji !== null) {
 					embed.setTitle(emoji.requiresColons ? ":"+emoji.name+":" : emoji.name);
-					embed.setFooter(emoji.guild.name,emoji.guild.iconURL({size:4096,format:"png",dynamic:true}));
+					embed.setFooter(emoji.guild.name,emoji.guild.iconURL({size:128,format:"png",dynamic:true}));
 				}
 				interaction.reply(undefined,{embed: embed});
 			} else {
