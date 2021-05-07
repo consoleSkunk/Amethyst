@@ -11,7 +11,7 @@ try {
 	var Discord = require("discord.js"),
 	clearModule = require('clear-module'),
 	name = require('./package.json').name,
-	    version = require('./package.json').version;
+	version = require('./package.json').version;
 } catch(e) {
 	console.error("ERROR: The required modules were not found. Please run 'npm install' first.");
 	return;
@@ -28,34 +28,6 @@ if(!client.token) {
 	client.destroy();
 	return;
 }
-
-/* // /reload is a special command
-let reload = {
-	commands: ["reload"],
-	description: "Reloads the bot's commands.",
-	syntax: null,
-	tags: ["OWNER"],
-	process: function(client, msg) {
-		var status = "";
-		var date = Date.now();
-		msg.reply("\u{1f501} Reloading commands...").then(m => {
-			try {
-				count = loadCommands();
-				if(errors.length > 0) {
-					status = msg.author.toString() + `, \u26a0 Successfully loaded ${count} commands in ${(Date.now() - date) / 1000} seconds, but ${errors.length} failed to load:`;
-					for (let error of errors) {
-						status += `\n**${error.file}**: \`${error.error}\``;
-					}
-				} else {
-					status = msg.author.toString() + `, \u2705 Done! (loaded ${count} commands in ${(Date.now() - date) / 1000} seconds)`;
-				}
-			} catch(err) {
-				status = msg.author.toString() + ", \u274c ERROR:\n```js\n" + err + "```";
-			}
-			m.edit(status);
-		});
-	}
-} */
 
 var loaded_commands = [];
 var errors = [];

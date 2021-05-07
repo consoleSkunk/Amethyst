@@ -1,5 +1,5 @@
 var qs = require("querystring"),
-    Discord = require("discord.js"),
+    { MessageEmbed } = require('discord.js'),
     moment = require('moment'),
     fetch = require("node-fetch"),
     { name, version } = require('../package.json');
@@ -21,21 +21,19 @@ exports.module = {
 		// fake 404 response, using the image from explain xkcd
 		if (params == "404") {
 			//if (interaction.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
-				interaction.reply(undefined, {
-					embed: {
-						title: `#404 - Not Found`,
-						author: {
-							name: "xkcd",
-							url: "https://xkcd.com/",
-							iconURL: "https://i.imgur.com/AtZVNGx.png"
-						},
-						url: 'https://xkcd.com/404',
-						image: {
-							url: 'https://www.explainxkcd.com/wiki/images/9/92/not_found.png'
-						},
-						timestamp: '2008-04-01T04:00:00.000Z'
-					}
-				});
+				interaction.reply(new MessageEmbed({
+					title: `#404 - Not Found`,
+					author: {
+						name: "xkcd",
+						url: "https://xkcd.com/",
+						iconURL: "https://i.imgur.com/AtZVNGx.png"
+					},
+					url: 'https://xkcd.com/404',
+					image: {
+						url: 'https://www.explainxkcd.com/wiki/images/9/92/not_found.png'
+					},
+					timestamp: '2008-04-01T04:00:00.000Z'
+				}));
 			/*} else {
 				interaction.reply("#404 - Not Found: https://xkcd.com/404")
 			}*/
@@ -58,7 +56,7 @@ exports.module = {
 			/*if (!interaction.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
 				interaction.reply(`#${comic.num} - ${comic.safe_title}: ${comic.img}\n*${comic.alt}*`);
 			} else { */
-				var xkEmbed = new Discord.MessageEmbed({
+				var xkEmbed = new MessageEmbed({
 					title: `#${comic.num} - ${comic.safe_title}`,
 					author: {
 						name: "xkcd",
@@ -98,7 +96,7 @@ exports.module = {
 					xkEmbed.setURL("https://xkcd.com/851_make_it_better");
 				}
 
-				interaction.reply(undefined, { embed: xkEmbed });
+				interaction.reply(xkEmbed);
 			//}
 		}).catch(err => {
 			if(err.message = "404 Not Found") {

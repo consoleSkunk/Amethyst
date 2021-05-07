@@ -1,3 +1,5 @@
+const { MessageEmbed } = require('discord.js');
+
 exports.module = {
 	name: "avatar",
 	description: "Retrieves the specified user's avatar (or yours)",
@@ -10,7 +12,7 @@ exports.module = {
 	process: function(interaction) {
 		function displayAvatar(user) {
 			if(user.avatar != null) {
-				interaction.reply(undefined, {embed: {
+				interaction.reply(new MessageEmbed({
 					author: {
 						name: `${user.tag}'s avatar`,
 						iconURL: user.defaultAvatarURL
@@ -20,7 +22,7 @@ exports.module = {
 					},
 					url: user.displayAvatarURL({size:4096,format:"png",dynamic:true}),
 					color: [7506394,7634829,4437377,16426522,15746887][user.discriminator % 5]
-				}});
+				}));
 			} else {
 				interaction.reply(`**${user.tag}** does not have an avatar.`, {ephemeral: true});
 			}
