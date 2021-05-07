@@ -1,15 +1,27 @@
 exports.module = {
-	commands: ["sdate","september"],
-	description: "Check what day of [Eternal September](https://en.wikipedia.org/wiki/Eternal_September) it is.",
-	syntax: "[YYYY-MM]",
-	tags: [],
-	process: function(client, msg, argv) {
-		var params = argv.slice(1).join(" ");
-		var epochRegex = /^(\d{4})-(\d{2})$/
-		if(!epochRegex.test(params))
-			params = "1993-09";
-		
-		var epoch = epochRegex.exec(params);
+	name: "sdate",
+	aliases: ["september"],
+	description: "Check what day of Eternal September it is.",
+	options: [
+		{
+			name: 'date',
+			type: 'STRING',
+			description: "The month in YYYY-MM format",
+			required: false
+		},
+	],
+	process: function(interaction) {
+		var date;
+		var epochRegex = /^(\d{4})[-\/](\d{2})$/
+		if(interaction.options.find(obj => obj.name == 'date')) {
+			if(!epochRegex.test(interaction.options.find(obj => obj.name == 'date').value))
+				interaction.reply(`That doesn't appear to be a valid date.`, {ephemeral: true});
+			else
+				date = interaction.options.find(obj => obj.name == 'date').value;
+		} else
+			date = "1993-09";
+
+		var epoch = epochRegex.exec(date);
 
 		var today = new Date();
 		var epochDate = new Date(epoch[1],epoch[2]-1,1);
@@ -20,6 +32,6 @@ exports.module = {
 		);
 		var months = ['January','February','March','April','May','June','July','August','September','October','November','December']
 		var days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-		msg.reply(`Today is ${days[today.getDay()]}, ${months[epochDate.getMonth()]} ${dayDiff}, ${epochDate.getFullYear()}`);
+		interaction.reply(`Today is ${days[today.getDay()]}, ${months[epochDate.getMonth()]} ${dayDiff}, ${epochDate.getFullYear()}`);
 	}
 };
