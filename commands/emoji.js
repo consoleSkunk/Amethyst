@@ -33,7 +33,7 @@ exports.module = {
 				if(emoji !== null) {
 					embed.setFooter(emoji.guild.name,emoji.guild.iconURL({size:128,format:"png",dynamic:true}));
 				}
-				interaction.reply(undefined,{embed: embed});
+				interaction.reply(embed);
 			} else if(idRegex.test(params)) {
 				var id = params;
 					emoji = client.emojis.resolve(id),
@@ -49,7 +49,7 @@ exports.module = {
 					embed.setTitle(emoji.requiresColons ? ":"+emoji.name+":" : emoji.name);
 					embed.setFooter(emoji.guild.name,emoji.guild.iconURL({size:128,format:"png",dynamic:true}));
 				}
-				interaction.reply(undefined,{embed: embed});
+				interaction.reply(embed);
 			} else {
 				interaction.reply("No valid custom emoji was specified.",{ephemeral: true});
 			}
@@ -76,7 +76,7 @@ exports.module = {
 					emojiList = "";
 				}
 			});
-			interaction.reply(undefined,{embed: embed});
+			interaction.reply(embed);
 		}
 
 	}
