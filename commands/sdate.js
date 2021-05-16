@@ -14,9 +14,10 @@ exports.module = {
 		var date;
 		var epochRegex = /^(\d{4})[-\/](\d{2})$/
 		if(interaction.options.find(obj => obj.name == 'date')) {
-			if(!epochRegex.test(interaction.options.find(obj => obj.name == 'date').value))
+			if(!epochRegex.test(interaction.options.find(obj => obj.name == 'date').value)) {
 				interaction.reply(`That doesn't appear to be a valid date.`, {ephemeral: true});
-			else
+				return;
+			} else
 				date = interaction.options.find(obj => obj.name == 'date').value;
 		} else
 			date = "1993-09";
