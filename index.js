@@ -51,25 +51,19 @@ function loadCommands(log) {
 				if(log) console.log(`\x1b[1;34mRunning setup script for ${file}...\x1b[0m`);
 				command.module.setup();
 			}
-			
-			let commandData = {
-				name: command.module.name,
-				description: command.module.description,
-				options: command.module.options,
-			};
 
 			if(command.module.syntax !== undefined || command.module.commands !== undefined)
 				throw new Error("Command needs to be updated.");
 
-			if(commandData.name == undefined || commandData.description == undefined)
+			if(command.module.name == undefined || command.module.description == undefined)
 				throw new Error("One or more required fields were not specified.");
 			
 			loaded_commands.push(command.module);
 
 			// make sure the command hasn't already been registered and if not, register it
-			if(client.application.commands.cache.find(cmd => cmd.name === commandData.name) == undefined) {
-				client.application.commands.create(commandData).then(() => {
-					console.log(`\x1b[1;34mCommand ${commandData.name} successfully registered.\x1b[0m`);
+			if(client.application.commands.cache.find(cmd => cmd.name === command.module.name) == undefined) {
+				client.application.commands.create(command.module).then(() => {
+					console.log(`\x1b[1;34mCommand ${command.module.name} successfully registered.\x1b[0m`);
 				}).catch(error => {
 					console.error(`\x1b[1;31mFailed to register command ${file}`);
 					console.error(error);
@@ -94,12 +88,6 @@ client.once('ready', () => {
 	console.log(`Logged in as ${client.user.username}#${client.user.discriminator}`);
 
 	client.application.commands.fetch().then(() => loadCommands(true));
-
-	if(client.application.partial) {
-		client.application.fetch().catch(err => {
-			console.error("[Application Fetch Error]",err);
-		})
-	}
 });
 
 client.on("interaction", interaction => {
