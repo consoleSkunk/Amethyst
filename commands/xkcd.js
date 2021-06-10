@@ -18,14 +18,17 @@ exports.module = {
 		required: false,
 	}],
 	process: function (interaction) {
-		var params = "";
-		if(interaction.options.length > 0)
-			params = interaction.options.find(obj => obj.name == 'comic').value;
+		var params = (interaction.options.size > 0 ? 
+			interaction.options.find(obj => obj.name == 'comic').value
+			: undefined
+		);
+		console.log(params)
+		console.log(interaction.options);
 
 		// fake 404 response, using the image from explain xkcd
 		if (params == "404") {
 			//if (interaction.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
-				interaction.reply(new MessageEmbed({
+				interaction.reply({embeds: [new MessageEmbed({
 					title: `#404 - Not Found`,
 					author: {
 						name: "xkcd",
@@ -37,7 +40,12 @@ exports.module = {
 						url: 'https://www.explainxkcd.com/wiki/images/9/92/not_found.png'
 					},
 					timestamp: '2008-04-01T04:00:00.000Z'
-				}));
+				})], components: [new MessageActionRow().addComponents(
+					new MessageButton()
+						.setURL(`http://www.explainxkcd.com/wiki/index.php?title=404`)
+						.setLabel("Explain")
+						.setStyle("LINK")
+				)]});
 			/*} else {
 				interaction.reply("#404 - Not Found: https://xkcd.com/404")
 			}*/
