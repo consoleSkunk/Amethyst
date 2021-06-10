@@ -22,8 +22,6 @@ exports.module = {
 			interaction.options.find(obj => obj.name == 'comic').value
 			: undefined
 		);
-		console.log(params)
-		console.log(interaction.options);
 
 		// fake 404 response, using the image from explain xkcd
 		if (params == "404") {
