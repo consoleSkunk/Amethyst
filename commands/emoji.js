@@ -11,7 +11,7 @@ exports.module = {
 	}],
 	process: function(interaction, client) {
 		var params = "";
-		if(interaction.options.length > 0)
+		if(interaction.options.size > 0)
 			params = interaction.options.find(obj => obj.name == 'emoji').value;
 
 		if (params.length > 0) {
