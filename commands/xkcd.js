@@ -82,7 +82,7 @@ exports.module = {
 					},
 					timestamp: new Date(Date.UTC(comic.year, comic.month - 1, comic.day, 4)).toISOString() // hour is 4 AM UTC to match RSS feed
 				});
-				var explainButton = new MessageActionRow().addComponents(
+				var buttons = new MessageActionRow().addComponents(
 					new MessageButton()
 						.setURL(`http://www.explainxkcd.com/wiki/index.php?title=${comic.num}`)
 						.setLabel("Explain")
@@ -90,7 +90,12 @@ exports.module = {
 				);
 
 				if (comic.link !== "") {
-					xkEmbed.addField("Link", comic.link, false);
+					buttons.addComponents(
+						new MessageButton()
+							.setURL(new URL(comic.link,"http://xkcd.com/").toString())
+							.setEmoji("\u{1F517}")
+							.setStyle("LINK")
+					)
 				}
 
 				// special fixes
@@ -112,10 +117,10 @@ exports.module = {
 					xkEmbed.setURL("https://xkcd.com/851_make_it_better");
 				}
 
-				interaction.reply({embeds: [xkEmbed], components: [explainButton]});
+				interaction.reply({embeds: [xkEmbed], components: [buttons]});
 			//}
 		}).catch(err => {
-			if(err.message = "404 Not Found") {
+			if(err.message == "404 Not Found") {
 				interaction.reply("That comic does not exist.", {ephemeral: true});
 			} else {
 				interaction.reply("Failed to fetch xkcd comic: ```js\n" + err + "```", {ephemeral: true})
