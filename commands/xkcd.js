@@ -1,5 +1,9 @@
 var qs = require("querystring"),
-    { MessageEmbed } = require('discord.js'),
+    {
+		MessageEmbed,
+		MessageActionRow,
+		MessageButton
+	} = require('discord.js'),
     moment = require('moment'),
     fetch = require("node-fetch"),
     { name, version } = require('../package.json');
@@ -13,7 +17,7 @@ exports.module = {
 		description: "the ID of the comic",
 		required: false,
 	}],
-	process: function (interaction, client) {
+	process: function (interaction) {
 		var params = "";
 		if(interaction.options.length > 0)
 			params = interaction.options.find(obj => obj.name == 'comic').value;
@@ -72,6 +76,12 @@ exports.module = {
 					},
 					timestamp: new Date(Date.UTC(comic.year, comic.month - 1, comic.day, 4)).toISOString() // hour is 4 AM UTC to match RSS feed
 				});
+				var explainButton = new MessageActionRow().addComponents(
+					new MessageButton()
+						.setURL(`http://www.explainxkcd.com/wiki/index.php?title=${comic.num}`)
+						.setLabel("Explain")
+						.setStyle("LINK")
+				);
 
 				if (comic.link !== "") {
 					xkEmbed.addField("Link", comic.link, false);
@@ -96,7 +106,7 @@ exports.module = {
 					xkEmbed.setURL("https://xkcd.com/851_make_it_better");
 				}
 
-				interaction.reply(xkEmbed);
+				interaction.reply({embeds: [xkEmbed], components: [explainButton]});
 			//}
 		}).catch(err => {
 			if(err.message = "404 Not Found") {
