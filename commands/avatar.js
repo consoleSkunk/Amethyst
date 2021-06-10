@@ -12,7 +12,7 @@ exports.module = {
 	process: function(interaction) {
 		function displayAvatar(user) {
 			if(user.avatar != null) {
-				interaction.reply(new MessageEmbed({
+				interaction.reply({embeds: [new MessageEmbed({
 					author: {
 						name: `${user.tag}'s avatar`,
 						iconURL: user.defaultAvatarURL
@@ -22,7 +22,7 @@ exports.module = {
 					},
 					url: user.displayAvatarURL({size:4096,format:"png",dynamic:true}),
 					color: [0x5865f2,0x757e8a,0x3ba55c,0xfaa61a,0xed4245][user.discriminator % 5]
-				}));
+				})]});
 			} else {
 				interaction.reply(`**${user.tag}** does not have an avatar.`, {ephemeral: true});
 			}
