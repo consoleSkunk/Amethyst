@@ -69,8 +69,17 @@ exports.module = {
 					}
 				});
 			var emojiList = "";
+			var numAnimated = 0;
+			var numStatic = 0;
 			emojis.array().forEach((emoji, i) => {
-				emojiList += `<${emoji.animated ? "a" : ""}:${emoji.name}:${emoji.id}> \`:${emoji.name}:\`\n`
+				if(emoji.animated) numAnimated++; else numStatic++;
+
+				var boostLevel = 
+					(emoji.animated && numAnimated > 150) || (!emoji.animated && numStatic > 150) ? " (Lv 3)" :
+					(emoji.animated && numAnimated > 100) || (!emoji.animated && numStatic > 100) ? " (Lv 2)" :
+					(emoji.animated && numAnimated > 50) || (!emoji.animated && numStatic > 50) ? " (Lv 1)" : "";
+
+				emojiList += `<${emoji.animated ? "a" : ""}:${emoji.name}:${emoji.id}> \`:${emoji.name}:\`${boostLevel}\n`
 				if ((i+1) % 10 === 0 || i+1 == emojis.size){
 					embed.addField("\u200B",emojiList,true);
 					emojiList = "";
