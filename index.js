@@ -118,38 +118,45 @@ client.on("interaction", interaction => {
 });
 
 client.on("messageDelete", (msg) => {
-	// write to the server's delete log if it exists
-	var delete_channel = msg.guild.channels.cache.find(val => val.name.includes('delet'));
-	if(!delete_channel) return;
-	if(!delete_channel.permissionsFor(client.user).has("VIEW_CHANNEL") ||
-	   !delete_channel.permissionsFor(client.user).has("SEND_MESSAGES"))
-		return; // if we can't access the channel, we shouldn't try to write to it
-	var attach = "";
-	if(msg.channel == delete_channel || msg.author.bot) return;
+	try {
+		// write to the server's delete log if it exists
+		var delete_channel = msg.guild.channels.cache.find(val => val.name.includes('delet'));
+		if(!delete_channel) return;
+		if(!delete_channel.permissionsFor(client.user).has("VIEW_CHANNEL") ||
+		!delete_channel.permissionsFor(client.user).has("SEND_MESSAGES"))
+			return; // if we can't access the channel, we shouldn't try to write to it
+		var attach = "";
+		if(msg.channel == delete_channel || msg.author.bot) return;
 
-	embed = new Discord.MessageEmbed();
-	embed.setAuthor(msg.author.username + "#" + msg.author.discriminator, msg.author.displayAvatarURL({size:2048}).replace(".webp",".png"));
-	embed.setDescription(msg.content);
-	embed.setTitle("#" + msg.channel.name);
-	embed.setTimestamp(msg.createdTimestamp);
-	if(msg.embeds[0]) {
-		var emb = msg.embeds[0];
-		if(emb.type == "rich") {
+		embed = new Discord.MessageEmbed();
+		embed.setAuthor(msg.author.username + "#" + msg.author.discriminator, msg.author.displayAvatarURL({size:2048}).replace(".webp",".png"));
+		embed.setDescription(msg.content);
+		embed.setTitle("#" + msg.channel.name);
+		embed.setTimestamp(msg.createdTimestamp);
+		if(msg.embeds[0]) {
+			var emb = msg.embeds[0];
 			embed.addField(emb.description ? (emb.title ? emb.title : emb.author.name) : "Embed",emb.description ? (emb.description.length > 500 ? emb.description.substr(0,499) + "…" : emb.description) : (embed.title ? emb.title : emb.author),true);
-			if(emb.url) { if(!emb.url.includes("://twitter.com/")) { embed.addField("URL",emb.url,true); }}
 		}
-	}
-	if(msg.attachments.first()) {
-		var attach = msg.attachments.first();
-		if(attach.width !== null) {
-			embed.attachFiles({attachment: attach.proxyURL,name: attach.name});
-			embed.setImage("attachment://" + attach.name);
-		} else {
-			// likely not going to upload properly as it has already been deleted
-			embed.addField("Atachment filename",attach.name,true);
+
+		var attachment;
+		if(msg.attachments.first()) {
+			var attach = msg.attachments.first();
+			if(attach.width !== null) {
+				attachment = new Discord.MessageAttachment(attach.proxyURL);
+				embed.setImage("attachment://" + attach.name);
+			} else {
+				// likely not going to upload properly as it has already been deleted
+				embed.addField("Atachment filename",attach.name,true);
+			}
 		}
+
+		var messageData = {embeds: [embed], files: []}
+		if(attachment !== undefined) { messageData.files.push(attachment); }
+
+		delete_channel.send(messageData);
+	} catch(e) {
+		console.error("[Error: messageDelete]", e);
 	}
-	delete_channel.send(undefined, {embed: embed})
 });
 
 client.on("error", (err) => {
