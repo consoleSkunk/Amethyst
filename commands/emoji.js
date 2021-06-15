@@ -72,7 +72,7 @@ exports.module = {
 			var numAnimated = 0;
 			var numStatic = 0;
 			emojis.array().forEach((emoji, i) => {
-				if(emoji.animated) numAnimated++; else numStatic++;
+				if(emoji.animated && !emoji.managed) numAnimated++; else numStatic++;
 
 				var boostLevel = 
 					(emoji.animated && numAnimated > 150) || (!emoji.animated && numStatic > 150) ? " (Lv 3)" :
