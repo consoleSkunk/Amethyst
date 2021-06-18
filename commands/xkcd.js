@@ -112,10 +112,6 @@ exports.module = {
 				else if (comic.num == "1137") { // #1137 - RTL
 					xkEmbed.setTitle(`#${comic.num} - RTL`); // discord strips out the right-to-left override, ruining the joke
 				}
-				else if (comic.num == "851" && make_it_better) { // #851 - Na (Hey Jude version)
-					xkEmbed.setImage("https://imgs.xkcd.com/comics/na_make_it_better.png");
-					xkEmbed.setURL("https://xkcd.com/851_make_it_better");
-				}
 
 				interaction.reply({embeds: [xkEmbed], components: [buttons]});
 			//}
