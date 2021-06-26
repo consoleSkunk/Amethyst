@@ -51,7 +51,7 @@ exports.module = {
 				}
 				interaction.reply({embeds: [embed]});
 			} else {
-				interaction.reply("No valid custom emoji was specified.",{ephemeral: true});
+				interaction.reply({content: "No valid custom emoji was specified.",ephemeral: true});
 			}
 		} else {
 			var emojis = interaction.guild.emojis.cache,

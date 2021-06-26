@@ -24,7 +24,7 @@ exports.module = {
 					color: [0x5865f2,0x757e8a,0x3ba55c,0xfaa61a,0xed4245][user.discriminator % 5]
 				})]});
 			} else {
-				interaction.reply(`**${user.tag}** does not have an avatar.`, {ephemeral: true});
+				interaction.reply({content: `**${user.tag}** does not have an avatar.`, ephemeral: true});
 			}
 		}
 

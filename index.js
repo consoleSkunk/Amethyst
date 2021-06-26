@@ -107,13 +107,13 @@ client.on("interaction", interaction => {
 			try {
 				cmd.process(interaction, client);
 			} catch(err) {
-				interaction.reply("\u274c ERROR:```js\n" + err + "```",{ephemeral: true});
+				interaction.reply({content: "\u274c ERROR:```js\n" + err + "```", ephemeral: true});
 				console.error(`\x1b[1;31mError running command ${cmd.name}:`);
 				console.error(err);
 				console.error("\x1b[0m");
 			}
 		} else {
-			interaction.reply("\u274c This command has either failed to load or been removed.",{ephemeral: true});
+			interaction.reply({content: "\u274c This command has either failed to load or been removed.", ephemeral: true});
 		}
 });
 

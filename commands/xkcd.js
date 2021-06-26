@@ -117,9 +117,9 @@ exports.module = {
 			//}
 		}).catch(err => {
 			if(err.message == "404 Not Found") {
-				interaction.reply("That comic does not exist.", {ephemeral: true});
+				interaction.reply({content: "That comic does not exist.", ephemeral: true});
 			} else {
-				interaction.reply("Failed to fetch xkcd comic: ```js\n" + err + "```", {ephemeral: true})
+				interaction.reply({content: "Failed to fetch xkcd comic: ```js\n" + err + "```", ephemeral: true})
 				console.error("[xkcd Error]",err);
 			}
 		});
