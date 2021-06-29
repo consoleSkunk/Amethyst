@@ -131,7 +131,7 @@ client.on("messageDelete", (msg) => {
 		embed = new Discord.MessageEmbed();
 		embed.setAuthor(msg.author.username + "#" + msg.author.discriminator, msg.author.displayAvatarURL({size:2048}).replace(".webp",".png"));
 		embed.setDescription(msg.content);
-		embed.setTitle("#" + msg.channel.name);
+		embed.setTitle(msg.channel.parent ? `#${msg.channel.parent.name} - ${msg.channel.name}` : "#" + msg.channel.name);
 		embed.setTimestamp(msg.createdTimestamp);
 		if(msg.embeds[0]) {
 			var emb = msg.embeds[0];
@@ -156,6 +156,23 @@ client.on("messageDelete", (msg) => {
 		delete_channel.send(messageData);
 	} catch(e) {
 		console.error("[Error: messageDelete]", e);
+	}
+});
+
+client.on("threadDelete", (thread) => {
+	try {
+		// write to the server's delete log if it exists
+		var delete_channel = thread.guild.channels.cache.find(val => val.name.includes('delet'));
+		if(!delete_channel) return;
+		if(!delete_channel.permissionsFor(client.user).has("VIEW_CHANNEL") ||
+		!delete_channel.permissionsFor(client.user).has("SEND_MESSAGES"))
+			return; // if we can't access the channel, we shouldn't try to write to it
+		var attach = "";
+		var thread_type = thread.type == "public_thread" ? "public" : thread.type == "private_thread" ? "private" : thread.type;
+
+		delete_channel.send(`The ${thread_type} thread *${thread.name}* for channel <#${thread.parentID}> with ~${thread.messages.cache.size} message${thread.messages.cache.size == 1 ? "" : "s"} was deleted.`);
+	} catch(e) {
+		console.error("[Error: threadDelete]", e);
 	}
 });
 
