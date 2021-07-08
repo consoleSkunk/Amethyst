@@ -90,7 +90,7 @@ client.once('ready', () => {
 	client.application.commands.fetch().then(() => loadCommands(true));
 });
 
-client.on("interaction", interaction => {
+client.on("interactionCreate", interaction => {
 		// If the interaction isn't a slash command, return
 		if (!interaction.isCommand()) return;
 
