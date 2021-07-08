@@ -22,7 +22,7 @@ exports.module = {
 				var regex = emojiRegex.exec(params),
 					emoji = client.emojis.resolve(regex[3]),
 					embed = new Discord.MessageEmbed({
-					title: `${emoji !== null ? (emoji.requiresColons ? ":"+emoji.name+":" : emoji.name) : ":" + regex[2] + ":"}`,
+					title: `${emoji !== null ? (emoji.requiresColons ? "\\:"+emoji.name+"\\:" : emoji.name) : "\\:" + regex[2] + "\\:"}`,
 					image: {
 						url: `https://cdn.discordapp.com/emojis/${regex[3]}.${regex[1] == "a" ? "gif" : "png"}?v=1`
 					},
