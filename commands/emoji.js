@@ -10,16 +10,17 @@ exports.module = {
 		required: false
 	}],
 	process: function(interaction, client) {
-		var params = "";
-		if(interaction.options.size > 0)
-			params = interaction.options.find(obj => obj.name == 'emoji').value;
+		var option = interaction.options.getString('emoji');
 
-		if (params.length > 0) {
+		console.log(option);
+
+		if (option !== null) {
+
 			var emojiRegex = /^<(a?):(\w+):(\d+)>$/;
 			var idRegex = /^\d+$/;
 
-			if(params.match(emojiRegex)) {
-				var regex = emojiRegex.exec(params),
+			if(option.match(emojiRegex)) {
+				var regex = emojiRegex.exec(option),
 					emoji = client.emojis.resolve(regex[3]),
 					embed = new Discord.MessageEmbed({
 					title: `${emoji !== null ? (emoji.requiresColons ? "\\:"+emoji.name+"\\:" : emoji.name) : "\\:" + regex[2] + "\\:"}`,
@@ -34,8 +35,8 @@ exports.module = {
 					embed.setFooter(emoji.guild.name,emoji.guild.iconURL({size:128,format:"png",dynamic:true}));
 				}
 				interaction.reply({embeds: [embed]});
-			} else if(idRegex.test(params)) {
-				var id = params;
+			} else if(idRegex.test(option)) {
+				var id = option;
 					emoji = client.emojis.resolve(id),
 					embed = new Discord.MessageEmbed({
 					image: {
@@ -71,7 +72,8 @@ exports.module = {
 			var emojiList = "";
 			var numAnimated = 0;
 			var numStatic = 0;
-			emojis.array().forEach((emoji, i) => {
+			var i = 0;
+			emojis.each((emoji) => {
 				if(emoji.animated && !emoji.managed) numAnimated++; else numStatic++;
 
 				var boostLevel = 
@@ -84,6 +86,7 @@ exports.module = {
 					embed.addField("\u200B",emojiList,true);
 					emojiList = "";
 				}
+				i++;
 			});
 			interaction.reply({embeds: [embed]});
 		}

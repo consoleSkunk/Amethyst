@@ -20,7 +20,7 @@ try {
 let client = new Discord.Client({
 	allowedMentions: {repliedUser: true},
 	disabledEvents: ['TYPING_START'],
-	intents: ['GUILDS', 'GUILD_EMOJIS', 'GUILD_MESSAGES']
+	intents: ['GUILDS', 'GUILD_EMOJIS_AND_STICKERS', 'GUILD_MESSAGES']
 });
 
 if(!client.token) {

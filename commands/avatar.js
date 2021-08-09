@@ -28,7 +28,7 @@ exports.module = {
 			}
 		}
 
-		var userOption = interaction.options.find(obj => obj.name == 'user');
+		var userOption = interaction.options.get('user');
 
 		if (userOption !== undefined) {
 			displayAvatar(userOption.user);

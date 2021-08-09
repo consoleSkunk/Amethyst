@@ -18,10 +18,7 @@ exports.module = {
 		required: false,
 	}],
 	process: function (interaction) {
-		var params = (interaction.options.size > 0 ? 
-			interaction.options.find(obj => obj.name == 'comic').value
-			: undefined
-		);
+		var params = interaction.options.getInteger('comic')
 
 		// fake 404 response, using the image from explain xkcd
 		if (params == "404") {
