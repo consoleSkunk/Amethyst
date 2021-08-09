@@ -28,10 +28,10 @@ exports.module = {
 			}
 		}
 
-		var userOption = interaction.options.get('user');
+		var user = interaction.options.getUser('user');
 
-		if (userOption !== undefined) {
-			displayAvatar(userOption.user);
+		if (user !== null) {
+			displayAvatar(user);
 		} else {
 			displayAvatar(interaction.user);
 		}
