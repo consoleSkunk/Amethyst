@@ -12,8 +12,6 @@ exports.module = {
 	process: function(interaction, client) {
 		var option = interaction.options.getString('emoji');
 
-		console.log(option);
-
 		if (option !== null) {
 
 			var emojiRegex = /^<(a?):(\w+):(\d+)>$/;
