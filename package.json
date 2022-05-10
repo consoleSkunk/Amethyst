@@ -1,6 +1,6 @@
 {
   "name": "amethyst",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "",
   "main": "index.js",
   "dependencies": {
@@ -16,5 +16,5 @@
     "test": "node --inspect=0.0.0.0:9239 index.js"
   },
   "author": "Erika",
-  "license": "ISC"
+  "license": "AGPL-3.0-or-later"
 }
