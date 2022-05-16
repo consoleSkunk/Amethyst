@@ -4,7 +4,11 @@ const util = require("util");
 try {
 	var config = require("./config/config.json");
 } catch(e) {
-	console.error("ERROR: The configuration file is missing. Please copy config.example.json and modify it accordingly.");
+	if(e instanceof SyntaxError)
+		console.error("ERROR: The configuration file has a syntax error.\n" + e.message);
+	else
+		console.error("ERROR: The configuration file is missing. Please copy config.example.json and modify it accordingly.");
+	return;
 }
 
 try {
