@@ -66,7 +66,7 @@ exports.module = {
 						}
 					}
 				}
-				interaction.reply({embeds: embeds})
+				interaction.reply({content: `https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`, embeds: embeds})
 			}
 		});
 	}

@@ -70,7 +70,7 @@ exports.module = {
 						url: "https://xkcd.com/",
 						iconURL: "https://i.imgur.com/AtZVNGx.png"
 					},
-					url: 'https://xkcd.com/' + comic.num,
+					url: `https://xkcd.com/${comic.num}`,
 					image: {
 						url: comic.img
 					},
@@ -110,7 +110,7 @@ exports.module = {
 					xkEmbed.setTitle(`#${comic.num} - RTL`); // discord strips out the right-to-left override, ruining the joke
 				}
 
-				interaction.reply({embeds: [xkEmbed], components: [buttons]});
+				interaction.reply({content: `https://xkcd.com/${comic.num}`, embeds: [xkEmbed], components: [buttons]});
 			//}
 		}).catch(err => {
 			if(err.message == "404 Not Found") {

@@ -30,9 +30,9 @@ exports.module = {
 					color: 16426522
 				});
 				if(emoji !== null) {
-					embed.setFooter(emoji.guild.name,emoji.guild.iconURL({size:128,format:"png",dynamic:true}));
+					embed.setFooter({text: emoji.guild.name, iconURL: emoji.guild.iconURL({size:128,format:"png",dynamic:true})});
 				}
-				interaction.reply({embeds: [embed]});
+				interaction.reply({content: `https://cdn.discordapp.com/emojis/${regex[3]}.${regex[1] == "a" ? "gif" : "png"}`, embeds: [embed]});
 			} else if(idRegex.test(option)) {
 				var id = option;
 					emoji = client.emojis.resolve(id),
@@ -46,9 +46,9 @@ exports.module = {
 				});
 				if(emoji !== null) {
 					embed.setTitle(emoji.requiresColons ? ":"+emoji.name+":" : emoji.name);
-					embed.setFooter(emoji.guild.name,emoji.guild.iconURL({size:128,format:"png",dynamic:true}));
+					embed.setFooter({text: emoji.guild.name, iconURL: emoji.guild.iconURL({size:128,format:"png",dynamic:true})});
 				}
-				interaction.reply({embeds: [embed]});
+				interaction.reply({content: `https://cdn.discordapp.com/emojis/${id}.${emoji !== null && emoji.animated ? "gif" : "png"}`, embeds: [embed]});
 			} else {
 				interaction.reply({content: "No valid custom emoji was specified.",ephemeral: true});
 			}
