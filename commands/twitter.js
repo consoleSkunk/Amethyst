@@ -30,25 +30,37 @@ exports.module = {
 		
 		client.get('statuses/show', {id: tweetId, tweet_mode: 'extended'}, (error, tweet) => {
 			if(error) {
-				console.log(error);
 				interaction.reply({content: error[0].message, ephemeral: true})
 			} else {
-				console.log(tweet);
-				var twEmbed = new MessageEmbed({
-					author: {
-						name: `${tweet.user.name} (@${tweet.user.screen_name})`,
+				var embeds = [
+					new MessageEmbed({
+						author: {
+							name: `${tweet.user.name} (@${tweet.user.screen_name})`,
+							url: `https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`,
+							iconURL: tweet.user.profile_image_url_https
+						},
 						url: `https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`,
-						iconURL: tweet.user.profile_image_url_https
-					},
-					color: tweet.possibly_sensitive ? 0x800020 : 0x43B581,
-					description: tweet.full_text,
-					footer: {
-						text: /<a .+>(.+)<\/a>/.exec(tweet.source)[1]
-					},
-					timestamp: new Date(tweet.created_at).toISOString()
-				});
-				if(tweet.entities.media) twEmbed.setImage(tweet.entities.media[0].media_url_https)
-				interaction.reply({embeds: [twEmbed]})
+						color: tweet.possibly_sensitive ? 0x800020 : 0x43B581,
+						description: tweet.full_text,
+						footer: {
+							text: /<a .+>(.+)<\/a>/.exec(tweet.source)[1]
+						},
+						timestamp: new Date(tweet.created_at).toISOString()
+					})
+				];
+				if(tweet.extended_entities) {
+					if(tweet.extended_entities.media[0].type == "photo") embeds[0].setImage(tweet.extended_entities.media[0].media_url_https);
+
+					if(tweet.extended_entities.media[0].type == "photo" && tweet.extended_entities.media.length > 1) {
+						for(let i = 1; i < tweet.extended_entities.media.length; i++) {
+							embeds.push(new MessageEmbed({
+								url: `https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`,
+								image: {url: tweet.extended_entities.media[i].media_url_https}
+							}))
+						}
+					}
+				}
+				interaction.reply({embeds: embeds})
 			}
 		});
 	}
