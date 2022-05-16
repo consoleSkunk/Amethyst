@@ -32,6 +32,14 @@ exports.module = {
 			if(error) {
 				interaction.reply({content: error[0].message, ephemeral: true})
 			} else {
+				function htmldecode(text) {
+					var newText = text;
+					newText = newText.replaceAll("&lt;","<");
+					newText = newText.replaceAll("&gt;",">");
+					newText = newText.replaceAll("&amp;","&");
+					return newText;
+				}
+
 				var embeds = [
 					new MessageEmbed({
 						author: {
@@ -41,7 +49,7 @@ exports.module = {
 						},
 						url: `https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`,
 						color: tweet.possibly_sensitive ? 0x800020 : 0x43B581,
-						description: tweet.full_text,
+						description: htmldecode(tweet.full_text),
 						footer: {
 							text: /<a .+>(.+)<\/a>/.exec(tweet.source)[1],
 							iconURL: "https://abs.twimg.com/icons/apple-touch-icon-192x192.png"
@@ -52,7 +60,7 @@ exports.module = {
 				if(tweet.quoted_status)
 					embeds[0].addField(
 						`${tweet.quoted_status.user.name} (@${tweet.quoted_status.user.screen_name})`,
-						`>>> ${tweet.quoted_status.full_text}`,
+						`>>> ${htmldecode(tweet.quoted_status.full_text)}`,
 						false)
 				
 				if(tweet.favorite_count >= 100)
