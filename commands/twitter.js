@@ -49,9 +49,15 @@ exports.module = {
 						timestamp: new Date(tweet.created_at).toISOString()
 					})
 				];
+				if(tweet.quoted_status)
+					embeds[0].addField(
+						`${tweet.quoted_status.user.name} (@${tweet.quoted_status.user.screen_name})`,
+						`>>> ${tweet.quoted_status.full_text}`,
+						false)
+				
 				if(tweet.favorite_count >= 100)
 					embeds[0].addField("Likes", tweet.favorite_count.toString(), true)
-					if(tweet.retweet_count >= 100)
+				if(tweet.retweet_count >= 100)
 					embeds[0].addField("Retweets", tweet.retweet_count.toString(), true)
 
 				if(tweet.extended_entities) {
