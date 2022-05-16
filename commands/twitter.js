@@ -66,7 +66,6 @@ exports.module = {
 						}
 					}
 				}
-				console.log(embeds)
 				interaction.reply({embeds: embeds})
 			}
 		});
