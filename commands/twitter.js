@@ -43,11 +43,17 @@ exports.module = {
 						color: tweet.possibly_sensitive ? 0x800020 : 0x43B581,
 						description: tweet.full_text,
 						footer: {
-							text: /<a .+>(.+)<\/a>/.exec(tweet.source)[1]
+							text: /<a .+>(.+)<\/a>/.exec(tweet.source)[1],
+							iconURL: "https://abs.twimg.com/icons/apple-touch-icon-192x192.png"
 						},
 						timestamp: new Date(tweet.created_at).toISOString()
 					})
 				];
+				if(tweet.favorite_count >= 100)
+					embeds[0].addField("Likes", tweet.favorite_count.toString(), true)
+					if(tweet.retweet_count >= 100)
+					embeds[0].addField("Retweets", tweet.retweet_count.toString(), true)
+
 				if(tweet.extended_entities) {
 					if(tweet.extended_entities.media[0].type == "photo") embeds[0].setImage(tweet.extended_entities.media[0].media_url_https);
 
@@ -60,6 +66,7 @@ exports.module = {
 						}
 					}
 				}
+				console.log(embeds)
 				interaction.reply({embeds: embeds})
 			}
 		});
