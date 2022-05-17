@@ -89,8 +89,9 @@ exports.module = {
 						var best_bitrate = -1;
 						for(let i = 0; i < tweet.extended_entities.media[0].video_info.variants.length; i++) {
 							var video = tweet.extended_entities.media[0].video_info.variants[i];
-							if(video.bitrate <= best_bitrate)
+							if(video.bitrate <= best_bitrate || video.content_type != "video/mp4")
 								continue;
+					
 							best_bitrate = video.bitrate;
 							best_video_index = i;
 						}
