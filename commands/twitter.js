@@ -71,6 +71,9 @@ exports.module = {
 				if(tweet.extended_entities) {
 					if(tweet.extended_entities.media[0].type == "photo") embeds[0].setImage(tweet.extended_entities.media[0].media_url_https);
 
+					if(tweet.extended_entities.media[0].type == "video" || tweet.extended_entities.media[0].type == "animated_gif")
+						embeds[0].setThumbnail(tweet.extended_entities.media[0].media_url_https);
+
 					if(tweet.extended_entities.media[0].type == "photo" && tweet.extended_entities.media.length > 1) {
 						for(let i = 1; i < tweet.extended_entities.media.length; i++) {
 							embeds.push(new MessageEmbed({
