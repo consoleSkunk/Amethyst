@@ -46,7 +46,7 @@ exports.module = {
 					new MessageEmbed({
 						author: {
 							name: `${tweet.user.name} (@${tweet.user.screen_name})`,
-							url: `https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`,
+							url: `https://twitter.com/${tweet.user.screen_name}`,
 							iconURL: tweet.user.profile_image_url_https
 						},
 						url: `https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`,
