@@ -98,9 +98,9 @@ exports.module = {
 
 						//embeds[0].setThumbnail(tweet.extended_entities.media[0].media_url_https);
 						embeds = [];
-						content = `**[${tweet.user.name.replaceAll(/@(everyone|here)/g,"@/$1")} (@${tweet.user.screen_name.replaceAll(/^(everyone|here)/g,"/$1")})](<${content}>)**` +
+						content = `**[${tweet.user.name} (@${tweet.user.screen_name})](<${content}>)**` +
 						`[](${tweet.extended_entities.media[0].video_info.variants[best_video_index].url})\n` +
-						`>>> ${htmldecode(tweet.full_text).replaceAll(/https?:\/\/\S+/g,"<$&>").replaceAll(/@(everyone|here)/g,"@/$1")}\n`;
+						`>>> ${htmldecode(tweet.full_text).replaceAll(/https?:\/\/\S+/g,"<$&>")}\n`;
 					}
 				}
 				interaction.reply({content: content, embeds: embeds})
