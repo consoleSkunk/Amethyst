@@ -40,6 +40,8 @@ exports.module = {
 					return newText;
 				}
 
+				var content = `https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`;
+
 				var embeds = [
 					new MessageEmbed({
 						author: {
@@ -69,21 +71,42 @@ exports.module = {
 					embeds[0].addField("Retweets", tweet.retweet_count.toString(), true)
 
 				if(tweet.extended_entities) {
-					if(tweet.extended_entities.media[0].type == "photo") embeds[0].setImage(tweet.extended_entities.media[0].media_url_https);
+					if(tweet.extended_entities.media[0].type == "photo") {
+						 embeds[0].setImage(tweet.extended_entities.media[0].media_url_https);
 
-					if(tweet.extended_entities.media[0].type == "video" || tweet.extended_entities.media[0].type == "animated_gif")
-						embeds[0].setThumbnail(tweet.extended_entities.media[0].media_url_https);
-
-					if(tweet.extended_entities.media[0].type == "photo" && tweet.extended_entities.media.length > 1) {
-						for(let i = 1; i < tweet.extended_entities.media.length; i++) {
-							embeds.push(new MessageEmbed({
-								url: `https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`,
-								image: {url: tweet.extended_entities.media[i].media_url_https}
-							}))
+						 if(tweet.extended_entities.media.length > 1) {
+							for(let i = 1; i < tweet.extended_entities.media.length; i++) {
+								embeds.push(new MessageEmbed({
+									url: `https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`,
+									image: {url: tweet.extended_entities.media[i].media_url_https}
+								}))
+							}
 						}
 					}
+
+					if(tweet.extended_entities.media[0].type == "video" ) {
+						var best_video_index = -1;
+						var best_bitrate = -1;
+						for(let i = 0; i < tweet.extended_entities.media[0].video_info.variants.length; i++) {
+							var video = tweet.extended_entities.media[0].video_info.variants[i];
+							if(video.bitrate <= best_bitrate)
+								continue;
+							best_bitrate = video.bitrate;
+							best_video_index = i;
+						}
+
+						//embeds[0].setThumbnail(tweet.extended_entities.media[0].media_url_https);
+						embeds = [];
+						content = `Tweet: <${content}>\nVideo: ${tweet.extended_entities.media[0].video_info.variants[best_video_index].url}`;
+					}
+					
+					if(tweet.extended_entities.media[0].type == "animated_gif") {
+						//embeds[0].setThumbnail(tweet.extended_entities.media[0].media_url_https);
+						embeds = [];
+						content = `Tweet: <${content}>\nVideo: ${tweet.extended_entities.media[0].video_info.variants[0].url}`;
+					}
 				}
-				interaction.reply({content: `https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`, embeds: embeds})
+				interaction.reply({content: content, embeds: embeds})
 			}
 		});
 	}
