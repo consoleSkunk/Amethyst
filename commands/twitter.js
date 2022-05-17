@@ -84,7 +84,7 @@ exports.module = {
 						}
 					}
 
-					if(tweet.extended_entities.media[0].type == "video" ) {
+					if(tweet.extended_entities.media[0].type == "video" || tweet.extended_entities.media[0].type == "animated_gif") {
 						var best_video_index = -1;
 						var best_bitrate = -1;
 						for(let i = 0; i < tweet.extended_entities.media[0].video_info.variants.length; i++) {
@@ -97,13 +97,9 @@ exports.module = {
 
 						//embeds[0].setThumbnail(tweet.extended_entities.media[0].media_url_https);
 						embeds = [];
-						content = `Tweet: <${content}>\nVideo: ${tweet.extended_entities.media[0].video_info.variants[best_video_index].url}`;
-					}
-					
-					if(tweet.extended_entities.media[0].type == "animated_gif") {
-						//embeds[0].setThumbnail(tweet.extended_entities.media[0].media_url_https);
-						embeds = [];
-						content = `Tweet: <${content}>\nVideo: ${tweet.extended_entities.media[0].video_info.variants[0].url}`;
+						content = `${tweet.extended_entities.media[0].video_info.variants[best_video_index].url}\n<${content}>\n` +
+						`**${tweet.user.name.replaceAll(/@(everyone|here)/g,"@/$1")} (@${tweet.user.screen_name.replaceAll(/^(everyone|here)/g,"/$1")})**\n` +
+						`>>> ${htmldecode(tweet.full_text).replaceAll(/https?:\/\/\S+/g,"<$&>").replaceAll(/@(everyone|here)/g,"@/$1")}\n`;
 					}
 				}
 				interaction.reply({content: content, embeds: embeds})
