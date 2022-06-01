@@ -19,7 +19,7 @@ exports.module = {
 		required: true,
 	}],
 	process: function (interaction) {
-		var regex = /^(?:https?:\/\/twitter\.com\/\w{1,15}\/(?:status|statuses)\/)?(\d{2,20})/;
+		var regex = /^(?:https?:\/\/(?:mobile\.)?(?:[fv]x)?twitter\.com\/\w{1,15}\/(?:status|statuses)\/)?(\d{2,20})/;
 
 		if(!regex.test(interaction.options.getString('url'))) {
 			interaction.reply({content: "That doesn't appear to be a valid Twitter status URL.", ephemeral: true});
