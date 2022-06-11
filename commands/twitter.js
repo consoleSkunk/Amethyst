@@ -50,7 +50,7 @@ exports.module = {
 							iconURL: tweet.user.profile_image_url_https
 						},
 						url: `https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`,
-						color: tweet.possibly_sensitive ? 0x800020 : 0x43B581,
+						color: tweet.possibly_sensitive ? 0xf4212e : 0x00ba7c,
 						description: htmldecode(tweet.full_text),
 						footer: {
 							text: /<a .+>(.+)<\/a>/.exec(tweet.source)[1],
