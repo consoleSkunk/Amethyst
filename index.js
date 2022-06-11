@@ -50,30 +50,51 @@ function loadCommands(log) {
 		try {
 			clearModule(filename);
 			let command = require.main.require(filename);
+			let metadata = (({ process, setup, ...o }) => o)(command.module);
+
 			if(typeof command.module.setup !== 'undefined') {
 				// code to run when command is loaded
 				if(log) console.log(`\x1b[1;34mRunning setup script for ${file}...\x1b[0m`);
 				command.module.setup();
 			}
 
-			if(command.module.syntax !== undefined || command.module.commands !== undefined)
+			if(metadata.syntax !== undefined || metadata.commands !== undefined)
 				throw new Error("Command needs to be updated.");
 
-			if(command.module.name == undefined || command.module.description == undefined)
+			if(metadata.name == undefined || metadata.description == undefined)
 				throw new Error("One or more required fields were not specified.");
 			
 			loaded_commands.push(command.module);
 
-			// make sure the command hasn't already been registered and if not, register it
-			if(client.application.commands.cache.find(cmd => cmd.name === command.module.name) == undefined) {
-				client.application.commands.create(command.module).then(() => {
-					console.log(`\x1b[1;34mCommand ${command.module.name} successfully registered.\x1b[0m`);
+			// if command exists but its metadata doesn't match, update it
+			if(
+				client.application.commands.cache.find(cmd => cmd.name === metadata.name) !== undefined || 
+				client.application.commands.cache.find(cmd => cmd.description === metadata.description) !== undefined
+			) {
+				var appcmd = client.application.commands.cache.find(cmd => cmd.name === metadata.name || cmd.description === metadata.description);
+				if(appcmd.name !== metadata.name || appcmd.description !== metadata.description) {
+					console.log(appcmd);
+					console.log(metadata);
+					client.application.commands.edit(appcmd, metadata).then(() => {
+						console.log(`\x1b[1;34mCommand ${metadata.name} successfully updated.\x1b[0m`);
+					}).catch(error => {
+						console.error(`\x1b[1;31mFailed to update command ${file}`);
+						console.error(error);
+						console.error("\x1b[0m");
+					});
+				}
+			}
+			// otherwise register command if it doesn't exist yet
+			else if(client.application.commands.cache.find(cmd => cmd.name === metadata.name) == undefined) {
+				client.application.commands.create(metadata).then(() => {
+					console.log(`\x1b[1;34mCommand ${metadata.name} successfully registered.\x1b[0m`);
 				}).catch(error => {
 					console.error(`\x1b[1;31mFailed to register command ${file}`);
 					console.error(error);
 					console.error("\x1b[0m");
 				});
 			}
+			
 			
 			if(log) console.log(`\x1b[1;34mSuccessfully loaded ${file}\x1b[0m`);
 			count++;
