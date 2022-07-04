@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "clear-module": "^4.0.0",
-    "discord.js": "^13.6.0",
-    "moment": "^2.24.0",
-    "node-fetch": "^2.6.0",
+    "clear-module": "^4.1.2",
+    "discord.js": "^13.8.1",
+    "moment": "^2.29.3",
+    "node-fetch": "^2.6.7",
     "prettysize": "^2.0.0",
     "twitter": "^1.7.1"
   },
