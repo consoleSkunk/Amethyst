@@ -72,9 +72,7 @@ function loadCommands(log) {
 				client.application.commands.cache.find(cmd => cmd.description === metadata.description) !== undefined
 			) {
 				var appcmd = client.application.commands.cache.find(cmd => cmd.name === metadata.name || cmd.description === metadata.description);
-				if(appcmd.name !== metadata.name || appcmd.description !== metadata.description) {
-					console.log(appcmd);
-					console.log(metadata);
+				if(!appcmd.equals(metadata)) {
 					client.application.commands.edit(appcmd, metadata).then(() => {
 						console.log(`\x1b[1;34mCommand ${metadata.name} successfully updated.\x1b[0m`);
 					}).catch(error => {
