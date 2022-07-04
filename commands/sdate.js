@@ -4,21 +4,21 @@ exports.module = {
 	description: "Check what day of Eternal September it is.",
 	options: [
 		{
-			name: 'date',
+			name: 'epoch',
 			type: 'STRING',
-			description: "The month in YYYY-MM format",
+			description: "The starting month in YYYY-MM format",
 			required: false
 		},
 	],
 	process: function(interaction) {
 		var date;
 		var epochRegex = /^(\d{4})[-\/](\d{2})$/
-		if(interaction.options.get('date')) {
-			if(!epochRegex.test(interaction.options.getString('date'))) {
+		if(interaction.options.get('epoch')) {
+			if(!epochRegex.test(interaction.options.getString('epoch'))) {
 				interaction.reply({content: `That doesn't appear to be a valid date.`, ephemeral: true});
 				return;
 			} else
-				date = interaction.options.getString('date');
+				date = interaction.options.getString('epoch');
 		} else
 			date = "1993-09";
 
