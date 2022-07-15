@@ -22,8 +22,7 @@ exports.module = {
 		fetch(`${ENDPOINT}?text_speaker=${voice}&req_text=${encodeURIComponent(text)}`, {
 			method: 'POST',
 			headers: {
-				'User-Agent': `${name}/${version}`,
-				'Origin': 'https://localhost'
+				'User-Agent': `${name}/${version}`
 			}
 		})
 		.then(res => {
