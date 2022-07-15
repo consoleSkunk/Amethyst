@@ -27,7 +27,6 @@ exports.module = {
 			}
 		})
 		.then(res => {
-			console.log(res);
 			if (res.ok) {
 				return res.json()
 			} else {
@@ -35,7 +34,6 @@ exports.module = {
 			}
 		})
 		.then(json => {
-			console.log(json);
 			if (json.status_code != 0) {
 				interaction.reply(`Server returned error (message: "${json.message}").`)
 			} else {
