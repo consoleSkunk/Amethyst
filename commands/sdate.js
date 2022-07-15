@@ -1,6 +1,5 @@
 exports.module = {
 	name: "sdate",
-	aliases: ["september"],
 	description: "Check what day of Eternal September it is.",
 	options: [
 		{
