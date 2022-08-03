@@ -73,7 +73,7 @@ exports.module = {
 				interaction.reply({
 					files: [{
 						attachment: buffer,
-						name: `${text}.mp3`
+						name: `${text.substr(0,166)}.mp3`
 					}]
 				});
 			}
