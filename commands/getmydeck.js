@@ -43,7 +43,7 @@ exports.module = {
 		if(timestamp <= 1626454800) {
 			return interaction.reply({content: "**Error:** Reservations were not open at that point in time.", ephemeral: true})
 		} else if(timestamp > new Date().getTime()/1000) {
-			return interaction.reply({content: "**Error:** That timestamp appears to be ", ephemeral: true})
+			return interaction.reply({content: "**Error:** That timestamp appears to be in the future.", ephemeral: true})
 		}
 		fetch(`https://getmydeck.ingenhaag.dev/api/v2/regions/${region}/versions/${model}/infos/${timestamp}`, {
 			headers: {
