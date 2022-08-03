@@ -40,11 +40,12 @@ exports.module = {
 		    region = interaction.options.getString('region'),
 		    model = interaction.options.getString('model');
 
-		if(timestamp <= 1626454800) {
-			return interaction.reply({content: "**Error:** Reservations were not open at that point in time.", ephemeral: true})
-		} else if(timestamp > new Date().getTime()/1000) {
-			return interaction.reply({content: "**Error:** That timestamp appears to be in the future.", ephemeral: true})
+		if(timestamp <= 1626454800 || timestamp > new Date().getTime()/1000) {
+			return interaction.reply({content:
+				"**Error:** That does not appear to be a valid reservation timestamp.\n" +
+				"[Log into Steam](<https://store.steampowered.com/login/>) and copy `rtReserveTime` from [this page](<https://store.steampowered.com/reservation/ajaxgetuserstate?rgReservationPackageIDs=%5B595603,595604,595605%5D>).", ephemeral: true})
 		}
+
 		fetch(`https://getmydeck.ingenhaag.dev/api/v2/regions/${region}/versions/${model}/infos/${timestamp}`, {
 			headers: {
 				'User-Agent': `${name}/${version}`
