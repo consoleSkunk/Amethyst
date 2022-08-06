@@ -67,7 +67,7 @@ exports.module = {
 				fields: [
 					{name:"Your Reservation",value:`${json.personalInfo.region} ${json.personalInfo.version}GB\n<t:${timestamp}>`,inline: true},
 					{name:"Last Processed",value:`<t:${json.personalInfo.latestOrderSeconds}>`,inline: true},
-					{name:"%",value:`${json.personalInfo.elapsedTimePercentage}%`,inline: true}
+					{name:"%",value:`${json.personalInfo.elapsedTimePercentage}% (+${json.personalInfo.historicData[0].increasedPercentage}%)`,inline: true}
 				],
 				timestamp: `${json.officialInfo.lastDataUpdate}`,
 				footer: {icon_url: "https://cdn.cloudflare.steamstatic.com/steamdeck/images/favicon-32x32.png"}
