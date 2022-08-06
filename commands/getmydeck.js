@@ -59,12 +59,13 @@ exports.module = {
 			}
 		})
 		.then(json => {
+			let timestamp = Math.floor(new Date(json.personalInfo.reservedAt).getTime()/1000);
 			interaction.reply({embeds: [new MessageEmbed({
 				title: `GetMyDeck`,
-				url: `https://getmydeck.ingenhaag.dev/s/${region}/${model}/${timestamp}`,
+				url: `https://getmydeck.ingenhaag.dev/s/${json.personalInfo.region}/${json.personalInfo.version}/${timestamp}`,
 				description: `${json.personalInfo.prettyText}`,
 				fields: [
-					{name:"Your Reservation",value:`${json.personalInfo.region} ${json.personalInfo.version}GB\n<t:${1627752329}>`,inline: true},
+					{name:"Your Reservation",value:`${json.personalInfo.region} ${json.personalInfo.version}GB\n<t:${timestamp}>`,inline: true},
 					{name:"Last Processed",value:`<t:${json.personalInfo.latestOrderSeconds}>`,inline: true},
 					{name:"%",value:`${json.personalInfo.elapsedTimePercentage}%`,inline: true}
 				],
