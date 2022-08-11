@@ -10,6 +10,8 @@ exports.module = {
 			name: 'timestamp',
 			type: 'INTEGER',
 			description: "Reservation timestamp",
+			minValue: 1626454800,
+			maxValue: 9999999999,
 			required: true
 		},
 		{
