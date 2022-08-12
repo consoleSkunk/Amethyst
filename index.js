@@ -110,8 +110,12 @@ client.once('ready', () => {
 });
 
 client.on("interactionCreate", interaction => {
-		// If the interaction isn't a slash command, return
-		if (!interaction.isCommand()) return;
+		const InteractionType = Discord.InteractionType;
+		// ignore unknown interaction types
+		if (![
+			InteractionType.ApplicationCommand,
+			InteractionType.ApplicationCommandAutocomplete
+		].includes(interaction.type)) return;
 
 		var cmd;
 
@@ -124,17 +128,20 @@ client.on("interactionCreate", interaction => {
 		}
 		if(cmd !== undefined) {
 			try {
-				if(interaction.isChatInputCommand())
+				if(interaction.type === InteractionType.ApplicationCommand)
 					cmd.process(interaction, client);
+				else if(interaction.type === InteractionType.ApplicationCommandAutocomplete)
+					cmd.autocomplete(interaction, client);
 			} catch(err) {
-				if(interaction.isChatInputCommand())
+				if(interaction.type === InteractionType.ApplicationCommand)
 					interaction.reply({content: "\u274c ERROR:```js\n" + err + "```", ephemeral: true});
 				console.error(`\x1b[1;31mError running command ${cmd.name}:`);
 				console.error(err);
 				console.error("\x1b[0m");
 			}
 		} else {
-			interaction.reply({content: "\u274c This command has either failed to load or been removed.", ephemeral: true});
+			if(interaction.type === InteractionType.ApplicationCommand)
+				interaction.reply({content: "\u274c This command has either failed to load or been removed.", ephemeral: true});
 		}
 });
 
