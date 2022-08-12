@@ -1,6 +1,8 @@
 exports.module = {
-	name: "june",
-	description: "Check what day of Eternal June it is.",
+	command: {
+		name: "june",
+		description: "Check what day of Eternal June it is.",
+	},
 	process: function(interaction){
 		var today = new Date();
 		var year = today.getFullYear() - (today.getMonth() < 5 ? 1 : 0);

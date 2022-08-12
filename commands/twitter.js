@@ -1,4 +1,4 @@
-var { MessageEmbed } = require('discord.js'),
+var { EmbedBuilder, ApplicationCommandOptionType } = require('discord.js'),
     { twitter } = require('../config/config.json');
     TwitterClient = require('twitter');
 
@@ -10,14 +10,16 @@ var { MessageEmbed } = require('discord.js'),
 
 
 exports.module = {
-	name: "twitter",
-	description: "Re-embeds a tweet",
-	options: [{
-		name: 'url',
-		type: 'STRING',
-		description: "URL to tweet",
-		required: true,
-	}],
+	command: {
+		name: "twitter",
+		description: "Re-embeds a tweet",
+		options: [{
+			name: 'url',
+			type: ApplicationCommandOptionType.String,
+			description: "URL to tweet",
+			required: true,
+		}],
+	},
 	process: function (interaction) {
 		var regex = /^(?:https?:\/\/(?:mobile\.)?(?:[fv]x)?twitter\.com\/\w{1,15}\/(?:status|statuses)\/)?(\d{2,20})/;
 
@@ -43,7 +45,7 @@ exports.module = {
 				var content = `https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`;
 
 				var embeds = [
-					new MessageEmbed({
+					new EmbedBuilder({
 						author: {
 							name: `${tweet.user.name} (@${tweet.user.screen_name})`,
 							url: `https://twitter.com/${tweet.user.screen_name}`,
@@ -60,15 +62,24 @@ exports.module = {
 					})
 				];
 				if(tweet.quoted_status)
-					embeds[0].addField(
-						`${tweet.quoted_status.user.name} (@${tweet.quoted_status.user.screen_name})`,
-						`>>> ${htmldecode(tweet.quoted_status.full_text)}`,
-						false)
+					embeds[0].addFields([{
+						name: `${tweet.quoted_status.user.name} (@${tweet.quoted_status.user.screen_name})`,
+						value: `>>> ${htmldecode(tweet.quoted_status.full_text)}`,
+						inline: false
+					}])
 				
 				if(tweet.favorite_count >= 100)
-					embeds[0].addField("Likes", tweet.favorite_count.toString(), true)
+					embeds[0].addFields([{
+						name: "Likes",
+						value: tweet.favorite_count.toString(),
+						inline: true
+					}])
 				if(tweet.retweet_count >= 100)
-					embeds[0].addField("Retweets", tweet.retweet_count.toString(), true)
+					embeds[0].addFields([{
+						name: "Retweets",
+						value: tweet.retweet_count.toString(),
+						inline: true
+				}])
 
 				if(tweet.extended_entities) {
 					if(tweet.extended_entities.media[0].type == "photo") {
@@ -76,7 +87,7 @@ exports.module = {
 
 						 if(tweet.extended_entities.media.length > 1) {
 							for(let i = 1; i < tweet.extended_entities.media.length; i++) {
-								embeds.push(new MessageEmbed({
+								embeds.push(new EmbedBuilder({
 									url: `https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`,
 									image: {url: tweet.extended_entities.media[i].media_url_https}
 								}))

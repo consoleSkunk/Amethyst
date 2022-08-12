@@ -1,14 +1,18 @@
+const { ApplicationCommandOptionType } = require('discord.js');
+
 exports.module = {
-	name: "sdate",
-	description: "Check what day of Eternal September it is.",
-	options: [
-		{
-			name: 'epoch',
-			type: 'STRING',
-			description: "The starting month in YYYY-MM format",
-			required: false
-		},
-	],
+	command: {
+		name: "sdate",
+		description: "Check what day of Eternal September it is.",
+		options: [
+			{
+				name: 'epoch',
+				type: ApplicationCommandOptionType.String,
+				description: "The starting month in YYYY-MM format",
+				required: false
+			},
+		],
+	},
 	process: function(interaction) {
 		var date;
 		var epochRegex = /^(\d{4})[-\/](\d{2})$/

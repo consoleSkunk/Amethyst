@@ -1,42 +1,44 @@
-var fetch = require("node-fetch"),
-    { MessageEmbed, ApplicationCommand, CommandInteraction } = require('discord.js'),
-    { name, version } = require('../package.json');
+const fetch = require("node-fetch"),
+      { EmbedBuilder, ApplicationCommandOptionType } = require('discord.js'),
+      { name, version } = require('../package.json');
 
 exports.module = {
-	name: "getmydeck",
-	description: "Returns reservation status from GetMyDeck.",
-	options: [
-		{
-			name: 'timestamp',
-			type: 'INTEGER',
-			description: "Reservation timestamp",
-			minValue: 1626454800,
-			maxValue: 9999999999,
-			required: true
-		},
-		{
-			name: 'region',
-			type: 'STRING',
-			description: "Your region",
-			required: true,
-			choices: [
-				{name: "United States", value: "US"},
-				{name: "United Kingdom", value: "UK"},
-				{name: "European Union", value: "EU"},
-			]
-		},
-		{
-			name: 'model',
-			type: 'STRING',
-			description: "Your reserved model",
-			required: true,
-			choices: [
-				{name: "64GB eMMC", value: "64"},
-				{name: "256GB NVMe", value: "256"},
-				{name: "512GB NVMe", value: "512"},
-			]
-		}
-	],
+	command: {
+		name: "getmydeck",
+		description: "Returns reservation status from GetMyDeck.",
+		options: [
+			{
+				name: 'timestamp',
+				type: ApplicationCommandOptionType.Integer,
+				description: "Reservation timestamp",
+				minValue: 1626454800,
+				maxValue: 9999999999,
+				required: true
+			},
+			{
+				name: 'region',
+				type: ApplicationCommandOptionType.String,
+				description: "Your region",
+				required: true,
+				choices: [
+					{name: "United States", value: "US"},
+					{name: "United Kingdom", value: "UK"},
+					{name: "European Union", value: "EU"},
+				]
+			},
+			{
+				name: 'model',
+				type: ApplicationCommandOptionType.String,
+				description: "Your reserved model",
+				required: true,
+				choices: [
+					{name: "64GB eMMC", value: "64"},
+					{name: "256GB NVMe", value: "256"},
+					{name: "512GB NVMe", value: "512"},
+				]
+			}
+		],
+	},
 	process: function(interaction) {
 		let timestamp = interaction.options.getInteger('timestamp'),
 		    region = interaction.options.getString('region'),
@@ -62,7 +64,7 @@ exports.module = {
 		})
 		.then(json => {
 			let timestamp = Math.floor(new Date(json.personalInfo.reservedAt).getTime()/1000);
-			interaction.reply({embeds: [new MessageEmbed({
+			interaction.reply({embeds: [new EmbedBuilder({
 				title: `GetMyDeck`,
 				url: `https://getmydeck.ingenhaag.dev/s/${json.personalInfo.region}/${json.personalInfo.version}/${timestamp}`,
 				description: `${json.personalInfo.prettyText}`,

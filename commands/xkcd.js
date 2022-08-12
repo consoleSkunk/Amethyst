@@ -1,29 +1,33 @@
 var qs = require("querystring"),
     {
-		MessageEmbed,
-		MessageActionRow,
-		MessageButton
+		EmbedBuilder,
+		ActionRowBuilder,
+		ButtonBuilder,
+		ButtonStyle,
+		ApplicationCommandOptionType
 	} = require('discord.js'),
     moment = require('moment'),
     fetch = require("node-fetch"),
     { name, version } = require('../package.json');
 
 exports.module = {
-	name: "xkcd",
-	description: "Returns the latest comic or a specified comic from xkcd.",
-	options: [{
-		name: 'comic',
-		type: 'INTEGER',
-		description: "the ID of the comic",
-		required: false,
-	}],
+	command: {
+		name: "xkcd",
+		description: "Returns the latest comic or a specified comic from xkcd.",
+		options: [{
+			name: 'comic',
+			type: ApplicationCommandOptionType.Integer,
+			description: "the ID of the comic",
+			required: false,
+		}],
+	},
 	process: function (interaction) {
 		var params = interaction.options.getInteger('comic')
 
 		// fake 404 response, using the image from explain xkcd
 		if (params == "404") {
 			//if (interaction.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
-				interaction.reply({embeds: [new MessageEmbed({
+				interaction.reply({embeds: [new EmbedBuilder({
 					title: `#404 - Not Found`,
 					author: {
 						name: "xkcd",
@@ -35,8 +39,8 @@ exports.module = {
 						url: 'https://www.explainxkcd.com/wiki/images/9/92/not_found.png'
 					},
 					timestamp: '2008-04-01T04:00:00.000Z'
-				})], components: [new MessageActionRow().addComponents(
-					new MessageButton()
+				})], components: [new ActionRowBuilder().addComponents(
+					new ButtonBuilder()
 						.setURL(`http://www.explainxkcd.com/wiki/index.php?title=404`)
 						.setLabel("Explain")
 						.setStyle("LINK")
@@ -63,7 +67,7 @@ exports.module = {
 			/*if (!interaction.channel.permissionsFor(client.user).has("EMBED_LINKS")) {
 				interaction.reply(`#${comic.num} - ${comic.safe_title}: ${comic.img}\n*${comic.alt}*`);
 			} else { */
-				var xkEmbed = new MessageEmbed({
+				var xkEmbed = new EmbedBuilder({
 					title: `#${comic.num} - ${comic.safe_title}`,
 					author: {
 						name: "xkcd",
@@ -79,19 +83,22 @@ exports.module = {
 					},
 					timestamp: new Date(Date.UTC(comic.year, comic.month - 1, comic.day, 4)).toISOString() // hour is 4 AM UTC to match RSS feed
 				});
-				var buttons = new MessageActionRow().addComponents(
-					new MessageButton()
-						.setURL(`http://www.explainxkcd.com/wiki/index.php?title=${comic.num}`)
-						.setLabel("Explain")
-						.setStyle("LINK")
+				var buttons = new ActionRowBuilder().addComponents(
+					new ButtonBuilder({
+						url: `http://www.explainxkcd.com/wiki/index.php?title=${comic.num}`,
+						emoji: "\u{1F4AC}",
+						label: "Explain",
+						style: ButtonStyle.Link
+					})
 				);
 
 				if (comic.link !== "") {
 					buttons.addComponents(
-						new MessageButton()
-							.setURL(new URL(comic.link,"http://xkcd.com/").toString())
-							.setEmoji("\u{1F517}")
-							.setStyle("LINK")
+						new ButtonBuilder({
+							url: new URL(comic.link,"http://xkcd.com/").toString(),
+							emoji: "\u{1F517}",
+							style: ButtonStyle.Link
+						})
 					)
 				}
 
@@ -117,7 +124,7 @@ exports.module = {
 				interaction.reply({content: "That comic does not exist.", ephemeral: true});
 			} else {
 				interaction.reply({content: "Failed to fetch xkcd comic: ```js\n" + err + "```", ephemeral: true})
-				console.error("[xkcd Error]",err);
+				console.error("[Command Error: /xkcd]",err);
 			}
 		});
 

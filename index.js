@@ -23,8 +23,7 @@ try {
 
 let client = new Discord.Client({
 	allowedMentions: {repliedUser: true},
-	disabledEvents: ['TYPING_START'],
-	intents: ['GUILDS', 'GUILD_EMOJIS_AND_STICKERS', 'GUILD_MESSAGES']
+	intents: new Discord.IntentsBitField(['Guilds', 'GuildEmojisAndStickers'])
 });
 
 if(!client.token) {
@@ -50,16 +49,13 @@ function loadCommands(log) {
 		try {
 			clearModule(filename);
 			let command = require.main.require(filename);
-			let metadata = (({ process, setup, ...o }) => o)(command.module);
+			let metadata = command.module.command;
 
 			if(typeof command.module.setup !== 'undefined') {
 				// code to run when command is loaded
 				if(log) console.log(`\x1b[1;34mRunning setup script for ${file}...\x1b[0m`);
 				command.module.setup();
 			}
-
-			if(metadata.syntax !== undefined || metadata.commands !== undefined)
-				throw new Error("Command needs to be updated.");
 
 			if(metadata.name == undefined || metadata.description == undefined)
 				throw new Error("One or more required fields were not specified.");
@@ -121,16 +117,18 @@ client.on("interactionCreate", interaction => {
 
 		// find the command the user wants
 		for (let module of loaded_commands) {
-			if (module.name == interaction.commandName) {
+			if (module.command.name == interaction.commandName) {
 				cmd = module;
 				break;
 			}
 		}
 		if(cmd !== undefined) {
 			try {
-				cmd.process(interaction, client);
+				if(interaction.isChatInputCommand())
+					cmd.process(interaction, client);
 			} catch(err) {
-				interaction.reply({content: "\u274c ERROR:```js\n" + err + "```", ephemeral: true});
+				if(interaction.isChatInputCommand())
+					interaction.reply({content: "\u274c ERROR:```js\n" + err + "```", ephemeral: true});
 				console.error(`\x1b[1;31mError running command ${cmd.name}:`);
 				console.error(err);
 				console.error("\x1b[0m");
@@ -138,64 +136,6 @@ client.on("interactionCreate", interaction => {
 		} else {
 			interaction.reply({content: "\u274c This command has either failed to load or been removed.", ephemeral: true});
 		}
-});
-
-client.on("messageDelete", (msg) => {
-	try {
-		// write to the server's delete log if it exists
-		var delete_channel = msg.guild.channels.cache.find(val => val.name.includes('delet'));
-		if(!delete_channel) return;
-		if(!delete_channel.permissionsFor(client.user).has("VIEW_CHANNEL") ||
-		!delete_channel.permissionsFor(client.user).has("SEND_MESSAGES"))
-			return; // if we can't access the channel, we shouldn't try to write to it
-		var attach = "";
-		if(msg.channel == delete_channel || msg.author.bot) return;
-
-		embed = new Discord.MessageEmbed();
-		embed.setAuthor(msg.author.username + "#" + msg.author.discriminator, msg.author.displayAvatarURL({size:2048}).replace(".webp",".png"));
-		embed.setDescription(msg.content);
-		embed.setTitle(`#${msg.channel.name}, ${msg.channel.parent.name}`);
-		embed.setTimestamp(msg.createdTimestamp);
-		if(msg.embeds[0]) {
-			var emb = msg.embeds[0];
-			embed.addField(emb.description ? (emb.title ? emb.title : emb.author.name) : "Embed",emb.description ? (emb.description.length > 500 ? emb.description.substr(0,499) + "…" : emb.description) : (embed.title ? emb.title : emb.author),true);
-		}
-
-		var attachment;
-		if(msg.attachments.first()) {
-			var attach = msg.attachments.first();
-			if(attach.width !== null) {
-				attachment = new Discord.MessageAttachment(attach.proxyURL);
-				embed.setImage("attachment://" + attach.name);
-			} else {
-				// likely not going to upload properly as it has already been deleted
-				embed.addField("Atachment filename",attach.name,true);
-			}
-		}
-
-		var messageData = {embeds: [embed], files: []}
-		if(attachment !== undefined) { messageData.files.push(attachment); }
-
-		delete_channel.send(messageData);
-	} catch(e) {
-		console.error("[Error: messageDelete]", e);
-	}
-});
-
-client.on("threadDelete", (thread) => {
-	try {
-		// write to the server's delete log if it exists
-		var delete_channel = thread.guild.channels.cache.find(val => val.name.includes('delet'));
-		if(!delete_channel) return;
-		if(!delete_channel.permissionsFor(client.user).has("VIEW_CHANNEL") ||
-		!delete_channel.permissionsFor(client.user).has("SEND_MESSAGES"))
-			return; // if we can't access the channel, we shouldn't try to write to it
-		var attach = "";
-
-		delete_channel.send(`The ${thread.type == "private_thread" ? "private thread" : "thread"} *${thread.name}* for channel <#${thread.parentID}> with ~${thread.messages.cache.size} message${thread.messages.cache.size == 1 ? "" : "s"} was deleted.`);
-	} catch(e) {
-		console.error("[Error: threadDelete]", e);
-	}
 });
 
 client.on("error", (err) => {
