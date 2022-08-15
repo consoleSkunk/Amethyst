@@ -73,7 +73,7 @@ exports.module = {
 					{name:"Last Processed",value:`<t:${json.personalInfo.latestOrderSeconds}>`,inline: true},
 					{name:"%",value:`${json.personalInfo.elapsedTimePercentage}% (+${json.personalInfo.historicData[0].increasedPercentage}%)`,inline: true}
 				],
-				timestamp: `${json.officialInfo.lastDataUpdate}`,
+				timestamp: json.personalInfo.lastDataUpdate,
 				footer: {icon_url: "https://cdn.cloudflare.steamstatic.com/steamdeck/images/favicon-32x32.png"}
 			})]})
 		})
