@@ -34,11 +34,16 @@ exports.module = {
 			if(error) {
 				interaction.reply({content: error[0].message, ephemeral: true})
 			} else {
-				function htmldecode(text) {
+				function parseTweet(text) {
 					var newText = text;
+					// escape encoded html
 					newText = newText.replaceAll("&lt;","<");
 					newText = newText.replaceAll("&gt;",">");
 					newText = newText.replaceAll("&amp;","&");
+					// parse @s and hashtags as links
+					newText = newText.replaceAll(/@([a-z0-9_]{1,15})/gi,"[@\u200A$1](<https://twitter.com/$1>)");
+					newText = newText.replaceAll(/#(\w+)/gi,"[#$1](<https://twitter.com/hashtag/$1>)");
+					newText = newText.replaceAll(/\$([a-z]{1,6}(?:\.[a-z]{1,2})?)/gi,"[$$$1](<https://twitter.com/search?q=%24$1&src=cashtag_click>)");
 					return newText;
 				}
 
@@ -53,7 +58,7 @@ exports.module = {
 						},
 						url: `https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`,
 						color: tweet.possibly_sensitive ? 0xf4212e : 0x00ba7c,
-						description: htmldecode(tweet.full_text),
+						description: parseTweet(tweet.full_text),
 						footer: {
 							text: /<a .+>(.+)<\/a>/.exec(tweet.source)[1],
 							iconURL: "https://abs.twimg.com/icons/apple-touch-icon-192x192.png"
@@ -64,7 +69,7 @@ exports.module = {
 				if(tweet.quoted_status)
 					embeds[0].addFields([{
 						name: `${tweet.quoted_status.user.name} (@${tweet.quoted_status.user.screen_name})`,
-						value: `>>> ${htmldecode(tweet.quoted_status.full_text)}`,
+						value: `>>> ${parseTweet(tweet.quoted_status.full_text)}`,
 						inline: false
 					}])
 				
@@ -111,7 +116,7 @@ exports.module = {
 						embeds = [];
 						content = `**[${tweet.user.name} (@${tweet.user.screen_name})](<${content}>)**` +
 						`[](${tweet.extended_entities.media[0].video_info.variants[best_video_index].url})\n` +
-						`>>> ${htmldecode(tweet.full_text).replaceAll(/https?:\/\/\S+/g,"<$&>")}\n`;
+						`>>> ${parseTweet(tweet.full_text).replaceAll(/https?:\/\/\S+/g,"<$&>")}\n`;
 					}
 				}
 				interaction.reply({content: content, embeds: embeds})
