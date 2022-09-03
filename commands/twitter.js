@@ -41,9 +41,7 @@ exports.module = {
 					newText = newText.replaceAll("&gt;",">");
 					newText = newText.replaceAll("&amp;","&");
 					// parse @s and hashtags as links
-					newText = newText.replaceAll(/@([a-z0-9_]{1,15})/gi,"[@\u200A$1](<https://twitter.com/$1>)");
-					newText = newText.replaceAll(/#(\w+)/gi,"[#$1](<https://twitter.com/hashtag/$1>)");
-					newText = newText.replaceAll(/\$([a-z]{1,6}(?:\.[a-z]{1,2})?)/gi,"[$$$1](<https://twitter.com/search?q=%24$1&src=cashtag_click>)");
+					newText = newText.replaceAll(/@([a-z0-9_]{1,15})/gi,"[@\u200A$1](https://twitter.com/$1)");
 					return newText;
 				}
 
