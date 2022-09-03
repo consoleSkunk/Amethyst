@@ -131,12 +131,14 @@ exports.module = {
 							best_bitrate = video.bitrate;
 							best_video_index = i;
 						}
+						
+						var tweetText = parseTweet(tweet).replaceAll(/https?:\/\/[^ \[\](){}]+/g,"<$&>");
 
 						//embeds[0].setThumbnail(tweet.extended_entities.media[0].media_url_https);
 						embeds = [];
 						content = `**[${tweet.user.name} (@${tweet.user.screen_name})](<${content}>)**` +
 						`[](${tweet.extended_entities.media[0].video_info.variants[best_video_index].url})\n` +
-						`>>> ${parseTweet(tweet).replaceAll(/https?:\/\/[^ \[\](){}]+/g,"<$&>")}\n`;
+						`${/\S/g.test(tweetText) ? `>>> ${tweetText}` : ""}\n`;
 					}
 				}
 				interaction.reply({content: content, embeds: embeds})
