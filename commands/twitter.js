@@ -52,7 +52,7 @@ exports.module = {
 					})
 
 					i.entities.urls.forEach((j) => {
-						parsedText = parsedText.replace(j.url, `[${j.display_url}](${j.expanded_url.length <= 70 ? j.expanded_url : j.url})`)
+						parsedText = parsedText.replace(j.url, `[${j.display_url}](${j.expanded_url.length <= 800/i.entities.urls.length ? j.expanded_url : j.url})`)
 					})
 
 					i.entities.user_mentions.forEach((j) => {
