@@ -34,15 +34,37 @@ exports.module = {
 			if(error) {
 				interaction.reply({content: error[0].message, ephemeral: true})
 			} else {
-				function parseTweet(text) {
-					var newText = text;
+				function parseTweet(i) {
+					var parsedText = i.full_text;
+					i.entities.hashtags.forEach((j) => {
+						parsedText = parsedText.replace(`#${j.text}`, `[#${j.text}](https://twitter.com/hashtag/${encodeURIComponent(j.text)})`)
+					})
+					
+					if(i.entities.media)
+						i.entities.media.forEach((j) => {
+								parsedText = parsedText.replace(j.url,
+									(i === tweet.quoted_status ? `[${j.display_url}](${j.expanded_url})` : "")
+								)
+						})
+
+					i.entities.symbols.forEach((j) => {
+						parsedText = parsedText.replace(`\$${j.text}`, `[\$${j.text}](https://twitter.com/search?q=%24${encodeURIComponent(j.text)})`)
+					})
+
+					i.entities.urls.forEach((j) => {
+						parsedText = parsedText.replace(j.url, `[${j.display_url}](${j.expanded_url.length <= 70 ? j.expanded_url : j.url})`)
+					})
+
+					i.entities.user_mentions.forEach((j) => {
+						parsedText = parsedText.replace(new RegExp(`@(${j.screen_name})`,'i'), `[@\u200A$1](https://twitter.com/${encodeURIComponent(j.screen_name)})`)
+					})
+
+
 					// escape encoded html
-					newText = newText.replaceAll("&lt;","<");
-					newText = newText.replaceAll("&gt;",">");
-					newText = newText.replaceAll("&amp;","&");
-					// parse @s and hashtags as links
-					newText = newText.replaceAll(/@([a-z0-9_]{1,15})/gi,"[@\u200A$1](https://twitter.com/$1)");
-					return newText;
+					parsedText = parsedText.replaceAll("&lt;","<");
+					parsedText = parsedText.replaceAll("&gt;",">");
+					parsedText = parsedText.replaceAll("&amp;","&");
+					return parsedText;
 				}
 
 				var content = `https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`;
@@ -56,7 +78,7 @@ exports.module = {
 						},
 						url: `https://twitter.com/${tweet.user.screen_name}/status/${tweet.id_str}`,
 						color: tweet.possibly_sensitive ? 0xf4212e : 0x00ba7c,
-						description: parseTweet(tweet.full_text),
+						description: parseTweet(tweet),
 						footer: {
 							text: /<a .+>(.+)<\/a>/.exec(tweet.source)[1],
 							iconURL: "https://abs.twimg.com/icons/apple-touch-icon-192x192.png"
@@ -67,7 +89,7 @@ exports.module = {
 				if(tweet.quoted_status)
 					embeds[0].addFields([{
 						name: `${tweet.quoted_status.user.name} (@${tweet.quoted_status.user.screen_name})`,
-						value: `>>> ${parseTweet(tweet.quoted_status.full_text)}`,
+						value: `>>> ${parseTweet(tweet.quoted_status)}`,
 						inline: false
 					}])
 				
@@ -114,7 +136,7 @@ exports.module = {
 						embeds = [];
 						content = `**[${tweet.user.name} (@${tweet.user.screen_name})](<${content}>)**` +
 						`[](${tweet.extended_entities.media[0].video_info.variants[best_video_index].url})\n` +
-						`>>> ${parseTweet(tweet.full_text).replaceAll(/https?:\/\/\S+/g,"<$&>")}\n`;
+						`>>> ${parseTweet(tweet).replaceAll(/https?:\/\/[^ \[\](){}]+/g,"<$&>")}\n`;
 					}
 				}
 				interaction.reply({content: content, embeds: embeds})
