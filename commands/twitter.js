@@ -34,32 +34,36 @@ exports.module = {
 			if(error) {
 				interaction.reply({content: error[0].message, ephemeral: true})
 			} else {
-				function parseTweet(i) {
-					var parsedText = i.full_text;
-					i.entities.hashtags.forEach((j) => {
-						parsedText = parsedText.replace(`#${j.text}`, `[#${j.text}](https://twitter.com/hashtag/${encodeURIComponent(j.text)})`)
+				function parseTweet(thisTweet) {
+					var parsedText = thisTweet.full_text;
+					// replace each hashtag with a link to it
+					thisTweet.entities.hashtags.forEach((hashtag) => {
+						parsedText = parsedText.replace(`#${hashtag.text}`, `[#${hashtag.text}](https://twitter.com/hashtag/${encodeURIComponent(hashtag.text)})`)
 					})
 					
-					if(i.entities.media)
-						i.entities.media.forEach((j) => {
-								parsedText = parsedText.replace(j.url,
-									(i === tweet.quoted_status ? `[${j.display_url}](${j.expanded_url})` : "")
-								)
+					if(thisTweet.entities.media)
+						thisTweet.entities.media.forEach((media) => {
+							// strip out media link *unless* we're in a QRT (as we do not show quoted media)
+							parsedText = parsedText.replace(media.url,
+								(thisTweet === tweet.quoted_status ? `[${media.display_url}](${media.expanded_url})` : "")
+							)
 						})
 
-					i.entities.symbols.forEach((j) => {
-						parsedText = parsedText.replace(`\$${j.text}`, `[\$${j.text}](https://twitter.com/search?q=%24${encodeURIComponent(j.text)})`)
+					//cashtags are pretty much the same as hashtags, except it needs to be a search result
+					thisTweet.entities.symbols.forEach((symbol) => {
+						parsedText = parsedText.replace(`\$${symbol.text}`, `[\$${symbol.text}](https://twitter.com/search?q=%24${encodeURIComponent(symbol.text)})`)
 					})
 
-					i.entities.urls.forEach((j) => {
-						parsedText = parsedText.replace(j.url, `[${j.display_url}](${j.expanded_url.length <= 800/i.entities.urls.length ? j.expanded_url : j.url})`)
+					// t.co links are replaced with their original links unless it's too long
+					thisTweet.entities.urls.forEach((url) => {
+						parsedText = parsedText.replace(url.url, `[${url.display_url}](${url.expanded_url.length <= 800/thisTweet.entities.urls.length ? url.expanded_url : url.url})`)
 					})
 
-					i.entities.user_mentions.forEach((j) => {
-						parsedText = parsedText.replace(new RegExp(`@(${j.screen_name})`,'i'), `[@\u200A$1](https://twitter.com/${encodeURIComponent(j.screen_name)})`)
+					// mentions require a case-insensitive search as some 
+					thisTweet.entities.user_mentions.forEach((mention) => {
+						parsedText = parsedText.replace(new RegExp(`@(${mention.screen_name})`,'i'), `[@\u200A$1](https://twitter.com/${encodeURIComponent(mention.screen_name)})`)
 					})
-
-
+				
 					// escape encoded html
 					parsedText = parsedText.replaceAll("&lt;","<");
 					parsedText = parsedText.replaceAll("&gt;",">");
