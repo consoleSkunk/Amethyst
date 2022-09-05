@@ -59,7 +59,7 @@ exports.module = {
 						parsedText = parsedText.replace(url.url, `[${url.display_url}](${url.expanded_url.length <= 800/thisTweet.entities.urls.length ? url.expanded_url : url.url})`)
 					})
 
-					// mentions require a case-insensitive search as some 
+					// mentions require a case-insensitive search in case there's different capitalization
 					thisTweet.entities.user_mentions.forEach((mention) => {
 						parsedText = parsedText.replace(new RegExp(`@(${mention.screen_name})`,'i'), `[@\u200A$1](https://twitter.com/${encodeURIComponent(mention.screen_name)})`)
 					})
