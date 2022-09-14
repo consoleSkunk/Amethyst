@@ -38,7 +38,7 @@ exports.module = {
 					var parsedText = thisTweet.full_text;
 					// replace each hashtag with a link to it
 					thisTweet.entities.hashtags.forEach((hashtag) => {
-						parsedText = parsedText.replace(`#${hashtag.text}`, `[#${hashtag.text}](https://twitter.com/hashtag/${encodeURIComponent(hashtag.text)})`)
+						parsedText = parsedText.replace(`#${hashtag.text}`, `[#\u2060${hashtag.text}](https://twitter.com/hashtag/${encodeURIComponent(hashtag.text)})`)
 					})
 					
 					if(thisTweet.entities.media)
@@ -51,7 +51,7 @@ exports.module = {
 
 					//cashtags are pretty much the same as hashtags, except it needs to be a search result
 					thisTweet.entities.symbols.forEach((symbol) => {
-						parsedText = parsedText.replace(`\$${symbol.text}`, `[\$${symbol.text}](https://twitter.com/search?q=%24${encodeURIComponent(symbol.text)})`)
+						parsedText = parsedText.replace(`\$${symbol.text}`, `[\$\u2060${symbol.text}](https://twitter.com/search?q=%24${encodeURIComponent(symbol.text)})`)
 					})
 
 					// t.co links are replaced with their original links unless it's too long
@@ -61,7 +61,7 @@ exports.module = {
 
 					// mentions require a case-insensitive search in case there's different capitalization
 					thisTweet.entities.user_mentions.forEach((mention) => {
-						parsedText = parsedText.replace(new RegExp(`@(${mention.screen_name})`,'i'), `[@\u200A$1](https://twitter.com/${encodeURIComponent(mention.screen_name)})`)
+						parsedText = parsedText.replace(new RegExp(`@(${mention.screen_name})`,'i'), `[@\u2060$1](https://twitter.com/${encodeURIComponent(mention.screen_name)})`)
 					})
 				
 					// escape encoded html
