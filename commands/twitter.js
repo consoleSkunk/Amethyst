@@ -90,6 +90,14 @@ exports.module = {
 						timestamp: new Date(tweet.created_at).toISOString()
 					})
 				];
+				if(tweet.user.verified) {
+					// change twitter logo in footer to verified badge
+					embeds[0].setFooter({
+						text: /<a .+>(.+)<\/a>/.exec(tweet.source)[1],
+						iconURL: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e4/Twitter_Verified_Badge.svg/192px-Twitter_Verified_Badge.svg.png"
+					});
+				}
+
 				if(tweet.quoted_status)
 					embeds[0].addFields([{
 						name: `${tweet.quoted_status.user.name} (@${tweet.quoted_status.user.screen_name})`,
