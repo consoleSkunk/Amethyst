@@ -3,7 +3,7 @@ const { EmbedBuilder, ApplicationCommandOptionType } = require('discord.js');
 exports.module = {
 	command: {
 		name: "avatar",
-		description: "Retrieves the specified user's avatar (or yours)",
+		description: "Retrieves the specified user's avatar",
 		options: [{
 			name: 'user',
 			type: ApplicationCommandOptionType.User,
