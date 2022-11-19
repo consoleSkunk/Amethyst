@@ -149,7 +149,7 @@ exports.module = {
 						//embeds[0].setThumbnail(tweet.extended_entities.media[0].media_url_https);
 						embeds = [];
 						content = `**[${tweet.user.name} (@${tweet.user.screen_name})](<${content}>)**` +
-						`[](${tweet.extended_entities.media[0].video_info.variants[best_video_index].url})\n` +
+						` [\[video\]](${tweet.extended_entities.media[0].video_info.variants[best_video_index].url})\n` +
 						`${/\S/g.test(tweetText) ? `>>> ${tweetText}` : ""}\n`;
 					}
 				}
