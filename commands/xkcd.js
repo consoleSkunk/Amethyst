@@ -6,7 +6,6 @@ var qs = require("querystring"),
 		ButtonStyle,
 		ApplicationCommandOptionType
 	} = require('discord.js'),
-    moment = require('moment'),
     fetch = require("node-fetch"),
     { name, version } = require('../package.json');
 
@@ -105,13 +104,12 @@ exports.module = {
 				// special fixes
 				if (comic.num == "1335") { // #1335 - Now
 					var date = new Date()
-					hrs = date.getUTCHours() + (moment().isDST() ? 12 : 11) // match UTC+12 if DST, or UTC+11 otherwise
+					hrs = date.getUTCHours() + 12 // match UTC+12
 					hrs = (hrs >= 24 ? hrs - 24 : hrs), // make sure that it's within 00-23
 						hrs = hrs.toString().padStart(2, "0"); // add leading zero
 					mins = ((Math.round(date.getUTCMinutes() / 15) * 15) % 60), // get minutes
 						mins = mins.toString().padStart(2, "0"); // add leading zero
 					xkEmbed.setImage(`http://imgs.xkcd.com/comics/now/${hrs}h${mins}m.png`);
-					xkEmbed.setTitle(xkEmbed.title);
 				}
 				else if (comic.num == "1137") { // #1137 - RTL
 					xkEmbed.setTitle(`#${comic.num} - RTL`); // discord strips out the right-to-left override, ruining the joke
