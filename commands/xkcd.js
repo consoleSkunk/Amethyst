@@ -39,10 +39,12 @@ exports.module = {
 					},
 					timestamp: '2008-04-01T04:00:00.000Z'
 				})], components: [new ActionRowBuilder().addComponents(
-					new ButtonBuilder()
-						.setURL(`http://www.explainxkcd.com/wiki/index.php?title=404`)
-						.setLabel("Explain")
-						.setStyle("LINK")
+					new ButtonBuilder({
+						url: `http://www.explainxkcd.com/wiki/index.php?title=404`,
+						emoji: "\u{1F4AC}",
+						label: "Explain",
+						style: ButtonStyle.Link
+					})
 				)]});
 			/*} else {
 				interaction.reply("#404 - Not Found: https://xkcd.com/404")
