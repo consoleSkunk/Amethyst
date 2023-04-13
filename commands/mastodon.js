@@ -81,14 +81,14 @@ exports.module = {
 					poll_array.push(`${"\u2588".repeat(Math.round((toot.poll.options[i].votes_count / votes) * 32))}\n` +
 					`${toot.poll.options[i].title}\u2000\u2000(${toot.poll.options[i].votes_count == 0 ? "0" : Math.round((toot.poll.options[i].votes_count / votes) * 1000)/10}%)`)
 				}
-			}
 
 				embeds[0].addFields([{
 					name: `Poll \xB7 ${votes} votes`,
 					value: `**Close${toot.poll.expired ? "d" : "s"} <t:${Math.round(new Date(toot.poll.expires_at).getTime() / 1000)}:R>**\n\n` +
 					poll_array.join("\n"),
 					inline: false
-			}])
+				}])
+			}
 
 			if(toot.media_attachments.length > 0) {
 				if(toot.media_attachments[0].type == "image") {
