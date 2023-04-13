@@ -111,16 +111,15 @@ exports.module = {
 				}
 				if(hasVideo) {
 					media = [];
-					 if(toot.media_attachments.length > 1) {
-						for(let i = 0; i < toot.media_attachments.length; i++) {
-							media.push(`[${toot.media_attachments[i].type}](${toot.media_attachments[i].url})`);
-						}
+					for(let i = 0; i < toot.media_attachments.length; i++) {
+						media.push(`[${toot.media_attachments[i].type}](${toot.media_attachments[i].url})`);
 					}
+
 					embeds = [];
 					content = (toot.spoiler_text !== "" ? `**CW: ${toot.spoiler_text}**\n||` : "") + 
 					`**[${toot.account.display_name} (@${toot.account.acct})](<${toot.url}>)**` +
-					` \[ ${media.join(" ")} \]${toot.spoiler_text !== "" ? " ||" : ""}\n` +
-					`${/\S/g.test(tootText) ? `>>> ${tootText}` : ""}\n`;
+					` \[ ${media.join(" ")} \]\n` +
+					`${/\S/g.test(tootText) ? `>>> ${tootText.replace(/\[([^\[\]()]+)\]\(([^\[\]()]+)\)/g,"[$1](<$2>)")}` : ""}${toot.spoiler_text !== "" ? "||" : ""}\n`;
 				}
 			}
 			interaction.reply({content: content, embeds: embeds})
