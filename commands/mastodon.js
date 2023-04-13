@@ -1,6 +1,7 @@
 var { EmbedBuilder, ApplicationCommandOptionType } = require('discord.js'),
     fetch = require("node-fetch"),
     turndown = require("turndown"),
+    { project_url } = require('../config/config.json'),
     { name, version } = require('../package.json');
 
 exports.module = {
@@ -24,7 +25,7 @@ exports.module = {
 		
 		fetch(`https://${regex.exec(interaction.options.getString('url'))[1]}/api/v1/statuses/${regex.exec(interaction.options.getString('url'))[2]}`, {
 			headers: {
-				'User-Agent': `${name}/${version}`
+				'User-Agent': `${name}/${version} (+${project_url})`
 			}
 		})
 		.then(res => {
