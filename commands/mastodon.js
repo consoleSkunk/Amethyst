@@ -57,6 +57,13 @@ exports.module = {
 				})
 			];
 			
+			if(toot.edited_at !== null)
+				embeds[0].addFields([{
+					name: "\u200B",
+					value: `*Edited <t:${Math.round(new Date(toot.edited_at).getTime() / 1000)}>*`,
+					inline: false
+				}])
+			
 			if(toot.favourites_count >= 100)
 				embeds[0].addFields([{
 					name: "Favourites",
