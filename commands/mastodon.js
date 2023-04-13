@@ -16,7 +16,7 @@ exports.module = {
 		}],
 	},
 	process: function (interaction) {
-		var regex = /^https?:\/\/((?:(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.)+[A-Za-z]{2,6})\/(?:@|users\/)[a-zA-Z0-9_]{1,30}(?:\/statuses)?\/(\d{1,20})/;
+		var regex = /^https?:\/\/((?:(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.)+[A-Za-z]{2,6})\/(?:@|users\/)[a-zA-Z0-9_]{1,30}(?:@(?:(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.)+[A-Za-z]{2,6})?(?:\/statuses)?\/(\d{1,20})/;
 
 		if(!regex.test(interaction.options.getString('url'))) {
 			interaction.reply({content: "That doesn't appear to be a valid Mastodon post URL.", ephemeral: true});
@@ -42,7 +42,7 @@ exports.module = {
 			var embeds = [
 				new EmbedBuilder({
 					author: {
-						name: `${toot.account.display_name} (@${toot.account.username})`,
+						name: `${toot.account.display_name} (@${toot.account.acct})`,
 						url: toot.account.url,
 						iconURL: toot.account.avatar
 					},
@@ -50,7 +50,7 @@ exports.module = {
 					color: toot.sensitive ? 0xf4212e : 0x00ba7c,
 					description: tootText,
 					footer: {
-						text: (toot.application !== null ? toot.application.name : "Mastodon"),
+						text: (toot.application ? toot.application.name : "Mastodon"),
 						iconURL: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Mastodon_logotype_%28simple%29_new_hue.svg/128px-Mastodon_logotype_%28simple%29_new_hue.svg.png"
 					},
 					timestamp: new Date(toot.created_at).toISOString()
@@ -98,7 +98,7 @@ exports.module = {
 					}
 					embeds = [];
 					content = (toot.spoiler_text !== "" ? `**CW: ${toot.spoiler_text}**\n||` : "") + 
-					`**[${toot.account.display_name} (@${toot.account.username})](<${toot.url}>)**` +
+					`**[${toot.account.display_name} (@${toot.account.acct})](<${toot.url}>)**` +
 					` \[ ${media.join(" ")} \]${toot.spoiler_text !== "" ? " ||" : ""}\n` +
 					`${/\S/g.test(tootText) ? `>>> ${tootText}` : ""}\n`;
 				}
