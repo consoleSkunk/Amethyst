@@ -8,6 +8,7 @@
     "discord.js": "^14.2.0",
     "node-fetch": "^2.6.7",
     "prettysize": "^2.0.0",
+    "turndown": "^7.1.2",
     "twitter": "^1.7.1"
   },
   "script": "index.js",
