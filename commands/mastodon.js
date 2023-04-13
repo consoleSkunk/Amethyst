@@ -70,7 +70,7 @@ exports.module = {
 					inline: true
 			}])
 
-			if(toot.poll)
+			if(toot.poll) {
 				poll_array = [];
 
 				// very old polls don't have voters_count set, use votes_count in that case
@@ -81,6 +81,7 @@ exports.module = {
 					poll_array.push(`${"\u2588".repeat(Math.round((toot.poll.options[i].votes_count / votes) * 32))}\n` +
 					`${toot.poll.options[i].title}\u2000\u2000(${toot.poll.options[i].votes_count == 0 ? "0" : Math.round((toot.poll.options[i].votes_count / votes) * 1000)/10}%)`)
 				}
+			}
 
 				embeds[0].addFields([{
 					name: `Poll \xB7 ${votes} votes`,
