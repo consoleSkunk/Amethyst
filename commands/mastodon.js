@@ -70,6 +70,25 @@ exports.module = {
 					inline: true
 			}])
 
+			if(toot.poll)
+				poll_array = [];
+
+				// very old polls don't have voters_count set, use votes_count in that case
+				// voters_count is used for multiple choice percentage calculation
+				let votes = (toot.poll.voters_count !== null ? toot.poll.voters_count : toot.poll.votes_count);
+				for(let i=0; i < toot.poll.options.length; i++) {
+					// add each poll option to an array, which will later be joined by a newline
+					poll_array.push(`${"\u2588".repeat(Math.round((toot.poll.options[i].votes_count / votes) * 32))}\n` +
+					`${toot.poll.options[i].title}\u2000\u2000(${toot.poll.options[i].votes_count == 0 ? "0" : Math.round((toot.poll.options[i].votes_count / votes) * 1000)/10}%)`)
+				}
+
+				embeds[0].addFields([{
+					name: `Poll \xB7 ${votes} votes`,
+					value: `**Close${toot.poll.expired ? "d" : "s"} <t:${Math.round(new Date(toot.poll.expires_at).getTime() / 1000)}:R>**\n\n` +
+					poll_array.join("\n"),
+					inline: false
+			}])
+
 			if(toot.media_attachments.length > 0) {
 				if(toot.media_attachments[0].type == "image") {
 					 embeds[0].setImage(toot.media_attachments[0].url);
@@ -85,7 +104,7 @@ exports.module = {
 				}
 
 				var hasVideo = false;
-				for(j=0; j<toot.media_attachments.length; j++) {
+				for(let j=0; j<toot.media_attachments.length; j++) {
 					if(toot.media_attachments[j].type == "video" || toot.media_attachments[j].type == "gifv")
 						hasVideo = true;
 				}
