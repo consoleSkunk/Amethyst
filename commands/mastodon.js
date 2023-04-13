@@ -13,6 +13,12 @@ exports.module = {
 			type: ApplicationCommandOptionType.String,
 			description: "URL to toot",
 			required: true,
+		},
+		{
+			name: 'cw',
+			type: ApplicationCommandOptionType.Boolean,
+			description: "Reveal toot marked by CW instead of spoilering it",
+			required: false
 		}],
 	},
 	process: function (interaction) {
@@ -35,8 +41,9 @@ exports.module = {
 			if(toot.error) {
 				interaction.reply({content: toot.error, ephemeral: true});
 				return;
-			} 
-			var content = (toot.spoiler_text !== "" ? `**CW: ${toot.spoiler_text}** ||${toot.url}||` : toot.url);
+			}
+			var showCW = interaction.options.getBoolean('cw');
+			var content = (toot.spoiler_text !== "" ? `**CW: ${toot.spoiler_text}** ${showCW ? toot.url : `||${toot.url}||`}` : toot.url);
 			var tootText = new turndown().turndown(toot.content);
 
 			var embeds = [
@@ -123,10 +130,10 @@ exports.module = {
 					}
 
 					embeds = [];
-					content = (toot.spoiler_text !== "" ? `**CW: ${toot.spoiler_text}**\n||` : "") + 
+					content = (toot.spoiler_text !== "" ? `**CW: ${toot.spoiler_text}**\n${showCW ? "" : "||"}` : "") + 
 					`**[${toot.account.display_name} (@${toot.account.acct})](<${toot.url}>)**` +
 					` \[ ${media.join(" ")} \]\n` +
-					`${/\S/g.test(tootText) ? `>>> ${tootText.replace(/\[([^\[\]()]+)\]\(([^\[\]()]+)\)/g,"[$1](<$2>)")}` : ""}${toot.spoiler_text !== "" ? "||" : ""}\n`;
+					`${/\S/g.test(tootText) ? `>>> ${tootText.replace(/\[([^\[\]()]+)\]\(([^\[\]()]+)\)/g,"[$1](<$2>)")}` : ""}${toot.spoiler_text !== "" && !showCW ? "||" : ""}\n`;
 				}
 			}
 			interaction.reply({content: content, embeds: embeds})
