@@ -19,7 +19,8 @@ exports.module = {
 	},
 	process: function(interaction) {
 		var params = interaction.options.getString('tags');
-		if(params.includes(",")) {
+
+		if(params !== null && params.includes(",")) {
 			params = 
 				params
 				.split(",")
@@ -36,11 +37,13 @@ exports.module = {
 		} else if(idReg.test(params)) { // post ID
 			searchURL = `https://e621.net/posts/${qs.escape(idReg.exec(params)[1])}.json`;
 			params = `id:${qs.escape(idReg.exec(params)[1])}`;
+		} else if(params === null) { // empty search
+			searchURL = "https://e621.net/posts.json?limit=75&tags=order:random";
 		} else { // regular search
 			searchURL = `https://e621.net/posts.json?limit=${
 				params.toLowerCase().indexOf("order:") != -1 ? "75" : "10"
 			}&tags=${params.toLowerCase().indexOf("order:") != -1 ? "" : "order:random+"}${qs.escape(params)}`;
-		};
+		}
 		fetch(searchURL, {
 			headers: {
 				'User-Agent': `${name}/${version} (by ${contact.e621} on e621; +${contact.project_url})`
@@ -218,7 +221,7 @@ exports.module = {
 							inline: true
 						}]);
 					}
-					interaction.reply({content: `https://e621.net/posts/${post.id}?q=${qs.escape(params)}`, embeds: [postEmbed], ephemeral: ephemeral});
+					interaction.reply({content: `https://e621.net/posts/${post.id}${params !== null ? "?q=" + qs.escape(params) : ""}`, embeds: [postEmbed], ephemeral: ephemeral});
 				}
 
 			}
@@ -275,15 +278,17 @@ var DTextMap = new Map([
 	[/\[s\]([\s\S]+?)\[\/s\]/gi,'~~$1~~'],
 	[/\[code\]([\s\S]+?)\[\/code\]/gi,'```$1```'],
 	[/\[spoiler\]([\s\S]+?)\[\/spoiler\]/gi,'||$1||'],
-	[/\[section(?:,expanded)?\]([\s\S]+?)(?:\[\/section\])?/gi,'**Section:**\n$1'],
-	[/\[section(?:,expanded)?\="?([^\]]+?)"?\]([\s\S]+?)(?:\[\/section\])?/gi,'**$1:**\n$2'],
+
+	// may need a special case for these (i.e. prepending `> ` before every line)
+	[/\[section(?:,expanded)?\]([\s\S]+?)\[\/section\]/gi,'>>> $1'],
+	[/\[section(?:,expanded)?\="?([^\]]+?)"?\]([\s\S]+?)\[\/section\]/gi,'**$1:**\n>>> $2'],
+	[/\[quote\]([\s\S]+?)\[\/quote\]/gi,'>>> $1'],
 
 	//disabled since there's no Discord equivalent
 	[/\[o\]([\s\S]+?)\[\/o\]/gi,'$1'],
 	[/\[sup\]([\s\S]+?)\[\/sup\]/gi,'$1'],
 	[/\[sub\]([\s\S]+?)\[\/sub\]/gi,'$1'],
 	[/\[color=([\s\S]+?)\]([\s\S]+?)\[\/color\]/gi,'$2'],
-	[/\[quote\]([\s\S]+?)\[\/quote\]/gi,'$1'], // may need a special case for this (i.e. prepending `> ` before every line)
 
 	//enclosing stuff
 	//[/`([\s\S]+?)`/gi, '`$1`'] //discord already handles inline code
