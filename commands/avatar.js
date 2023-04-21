@@ -20,7 +20,7 @@ exports.module = {
 	process: function(interaction) {
 		var user = interaction.options.getUser('user');
 
-		if(interaction.options.getBoolean('server') && user.avatar !== null && interaction.guild.members.resolve(user) != null) {
+		if(interaction.options.getBoolean('server') && interaction.guild && user.avatar !== null && interaction.guild.members.resolve(user) != null) {
 			var hasServerAvatar = (interaction.guild.members.resolve(user).avatar != null)
 			var serverAvatar = interaction.guild.members.resolve(user).displayAvatarURL({size:4096,format:"png",dynamic:true});
 			var globalAvatar = user.displayAvatarURL({size:4096,format:"png",dynamic:true});
