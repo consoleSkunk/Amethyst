@@ -135,7 +135,7 @@ client.on("interactionCreate", interaction => {
 			} catch(err) {
 				if(interaction.type === InteractionType.ApplicationCommand)
 					interaction.reply({content: "\u274c ERROR:```js\n" + err + "```", ephemeral: true});
-				console.error(`\x1b[1;31mError running command ${cmd.name}:`);
+				console.error(`\x1b[1;31mError running command ${interaction.commandName}:`);
 				console.error(err);
 				console.error("\x1b[0m");
 			}
