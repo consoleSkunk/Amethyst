@@ -7,7 +7,7 @@ var qs = require("querystring"),
 		ApplicationCommandOptionType
 	} = require('discord.js'),
     fetch = require("node-fetch"),
-    { project_url } = require('../config/config.json'),
+    { contact } = require('../config/config.json'),
     { name, version } = require('../package.json');
 
 exports.module = {
@@ -55,7 +55,7 @@ exports.module = {
 
 		fetch(`https://xkcd.com/${/^(\d+)$/.test(params) ? qs.escape(params) + "/" : ""}info.0.json`, {
 			headers: {
-				'User-Agent': `${name}/${version} (+${project_url})`
+				'User-Agent': `${name}/${version} (+${contact.project_url})`
 			}
 		})
 		.then(res => {
