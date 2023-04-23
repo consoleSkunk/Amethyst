@@ -97,7 +97,7 @@ exports.module = {
 						title:
 						`e621 - #${post.id} (${rating})`,
 						url: `https://e621.net/posts/${post.id}?q=${qs.escape(params)}`,
-						description: (description.length > 280 ? description.substr(0,279) + "…" : description),
+						description: (description.length > 2048 ? description.substr(0,2047) + "…" : description),
 						color: 77398,
 						image: {
 							url: (
