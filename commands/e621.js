@@ -28,21 +28,20 @@ exports.module = {
 				.join(" ");
 		}
 
-		var searchURL;
+		var searchURL, query = null;
 		var md5Reg = /^(?:md5:|https?:\/\/static1\.e(?:621|926)\.net\/data\/[0-9a-f]{2}\/[0-9a-f]{2}\/)?([0-9a-f]{32})(?:\.(?:jpg|png|gif|webm|swf))?$/i;
 		var idReg = /^(?:id:|#|https?:\/\/e(?:621|926)\.net\/posts\/)(\d+)/i;
 		if(md5Reg.test(params)) { // md5
 			searchURL = `https://e621.net/posts.json?md5=${qs.escape(md5Reg.exec(params)[1])}`;
-			params = `md5:${qs.escape(md5Reg.exec(params)[1])}`;
 		} else if(idReg.test(params)) { // post ID
 			searchURL = `https://e621.net/posts/${qs.escape(idReg.exec(params)[1])}.json`;
-			params = `id:${qs.escape(idReg.exec(params)[1])}`;
 		} else if(params === null) { // empty search
 			searchURL = "https://e621.net/posts.json?limit=75&tags=order:random";
 		} else { // regular search
 			searchURL = `https://e621.net/posts.json?limit=${
 				params.toLowerCase().indexOf("order:") != -1 ? "75" : "10"
 			}&tags=${params.toLowerCase().indexOf("order:") != -1 ? "" : "order:random+"}${qs.escape(params)}`;
+			query = params;
 		}
 		fetch(searchURL, {
 			headers: {
@@ -96,7 +95,7 @@ exports.module = {
 						},
 						title:
 						`e621 - #${post.id} (${rating})`,
-						url: `https://e621.net/posts/${post.id}?q=${qs.escape(params)}`,
+						url: `https://e621.net/posts/${post.id}${query !== null ? "?q=" + qs.escape(query) : ""}`,
 						description: (description.length > 512 ? description.substr(0,511) + "…" : description),
 						color: 77398,
 						image: {
@@ -221,7 +220,7 @@ exports.module = {
 							inline: true
 						}]);
 					}
-					interaction.reply({content: `https://e621.net/posts/${post.id}${params !== null ? "?q=" + qs.escape(params) : ""}`, embeds: [postEmbed], ephemeral: ephemeral});
+					interaction.reply({content: `https://e621.net/posts/${post.id}${query !== null ? "?q=" + qs.escape(query) : ""}`, embeds: [postEmbed], ephemeral: ephemeral});
 				}
 
 			}
