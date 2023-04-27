@@ -278,10 +278,14 @@ var DTextMap = new Map([
 	[/\[code\]([\s\S]+?)\[\/code\]/gi,'```$1```'],
 	[/\[spoiler\]([\s\S]+?)\[\/spoiler\]/gi,'||$1||'],
 
-	// may need a special case for these (i.e. prepending `> ` before every line)
-	[/\[section(?:,expanded)?\]([\s\S]+?)\[\/section\]/gi,'>>> $1'],
-	[/\[section(?:,expanded)?\="?([^\]]+?)"?\]([\s\S]+?)\[\/section\]/gi,'**$1:**\n>>> $2'],
-	[/\[quote\]([\s\S]+?)\[\/quote\]/gi,'>>> $1'],
+	// sections are converted to quotes to be reparsed
+	[/\[section(?:,expanded)?\]([\s\S]+?)\[\/section\]/gi,'[quote]$1[/quote]'],
+	[/\[section(?:,expanded)?\=(?:"([^\]]+)"|([^\]]+))\]([\s\S]+?)\[\/section\]/gi,'### $1$2\n[quote]$3[/quote]'],
+	[/\[quote\](\n?[\s\S]+?\n?)\[\/quote\]/gi,(match, p1) => {
+		content = p1.replace(/^\n+|\n+$/g, '')
+		content = content.replace(/^/gm, '> ')
+		return content;
+	}],
 
 	//disabled since there's no Discord equivalent
 	[/\[o\]([\s\S]+?)\[\/o\]/gi,'$1'],
