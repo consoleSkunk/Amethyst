@@ -70,7 +70,7 @@ exports.module = {
 			var ephemeral = false;
 			if(typeof (posts) !== "undefined") {
 				var trueCount = Object.keys(posts).length;
-				posts = singleImage ? posts : posts.filter(function(element){ return (element.file.url !== undefined && element.file.ext !== "swf") })
+				posts = singleImage ? posts : posts.filter(function(element){ return (element.file.url !== null && element.file.ext !== "swf") })
 			}
 			if (typeof (posts) !== "undefined" && Object.keys(posts).length > 0) {
 					var post = singleImage ? api.post : posts[Math.floor(Math.random() * posts.length)];
