@@ -313,16 +313,26 @@ var DTextMap = new Map([
 	[/\[\[(.+?)\|([\s\S]+?)\]\]/g,'[$2](https://e621.net/wiki_pages/show_or_new?title=$1)'],
 	[/\[\[(.+?)\]\]/g,'[$1](https://e621.net/wiki_pages/show_or_new?title=$1)'],
 	[/\{\{(.+?)\|([\s\S]+?)\}\}/g,'[$2](https://e621.net/posts?tags=$1)'],
-    [/\{\{(.+?)\}\}/g,'[$1](https://e621.net/posts?tags=$1)'],
+	[/\{\{(.+?)\}\}/g,'[$1](https://e621.net/posts?tags=$1)'],
+
+	// id based links
 	[
-		/(post|forum|comment|blip|pool|takedown|ticket) #([0-9]+)/gi,
+		/(post|note|comment|pool|user|artist|ban|blip|ticket) #([0-9]+)/gi,
 		'[$1 #$2](https://e621.net/$1s/$2)'
 	],
 	[/thumb #([0-9]+)/gi, '[thumb #$1](https://e621.net/posts/$1)'],
+	[/post changes #([0-9]+)/gi, '[post changes #$1]/post_versions?search[post_id]=$1'],
+	[/(flag|set) #([0-9]+)/gi, '[$1 #$2](https://e621.net/post_$1s/$2)'],
 	[/forum #([0-9]+)/gi, '[forum #$1](https://e621.net/forum_posts/$1)'],
-	[/set #([0-9]+)/gi, '[set #$1](https://e621.net/post_sets/$1)'],
+	[/topic #([0-9]+)\/p([0-9]+)/gi, '[forum #$1](https://e621.net/forum_topics/$1?page=$2)'],
+	[/topic #([0-9]+)/gi, '[forum #$1](https://e621.net/forum_topics/$1)'],
+	[/bur #([0-9]+)/gi, '[BUR #$1](https://e621.net/bulk_update_requests/$1)'],
+	[/(alias|implication) #([0-9]+)/gi, '[$1 #$2](https://e621.net/tag_$1s/$2)'],
+	[/mod action #([0-9]+)/gi, '[mod action #$1](https://e621.net/mod_actions/$1)'],
 	[/record #([0-9]+)/gi, '[record #$1](https://e621.net/user_feedbacks/$1)'],
+	[/wiki #([0-9]+)/gi, '[wiki #$1](https://e621.net/wiki_pages/$1)'],
 	[/category #([0-9]+)/gi, '[category #$1](https://e621.net/forum_topics?search%5Bcategory_id%5D=2$1)'],
+	[/take ?down (?:request )?#([0-9]+)/gi, '[takedown #$1](https://e621.net/takedowns/$1'],
 	//[/\]\(http[\S]+?([\s])[\S]+?\)$/gi,'%20'], //replace spaces in URLs with %20
 ]);
 
