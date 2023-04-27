@@ -4,6 +4,11 @@ var { EmbedBuilder, ApplicationCommandOptionType } = require('discord.js'),
     { contact } = require('../config/config.json'),
     { name, version } = require('../package.json');
 
+var turndownService = new turndown({
+	headingStyle: "atx",
+	codeBlockStyle: "fenced"
+});
+
 exports.module = {
 	command: {
 		name: "mastodon",
@@ -44,7 +49,7 @@ exports.module = {
 			}
 			var showCW = interaction.options.getBoolean('cw');
 			var content = (toot.spoiler_text !== "" ? `**CW: ${toot.spoiler_text}** ${showCW ? toot.url : `||${toot.url}||`}` : toot.url);
-			var tootText = new turndown().turndown(toot.content);
+			var tootText = turndownService.turndown(toot.content);
 
 			var embeds = [
 				new EmbedBuilder({
