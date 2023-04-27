@@ -266,9 +266,9 @@ var DTextMap = new Map([
 	[/(\r\n|\r|\n\r)/g,'\n'],
 
 	// bullets, put before bbcode to avoid conflict with bold
-	[/^\* ([\s\S]+?)$/gim,'- $1'],
-	[/^\*{2} ([\s\S]+?)$/gim,'  - $1'],
-	[/^\*{3,} ([\s\S]+?)$/gim,'    - $1'],
+	[/^(\*{1,11}) ([\s\S]+?)$/gim,(match, p1, p2) => {
+		return "  ".repeat(p1.length - 1) + "* " + p2;
+	}],
 
 	// headings
 	[/^h1\.([\s\S]+?)$/gim,'# $1'],
