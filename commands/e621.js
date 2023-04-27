@@ -268,7 +268,13 @@ var DTextMap = new Map([
 	// bullets, put before bbcode to avoid conflict with bold
 	[/^\* ([\s\S]+?)$/gim,'- $1'],
 	[/^\*{2} ([\s\S]+?)$/gim,'  - $1'],
-	[/^\*{3,} ([\s\S]+?)$/gim,'    ▪ $1'],
+	[/^\*{3,} ([\s\S]+?)$/gim,'    - $1'],
+
+	// headings
+	[/^h1\.([\s\S]+?)$/gim,'# $1'],
+	[/^h2\.([\s\S]+?)$/gim,'## $1'],
+	[/^h3\.([\s\S]+?)$/gim,'### $1'],
+	[/^h[4-6]\.([\s\S]+?)$/gim,'**$1**'],
 
 	//BBCode
 	[/\[b\]([\s\S]+?)\[\/b\]/gi,'**$1**'],
@@ -311,10 +317,6 @@ var DTextMap = new Map([
 	[/record #([0-9]+)/gi, '[record #$1](https://e621.net/user_feedbacks/$1)'],
 	[/category #([0-9]+)/gi, '[category #$1](https://e621.net/forum_topics?search%5Bcategory_id%5D=2$1)'],
 	//[/\]\(http[\S]+?([\s])[\S]+?\)$/gi,'%20'], //replace spaces in URLs with %20
-	[/^h1\.([\s\S]+?)$/gim,'# $1'],
-	[/^h2\.([\s\S]+?)$/gim,'## $1'],
-	[/^h3\.([\s\S]+?)$/gim,'### $1'],
-	[/^h[4-6]\.([\s\S]+?)$/gim,'**$1**'],
 ]);
 
 var DText = function(text) {
