@@ -298,6 +298,13 @@ var DTextMap = new Map([
 	[/\[sup\]([\s\S]+?)\[\/sup\]/gi,'$1'],
 	[/\[sub\]([\s\S]+?)\[\/sub\]/gi,'$1'],
 	[/\[color=([\s\S]+?)\]([\s\S]+?)\[\/color\]/gi,'$2'],
+	//tables
+	[/\[table\]([\s\S]+?)\[\/table\]/gi,'$1'],
+	[/\[thead\]([\s\S]+?)\[\/thead\]/gi,'$1'],
+	[/\[tbody\]([\s\S]+?)\[\/tbody\]/gi,'$1'],
+	[/\[tr\]([\s\S]+?)\[\/tr\]/gi,'$1'],
+	[/\[th\]([\s\S]+?)\[\/th\]/gi,'$1'],
+	[/\[td\]([\s\S]+?)\[\/td\]/gi,'$1'],
 
 	//enclosing stuff
 	//[/`([\s\S]+?)`/gi, '`$1`'] //discord already handles inline code
