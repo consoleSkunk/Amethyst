@@ -2,11 +2,5 @@
 	"contact": {
 		"project_url": "https://github.com/Enbika/Amethyst",
 		"e621": "username"
-	},
-
-	"twitter": {
-		"consumer_key": "",
-		"consumer_secret": "",
-		"bearer_token": ""
 	}
 }
