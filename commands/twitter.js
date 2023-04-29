@@ -91,18 +91,15 @@ exports.module = {
 			if(tweet.poll) {
 				poll_array = [];
 
-				// very old polls don't have voters_count set, use votes_count in that case
-				// voters_count is used for multiple choice percentage calculation
-				let votes = (tweet.poll.voters_count !== null ? tweet.poll.voters_count : tweet.poll.votes_count);
-				for(let i=0; i < tweet.poll.options.length; i++) {
+				for(let i=0; i < tweet.poll.choices.length; i++) {
 					// add each poll option to an array, which will later be joined by a newline
-					poll_array.push(`${"\u2588".repeat(Math.round((tweet.poll.options[i].votes_count / votes) * 32))}\n` +
-					`${tweet.poll.options[i].title}\u2000\u2000(${tweet.poll.options[i].votes_count == 0 ? "0" : Math.round((tweet.poll.options[i].votes_count / votes) * 1000)/10}%)`)
+					poll_array.push(`${"\u2588".repeat(Math.round((tweet.poll.choices[i].percentage/100) * 32))}\n` +
+					`${tweet.poll.choices[i].label}\u2000\u2000(${tweet.poll.choices[i].percentage}%)`)
 				}
 
 				embeds[0].addFields([{
-					name: `Poll \xB7 ${votes} votes`,
-					value: `**Close${tweet.poll.expired ? "d" : "s"} <t:${Math.round(new Date(tweet.poll.expires_at).getTime() / 1000)}:R>**\n\n` +
+					name: `Poll \xB7 ${tweet.poll.total_votes.toLocaleString()} votes`,
+					value: `**Close${new Date(tweet.poll.ends_at) < Date.now() ? "d" : "s"} <t:${Math.round(new Date(tweet.poll.ends_at).getTime() / 1000)}:R>**\n\n` +
 					poll_array.join("\n"),
 					inline: false
 				}])
