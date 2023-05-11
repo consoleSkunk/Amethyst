@@ -44,6 +44,8 @@ exports.module = {
 				newText = newText.replaceAll(/@([a-z0-9_]{1,15})/gi,"[@\u200A$1](<https://twitter.com/$1>)");
 				newText = newText.replaceAll(/#(\S+)/gi,"[#$1](<https://twitter.com/hashtag/$1>)");
 				newText = newText.replaceAll(/\$([a-z]{1,6}(?:\.[a-z]{1,2})?)/gi,"[$$$1](<https://twitter.com/search?q=%24$1&src=cashtag_click>)");
+				newText = newText.replaceAll(/(\uEA00|\[CHIRPBIRDICON\])/gi,"\u{1f426}");
+				newText = newText.replaceAll("\uF8FF","\u{1f34e}");
 				return newText;
 			}
 
@@ -53,7 +55,10 @@ exports.module = {
 			var embeds = [
 				new EmbedBuilder({
 					author: {
-						name: `${tweet.author.name} (@${tweet.author.screen_name})`,
+						name: `${tweet.author.name
+								.replaceAll("\uEA00","\u{1f426}")
+								.replaceAll("\uF8FF","\u{1f34e}")
+							} (@${tweet.author.screen_name})`,
 						url: `https://twitter.com/${tweet.author.screen_name}`,
 						iconURL: tweet.author.avatar_url
 					},
@@ -70,7 +75,10 @@ exports.module = {
 
 			if(tweet.quote)
 				embeds[0].addFields([{
-					name: `${tweet.quote.author.name} (@${tweet.quote.author.screen_name})`,
+					name: `${tweet.quote.author.name
+							.replaceAll("\uEA00","\u{1f426}")
+							.replaceAll("\uF8FF","\u{1f34e}")
+						} (@${tweet.quote.author.screen_name})`,
 					value: `>>> ${parseTweet(tweet.quote.text)}`,
 					inline: false
 				}])
