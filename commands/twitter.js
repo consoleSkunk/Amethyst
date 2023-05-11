@@ -46,6 +46,7 @@ exports.module = {
 				newText = newText.replaceAll(/\$([a-z]{1,6}(?:\.[a-z]{1,2})?)/gi,"[$$$1](<https://twitter.com/search?q=%24$1&src=cashtag_click>)");
 				newText = newText.replaceAll(/(\uEA00|\[CHIRPBIRDICON\])/gi,"\u{1f426}");
 				newText = newText.replaceAll("\uF8FF","\u{1f34e}");
+				newText = newText.replaceAll("\uE50A","\u{1f3ec}");
 				return newText;
 			}
 
@@ -58,6 +59,7 @@ exports.module = {
 						name: `${tweet.author.name
 								.replaceAll("\uEA00","\u{1f426}")
 								.replaceAll("\uF8FF","\u{1f34e}")
+								.replaceAll("\uE50A","\u{1f3e2}")
 							} (@${tweet.author.screen_name})`,
 						url: `https://twitter.com/${tweet.author.screen_name}`,
 						iconURL: tweet.author.avatar_url
@@ -78,6 +80,7 @@ exports.module = {
 					name: `${tweet.quote.author.name
 							.replaceAll("\uEA00","\u{1f426}")
 							.replaceAll("\uF8FF","\u{1f34e}")
+							.replaceAll("\uE50A","\u{1f3ec}")
 						} (@${tweet.quote.author.screen_name})`,
 					value: `>>> ${parseTweet(tweet.quote.text)}`,
 					inline: false
