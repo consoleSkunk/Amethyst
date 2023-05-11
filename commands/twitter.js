@@ -98,9 +98,8 @@ exports.module = {
 				}
 
 				embeds[0].addFields([{
-					name: `Poll \xB7 ${tweet.poll.total_votes.toLocaleString()} votes`,
-					value: `**Close${new Date(tweet.poll.ends_at) < Date.now() ? "d" : "s"} <t:${Math.round(new Date(tweet.poll.ends_at).getTime() / 1000)}:R>**\n\n` +
-					poll_array.join("\n"),
+					name: `Poll \xB7 ${tweet.poll.total_votes.toLocaleString()} vote${tweet.poll.total_votes == 1 ? "" : "s"}${tweet.poll.time_left_en}`,
+					value: poll_array.join("\n"),
 					inline: false
 				}])
 			}
