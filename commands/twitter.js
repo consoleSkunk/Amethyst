@@ -140,7 +140,7 @@ exports.module = {
 					embeds = [];
 					content = `**[${tweet.author.name} (@${tweet.author.screen_name})](<${tweet.url}>)**` +
 					` \[ ${media.join(" ")} \]\n` +
-					`${/\S/g.test(tweet.text) ? `>>> ${tweet.text.replace(/\[([^\[\]()]+)\]\(([^\[\]()]+)\)/g,"[$1](<$2>)")}` : ""}\n`;
+					`${/\S/g.test(tweet.text) ? `>>> ${parseTweet(tweet.text).replace(/\[([^\[\]()]+)\]\(([^\[\]()]+)\)/g,"[$1]($2)")}` : ""}\n`;
 				}
 			}
 			interaction.reply({content: content, embeds: embeds})
