@@ -55,7 +55,8 @@ exports.module = {
 				return;
 			}
 			var showCW = interaction.options.getBoolean('cw');
-			var content = (toot.spoiler_text !== "" ? `**CW: ${toot.spoiler_text}** ${showCW ? toot.url : `||${toot.url}||`}` : toot.url);
+			var cwText =  (toot.spoiler_text !== "" ? (toot.spoiler_text > 500 ? toot.spoiler_text.substr(0,499) + "…" : toot.spoiler_text) : "")
+			var content = (toot.spoiler_text !== "" ? `**CW: ${cwText}** ${showCW ? toot.url : `||${toot.url}||`}` : toot.url);
 			var tootText = turndownService.turndown(toot.content).replace(/\[([^[\]()]+)]\(\1\)/g,"$1");
 
 			var embeds = [
@@ -67,7 +68,7 @@ exports.module = {
 					},
 					url: toot.url,
 					color: toot.sensitive ? 0xf4212e : 0x00ba7c,
-					description: tootText,
+					description: (tootText.length > 2048 ? tootText.substr(0,2047) + "…" : tootText),
 					footer: {
 						text: (toot.application ? toot.application.name : "Mastodon"),
 						iconURL: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Mastodon_logotype_%28simple%29_new_hue.svg/128px-Mastodon_logotype_%28simple%29_new_hue.svg.png"
@@ -142,7 +143,7 @@ exports.module = {
 					}
 
 					embeds = [];
-					content = (toot.spoiler_text !== "" ? `**CW: ${toot.spoiler_text}**\n${showCW ? "" : "||"}` : "") + 
+					content = (toot.spoiler_text !== "" ? `**CW: ${cwText}**\n${showCW ? "" : "||"}` : "") + 
 					`**[${toot.account.display_name} (@${toot.account.acct})](<${toot.url}>)**` +
 					` \[ ${media.join(" ")} \]\n` +
 					`${/\S/g.test(tootText) ? `>>> ${tootText.replace(/\[([^\[\]()]+)\]\(([^\[\]()]+)\)/g,"[$1](<$2>)")}` : ""}${toot.spoiler_text !== "" && !showCW ? "||" : ""}\n`;
