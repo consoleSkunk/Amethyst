@@ -9,6 +9,13 @@ var turndownService = new turndown({
 	codeBlockStyle: "fenced"
 });
 
+turndownService.addRule('strikethrough', {
+	filter: ['del', 's', 'strike'],
+	replacement: function (content) {
+		return '~~' + content + '~~'
+	}
+})
+
 exports.module = {
 	command: {
 		name: "mastodon",
