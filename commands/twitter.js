@@ -47,6 +47,7 @@ exports.module = {
 				newText = newText.replaceAll(/(\uEA00|\[CHIRPBIRDICON\])/gi,"\u{1f426}");
 				newText = newText.replaceAll("\uF8FF","\u{1f34e}");
 				newText = newText.replaceAll("\uE50A","\u{1f3ec}");
+				newText = newText.replaceAll("\uE000","\u2BA6");
 				return newText;
 			}
 
@@ -60,6 +61,7 @@ exports.module = {
 								.replaceAll("\uEA00","\u{1f426}")
 								.replaceAll("\uF8FF","\u{1f34e}")
 								.replaceAll("\uE50A","\u{1f3e2}")
+								.replaceAll("\uE000","\u2BA6")
 							} (@${tweet.author.screen_name})`,
 						url: `https://twitter.com/${tweet.author.screen_name}`,
 						iconURL: tweet.author.avatar_url
