@@ -68,7 +68,7 @@ exports.module = {
 					},
 					url: toot.url,
 					color: toot.sensitive ? 0xf4212e : 0x00ba7c,
-					description: (tootText.length > 2048 ? tootText.substr(0,2047) + "…" : tootText),
+					description: (tootText.length > 4096 ? tootText.substr(0,4095) + "…" : tootText),
 					footer: {
 						text: (toot.application ? toot.application.name : "Mastodon"),
 						iconURL: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Mastodon_logotype_%28simple%29_new_hue.svg/128px-Mastodon_logotype_%28simple%29_new_hue.svg.png"
@@ -146,7 +146,7 @@ exports.module = {
 					content = (toot.spoiler_text !== "" ? `**CW: ${cwText}**\n${showCW ? "" : "||"}` : "") + 
 					`**[${toot.account.display_name} (@${toot.account.acct})](<${toot.url}>)**` +
 					` \[ ${media.join(" ")} \]\n` +
-					`${/\S/g.test(tootText) ? `>>> ${tootText}` : ""}${toot.spoiler_text !== "" && !showCW ? "||" : ""}\n`;
+					`${/\S/g.test(tootText) ? `>>> ${(tootText.length > 1024 ? tootText.substr(0,1023) + "…" : tootText)}` : ""}${toot.spoiler_text !== "" && !showCW ? "||" : ""}\n`;
 				}
 			}
 			interaction.reply({content: content, embeds: embeds})
