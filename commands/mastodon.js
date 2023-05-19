@@ -34,7 +34,7 @@ exports.module = {
 		}],
 	},
 	process: function (interaction) {
-		var regex = /^https?:\/\/((?:(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.)+[A-Za-z]{2,6})\/(?:@|users\/)[a-zA-Z0-9_]{1,30}(?:@(?:(?!-)[A-Za-z0-9-]{1,63}(?<!-)\.)+[A-Za-z]{2,6})?(?:\/statuses)?\/(\d{1,20})/;
+		var regex = /^https?:\/\/((?:[A-Za-z0-9-]{1,63}\.)+[A-Za-z0-9-]{1,62})\/(?:@|users\/)[a-zA-Z0-9_]{1,30}(?:@(?:[A-Za-z0-9-]{1,63}\.)+[A-Za-z]{1,62})?(?:\/statuses)?\/(\d{1,20})/;
 
 		if(!regex.test(interaction.options.getString('url'))) {
 			interaction.reply({content: "That doesn't appear to be a valid Mastodon post URL.", ephemeral: true});
