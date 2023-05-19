@@ -146,7 +146,7 @@ exports.module = {
 					content = (toot.spoiler_text !== "" ? `**CW: ${cwText}**\n${showCW ? "" : "||"}` : "") + 
 					`**[${toot.account.display_name} (@${toot.account.acct})](<${toot.url}>)**` +
 					` \[ ${media.join(" ")} \]\n` +
-					`${/\S/g.test(tootText) ? `>>> ${(tootText.length > 1024 ? tootText.substr(0,1023) + "…" : tootText)}` : ""}${toot.spoiler_text !== "" && !showCW ? "||" : ""}\n`;
+					`${/\S/g.test(tootText) ? `>>> ${(tootText.length > 1024 ? tootText.substr(0,1023) + "…" : tootText).replace(/\[([^\[\]()]+)\]\(([^\[\]()]+)\)/g,"[$1](<$2>)")}` : ""}${toot.spoiler_text !== "" && !showCW ? "||" : ""}\n`;
 				}
 			}
 			interaction.reply({content: content, embeds: embeds})
