@@ -133,7 +133,7 @@ exports.module = {
 
 				var hasVideo = false;
 				for(let j=0; j<toot.media_attachments.length; j++) {
-					if(toot.media_attachments[j].type == "video" || toot.media_attachments[j].type == "gifv")
+					if(toot.media_attachments[j].type == "video" || toot.media_attachments[j].type == "gifv" || toot.media_attachments[j].type == "audio")
 						hasVideo = true;
 				}
 				if(hasVideo) {
