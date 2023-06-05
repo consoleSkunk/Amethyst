@@ -20,32 +20,28 @@ exports.module = {
 	process: function(interaction) {
 		var user = interaction.options.getUser('user');
 
-		if(interaction.options.getBoolean('server') && interaction.guild && user.avatar !== null && interaction.guild.members.resolve(user) != null) {
-			var hasServerAvatar = (interaction.guild.members.resolve(user).avatar != null)
-			var serverAvatar = interaction.guild.members.resolve(user).displayAvatarURL({size:4096,format:"png",dynamic:true});
-			var globalAvatar = user.displayAvatarURL({size:4096,format:"png",dynamic:true});
-			
+		var hasServerAvatar = (
+			interaction.options.getBoolean('server') &&
+			interaction.guild &&
+			interaction.guild.members.resolve(user) != null &&
+			interaction.guild.members.resolve(user).avatar != null
+		)
+		var avatar = (
+			hasServerAvatar ? 
+			interaction.guild.members.resolve(user).displayAvatarURL({size:4096,format:"png",dynamic:true}) :
+			user.displayAvatarURL({size:4096,format:"png",dynamic:true})
+		)
+		
+		if(user.avatar !== null || hasServerAvatar) {
 			interaction.reply({embeds: [new EmbedBuilder({
 				author: {
 					name: `${user.tag}'s ${hasServerAvatar ? "server " : ""}avatar`,
-					iconURL: (hasServerAvatar ? globalAvatar : user.defaultAvatarURL)
+					iconURL: (hasServerAvatar ? user.displayAvatarURL({size:4096,format:"png",dynamic:true}) : user.defaultAvatarURL)
 				},
 				image: {
-					url: (hasServerAvatar ? serverAvatar : globalAvatar)
+					url: avatar
 				},
-				url: (hasServerAvatar ? serverAvatar : globalAvatar),
-				color: [0x5865f2,0x757e8a,0x3ba55c,0xfaa61a,0xed4245][user.discriminator % 5]
-			})]});
-		} else if(user.avatar != null) {
-			interaction.reply({embeds: [new EmbedBuilder({
-				author: {
-					name: `${user.tag}'s avatar`,
-					iconURL: user.defaultAvatarURL
-				},
-				image: {
-					url: user.displayAvatarURL({size:4096,format:"png",dynamic:true})
-				},
-				url: user.displayAvatarURL({size:4096,format:"png",dynamic:true}),
+				url: avatar,
 				color: [0x5865f2,0x757e8a,0x3ba55c,0xfaa61a,0xed4245][user.discriminator % 5]
 			})]});
 		} else {
