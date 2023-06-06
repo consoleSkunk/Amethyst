@@ -6,7 +6,7 @@ var qs = require("querystring"),
 		ButtonStyle,
 		ApplicationCommandOptionType
 	} = require('discord.js'),
-    fetch = import("node-fetch"),
+    fetch = require("node-fetch"),
     { contact } = require('../config/config.json'),
     { name, version } = require('../package.json');
 

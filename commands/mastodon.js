@@ -1,5 +1,5 @@
 var { EmbedBuilder, ApplicationCommandOptionType } = require('discord.js'),
-    fetch = import("node-fetch"),
+    fetch = require("node-fetch"),
     turndown = require("turndown"),
     { contact } = require('../config/config.json'),
     { name, version } = require('../package.json');

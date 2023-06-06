@@ -1,7 +1,7 @@
 var { EmbedBuilder, ApplicationCommandOptionType } = require('discord.js'),
     { contact } = require('../config/config.json'),
     { name, version } = require('../package.json'),
-    fetch = import("node-fetch");
+    fetch = require("node-fetch");
 
 exports.module = {
 	command: {
