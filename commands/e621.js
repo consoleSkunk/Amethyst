@@ -1,6 +1,6 @@
 const qs = require("querystring"),
       Discord = require("discord.js"),
-      fetch = require("node-fetch"),
+      fetch = import("node-fetch"),
       prettysize = require('prettysize'),
       { name, version } = require('../package.json'),
       { contact } = require("../config/config.json")
