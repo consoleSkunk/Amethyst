@@ -31,18 +31,20 @@ exports.module = {
 			interaction.guild.members.resolve(user).displayAvatarURL({size:4096,format:"png",dynamic:true}) :
 			user.displayAvatarURL({size:4096,format:"png",dynamic:true})
 		)
+
+		var colorId = user.discriminator == "0" ? (Number(BigInt(user.id) >> 22n) % 6) : user.discriminator % 5;
 		
 		if(user.avatar !== null || hasServerAvatar) {
 			interaction.reply({embeds: [new EmbedBuilder({
 				author: {
-					name: `${user.tag}'s ${hasServerAvatar ? "server " : ""}avatar`,
-					iconURL: (hasServerAvatar ? user.displayAvatarURL({size:4096,format:"png",dynamic:true}) : user.defaultAvatarURL)
+					name: `${user.discriminator == "0" ? user.username : user.tag}'s ${hasServerAvatar ? "server " : ""}avatar`,
+					iconURL: (hasServerAvatar ? user.displayAvatarURL({size:4096,format:"png",dynamic:true}) : `https://cdn.discordapp.com/embed/avatars/${colorId}.png`)
 				},
 				image: {
 					url: avatar
 				},
 				url: avatar,
-				color: [0x5865f2,0x757e8a,0x3ba55c,0xfaa61a,0xed4245][user.discriminator % 5]
+				color: [0x5865f2,0x757e8a,0x3ba55c,0xfaa61a,0xed4245,0xeb459f][colorId]
 			})]});
 		} else {
 			interaction.reply({content: `**${user.tag}** does not have an avatar.`, ephemeral: true});
