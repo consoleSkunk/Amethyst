@@ -32,12 +32,12 @@ exports.module = {
 			user.displayAvatarURL({size:4096,format:"png",dynamic:true})
 		)
 
-		var colorId = user.discriminator == "0" ? (Number(BigInt(user.id) >> 22n) % 6) : user.discriminator % 5;
+		var colorId = (["0","0000",null,undefined].includes(user.discriminator)) ? (Number(BigInt(user.id) >> 22n) % 6) : user.discriminator % 5;
 		
 		if(user.avatar !== null || hasServerAvatar) {
 			interaction.reply({embeds: [new EmbedBuilder({
 				author: {
-					name: `${user.discriminator == "0" ? user.username : user.tag}'s ${hasServerAvatar ? "server " : ""}avatar`,
+					name: `${["0",null,undefined].includes(user.discriminator) ? user.username : user.tag}'s ${hasServerAvatar ? "server " : ""}avatar`,
 					iconURL: (hasServerAvatar ? user.displayAvatarURL({size:4096,format:"png",dynamic:true}) : `https://cdn.discordapp.com/embed/avatars/${colorId}.png`)
 				},
 				image: {
