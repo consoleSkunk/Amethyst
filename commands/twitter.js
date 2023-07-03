@@ -67,15 +67,19 @@ exports.module = {
 						iconURL: tweet.author.avatar_url
 					},
 					url: tweet.url,
-					color: parseInt(tweet.color.replace("#","0x")),
+					color: 0x1da1f2, // parseInt(tweet.color.replace("#","0x")),
 					description: parseTweet(tweet.text),
 					footer: {
-						text: tweet.source,
+						text: "Powered by FixTweet",
 						iconURL: "https://abs.twimg.com/icons/apple-touch-icon-192x192.png"
 					},
-					timestamp: new Date(tweet.created_at).toISOString()
+					//timestamp: new Date(tweet.created_at).toISOString()
 				})
 			];
+
+			if(tweet.id.length > 13) {
+				embeds[0].setTimestamp(new Date(Number(BigInt(tweet.id) >> 22n) + 1288834974657).toISOString());
+			}
 
 			if(tweet.quote)
 				embeds[0].addFields([{
