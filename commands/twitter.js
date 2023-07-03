@@ -78,7 +78,7 @@ exports.module = {
 			];
 
 			if(tweet.id.length > 13) {
-				embeds[0].setTimestamp(new Date(Number(BigInt(tweet.id) >> 22n) + 1288834974657).toISOString());
+				embeds[0].setTimestamp(new Date(Number(BigInt(tweet.id) >> 22n) + 1288834974657));
 			}
 
 			if(tweet.quote)
