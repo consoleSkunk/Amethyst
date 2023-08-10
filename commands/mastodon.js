@@ -57,7 +57,7 @@ exports.module = {
 			var showCW = interaction.options.getBoolean('cw');
 			var cwText =  (toot.spoiler_text !== "" ? (toot.spoiler_text > 500 ? toot.spoiler_text.substr(0,499) + "…" : toot.spoiler_text) : "")
 			var content = (toot.spoiler_text !== "" ? `**CW: ${cwText}** ${showCW ? toot.url : `||${toot.url}||`}` : toot.url);
-			var tootText = turndownService.turndown(toot.content).replace(/\[([^[\]()]+)]\(\1\)/g,"$1");
+			var tootText = turndownService.turndown(toot.content).replace(/\[([^[\]()]+)]\(\1\)/g,"<$1>");
 
 			var embeds = [
 				new EmbedBuilder({
