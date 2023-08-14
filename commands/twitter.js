@@ -124,7 +124,19 @@ exports.module = {
 			if(tweet.media || (tweet.quote && tweet.quote.media)) {
 				var mediaSource = ((tweet.quote && tweet.quote.media) && !tweet.media  ? tweet.quote.media : tweet.media);
 
-				if(mediaSource.photos) {
+				if(mediaSource.videos) {
+					media = [];
+					for(let i = 0; i < mediaSource.all.length; i++) {
+						media.push(`[${mediaSource.all[i].type}](${mediaSource.all[i].url})`);
+					}
+
+					embeds = [];
+					content = `**[${tweet.author.name} (@${tweet.author.screen_name})](<${tweet.url}>)**` +
+					` \[ ${media.join(" ")} \]\n` +
+					`${/\S/g.test(tweet.text) ? `>>> ${parseTweet(tweet.text)}` : ""}\n`;
+				}
+
+				else if(mediaSource.photos) {
 					 embeds[0].setImage(mediaSource.photos[0].url);
 
 					 if(mediaSource.photos.length > 1) {
@@ -135,18 +147,6 @@ exports.module = {
 							}))
 						}
 					}
-				}
-
-				if(mediaSource.videos) {
-					media = [];
-					for(let i = 0; i < mediaSource.videos.length; i++) {
-						media.push(`[video](${mediaSource.videos[i].url})`);
-					}
-
-					embeds = [];
-					content = `**[${tweet.author.name} (@${tweet.author.screen_name})](<${tweet.url}>)**` +
-					` \[ ${media.join(" ")} \]\n` +
-					`${/\S/g.test(tweet.text) ? `>>> ${parseTweet(tweet.text)}` : ""}\n`;
 				}
 			}
 			interaction.reply({content: content, embeds: embeds})
