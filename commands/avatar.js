@@ -37,7 +37,7 @@ exports.module = {
 		if(user.avatar !== null || hasServerAvatar) {
 			interaction.reply({embeds: [new EmbedBuilder({
 				author: {
-					name: `${["0",null,undefined].includes(user.discriminator) ? user.username : user.tag}'s ${hasServerAvatar ? "server " : ""}avatar`,
+					name: user.globalName !== null && user.globalName !== user.tag ? `${user.globalName} (@${user.tag})` : "@" + user.tag,
 					iconURL: (hasServerAvatar ? user.displayAvatarURL({size:4096,format:"png",dynamic:true}) : `https://cdn.discordapp.com/embed/avatars/${colorId}.png`)
 				},
 				image: {
