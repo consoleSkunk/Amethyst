@@ -270,12 +270,6 @@ var DTextMap = new Map([
 		return "  ".repeat(p1.length - 1) + "* " + p2;
 	}],
 
-	// headings
-	[/^h1\.([\s\S]+?)$/gim,'# $1'],
-	[/^h2\.([\s\S]+?)$/gim,'## $1'],
-	[/^h3\.([\s\S]+?)$/gim,'### $1'],
-	[/^h[4-6]\.([\s\S]+?)$/gim,'**$1**'],
-
 	//BBCode
 	[/\[b\]([\s\S]+?)\[\/b\]/gi,'**$1**'],
 	[/\[i\]([\s\S]+?)\[\/i\]/gi,'*$1*'],
@@ -292,6 +286,12 @@ var DTextMap = new Map([
 		content = content.replace(/^/gm, '> ')
 		return content;
 	}],
+
+	// headings
+	[/^(> )?h1\.([\s\S]+?)$/gim,'$1# $2'],
+	[/^(> )?h2\.([\s\S]+?)$/gim,'$1## $2'],
+	[/^(> )?h3\.([\s\S]+?)$/gim,'$1### $2'],
+	[/^(> )?h[4-6]\.([\s\S]+?)$/gim,'$1**$2**'],
 
 	//disabled since there's no Discord equivalent
 	[/\[o\]([\s\S]+?)\[\/o\]/gi,'$1'],
