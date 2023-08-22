@@ -70,7 +70,7 @@ exports.module = {
 					color: 0x1da1f2, // parseInt(tweet.color.replace("#","0x")),
 					description: parseTweet(tweet.text),
 					footer: {
-						text: "Powered by FixTweet",
+						text: tweet.source,
 						iconURL: "https://abs.twimg.com/icons/apple-touch-icon-192x192.png"
 					},
 					//timestamp: new Date(tweet.created_at).toISOString()
