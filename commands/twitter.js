@@ -60,7 +60,7 @@ exports.module = {
 						name: `${tweet.author.name
 								.replaceAll("\uEA00","\u{1f426}")
 								.replaceAll("\uF8FF","\u{1f34e}")
-								.replaceAll("\uE50A","\u{1f3e2}")
+								.replaceAll("\uE50A","\u{1f3ec}")
 								.replaceAll("\uE000","\u2BA6")
 							} (@${tweet.author.screen_name})`,
 						url: `https://twitter.com/${tweet.author.screen_name}`,
