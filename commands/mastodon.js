@@ -70,7 +70,7 @@ exports.module = {
 					color: toot.sensitive ? 0xf4212e : 0x00ba7c,
 					description: (tootText.length > 4096 ? tootText.substr(0,4095) + "…" : tootText),
 					footer: {
-						text: (toot.application ? toot.application.name : "Mastodon"),
+						text: (toot.application ? toot.application.name : new URL(toot.url).hostname),
 						iconURL: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Mastodon_logotype_%28simple%29_new_hue.svg/128px-Mastodon_logotype_%28simple%29_new_hue.svg.png"
 					},
 					timestamp: new Date(toot.created_at).toISOString()
