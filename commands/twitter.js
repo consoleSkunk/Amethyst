@@ -115,7 +115,7 @@ exports.module = {
 				}
 
 				embeds[0].addFields([{
-					name: `Poll \xB7 ${tweet.poll.total_votes.toLocaleString()} vote${tweet.poll.total_votes == 1 ? "" : "s"}${tweet.poll.time_left_en}`,
+					name: `Poll \xB7 ${tweet.poll.total_votes.toLocaleString()} vote${tweet.poll.total_votes == 1 ? "" : "s"} \xB7 ${tweet.poll.time_left_en}`,
 					value: poll_array.join("\n"),
 					inline: false
 				}])
