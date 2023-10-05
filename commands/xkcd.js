@@ -117,6 +117,9 @@ exports.module = {
 				else if (comic.num == "1137") { // #1137 - RTL
 					xkEmbed.setTitle(`#${comic.num} - RTL`); // discord strips out the right-to-left override, ruining the joke
 				}
+				else if (comic.num == "1193") { // #1193 - Externalities
+					xkEmbed.setImage("https://www.explainxkcd.com/wiki/images/0/0b/externalities.png");
+				}
 
 				interaction.reply({content: `https://xkcd.com/${comic.num}`, embeds: [xkEmbed], components: [buttons]});
 			//}
