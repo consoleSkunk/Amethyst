@@ -118,7 +118,12 @@ exports.module = {
 					xkEmbed.setTitle(`#${comic.num} - RTL`); // discord strips out the right-to-left override, ruining the joke
 				}
 				else if (comic.num == "1193") { // #1193 - Externalities
+					// official image is a blank canvas
 					xkEmbed.setImage("https://www.explainxkcd.com/wiki/images/0/0b/externalities.png");
+				}
+				else if (comic.num == "1350") { // #1350 - Lorenz
+					// official image is a repeat of #1349
+					xkEmbed.setImage("https://www.explainxkcd.com/wiki/images/d/d2/lorenz_-_alternative_options.png");
 				}
 
 				interaction.reply({content: `https://xkcd.com/${comic.num}`, embeds: [xkEmbed], components: [buttons]});
