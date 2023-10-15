@@ -73,7 +73,10 @@ exports.module = {
 						description: (tootText.length > 4096 ? tootText.substr(0,4095) + "…" : tootText),
 						footer: {
 							text: (toot.application ? toot.application.name : new URL(toot.url).hostname),
-							iconURL: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Mastodon_logotype_%28simple%29_new_hue.svg/128px-Mastodon_logotype_%28simple%29_new_hue.svg.png"
+							iconURL: (toot.account.username !== toot.account.acct ? 
+								"https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Fediverse_logo_proposal.svg/128px-Fediverse_logo_proposal.svg.png" :
+								"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Mastodon_logotype_%28simple%29_new_hue.svg/128px-Mastodon_logotype_%28simple%29_new_hue.svg.png"
+							)
 						},
 						timestamp: new Date(toot.created_at).toISOString()
 					})
