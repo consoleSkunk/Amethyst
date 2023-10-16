@@ -136,21 +136,39 @@ exports.module = {
 						}
 					}
 
-					var hasVideo = false;
+					var hasVideo = false,
+					    hasAttachments = false;
+
 					for(let j=0; j<toot.media_attachments.length; j++) {
-						if(toot.media_attachments[j].type == "video" || toot.media_attachments[j].type == "gifv" || toot.media_attachments[j].type == "audio")
+						unembedded_media = [];
+						if(toot.media_attachments[j].type == "video" || toot.media_attachments[j].type == "gifv")
 							hasVideo = true;
+						else if(toot.media_attachments[j].type == "unknown" || toot.media_attachments[j].type == "audio")
+							hasAttachments = true;
 					}
-					if(hasVideo) {
-						media = [];
+					if(hasAttachments && !hasVideo) {
+						mediaText = [];
 						for(let i = 0; i < toot.media_attachments.length; i++) {
-							media.push(`[${toot.media_attachments[i].type}](${toot.media_attachments[i].remote_url !== null ? toot.media_attachments[i].remote_url : toot.media_attachments[i].url})`);
+							url = toot.media_attachments[i].remote_url !== null ? toot.media_attachments[i].remote_url : toot.media_attachments[i].url;
+							if(toot.media_attachments[i].type == "unknown" || toot.media_attachments[i].type == "audio")
+								mediaText.push(`${toot.media_attachments[i].type == "audio" ? "\u{1F50A}" : "\u{1F517}"} [${new URL(url).pathname.split('/').pop()}](${url})`);
+						}
+						embeds[0].addFields([{
+							name: "Media",
+							value: mediaText.join("\n"),
+							inline: true
+						}]);
+					}
+					else if(hasVideo) {
+						mediaText = [];
+						for(let i = 0; i < toot.media_attachments.length; i++) {
+							mediaText.push(`[${toot.media_attachments[i].type}](${toot.media_attachments[i].remote_url !== null ? toot.media_attachments[i].remote_url : toot.media_attachments[i].url})`);
 						}
 
 						embeds = [];
 						content = (toot.spoiler_text !== "" ? `**CW: ${cwText}**\n${showCW ? "" : "||"}` : "") + 
 						`**[${toot.account.display_name} (@${toot.account.acct})](<${toot.url}>)**` +
-						` \[ ${media.join(" ")} \]\n` +
+						` \[ ${mediaText.join(" ")} \]\n` +
 						`${/\S/g.test(tootText) ? `>>> ${(tootText.length > 1024 ? tootText.substr(0,1023) + "…" : tootText).replace(/\[([^\[\]()]+)\]\(([^\[\]()]+)\)/g,"[$1](<$2>)")}` : ""}${toot.spoiler_text !== "" && !showCW ? "||" : ""}\n`;
 					}
 				}
