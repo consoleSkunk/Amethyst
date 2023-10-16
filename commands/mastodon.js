@@ -124,13 +124,13 @@ exports.module = {
 
 				if(toot.media_attachments.length > 0) {
 					if(toot.media_attachments[0].type == "image") {
-						embeds[0].setImage(toot.media_attachments[0].url);
+						embeds[0].setImage(toot.media_attachments[0].remote_url !== null ? toot.media_attachments[0].remote_url : toot.media_attachments[0].url);
 
 						if(toot.media_attachments.length > 1) {
 							for(let i = 1; i < toot.media_attachments.length; i++) {
 								embeds.push(new EmbedBuilder({
 									url: toot.url,
-									image: {url: toot.media_attachments[i].url}
+									image: {url: toot.media_attachments[i].remote_url !== null ? toot.media_attachments[i].remote_url : toot.media_attachments[i].url}
 								}))
 							}
 						}
@@ -144,7 +144,7 @@ exports.module = {
 					if(hasVideo) {
 						media = [];
 						for(let i = 0; i < toot.media_attachments.length; i++) {
-							media.push(`[${toot.media_attachments[i].type}](${toot.media_attachments[i].url})`);
+							media.push(`[${toot.media_attachments[i].type}](${toot.media_attachments[i].remote_url !== null ? toot.media_attachments[i].remote_url : toot.media_attachments[i].url})`);
 						}
 
 						embeds = [];
