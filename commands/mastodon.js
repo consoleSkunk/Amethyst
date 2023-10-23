@@ -16,6 +16,21 @@ turndownService.addRule('strikethrough', {
 	}
 })
 
+turndownService.addRule('unmaskedLink', {
+	filter: function (node, options) {
+		return (
+			options.linkStyle === 'inlined' &&
+			node.nodeName === 'A' &&
+			node.getAttribute('href') == node.textContent
+		)
+	},
+
+	replacement: function (content, node) {
+		var href = node.getAttribute('href')
+		return '<' + href + '>'
+	}
+})
+
 exports.module = {
 	command: {
 		name: "mastodon",
@@ -59,7 +74,7 @@ exports.module = {
 				var showCW = interaction.options.getBoolean('cw');
 				var cwText =  (toot.spoiler_text !== "" ? (toot.spoiler_text > 500 ? toot.spoiler_text.substr(0,499) + "…" : toot.spoiler_text) : "")
 				var content = (toot.spoiler_text !== "" ? `**CW: ${cwText}** ${showCW ? toot.url : `||${toot.url}||`}` : toot.url);
-				var tootText = turndownService.turndown(toot.content).replace(/\[([^[\]()]+)]\(\1\)/g,"<$1>");
+				var tootText = turndownService.turndown(toot.content);
 
 				var embeds = [
 					new EmbedBuilder({
