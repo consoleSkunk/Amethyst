@@ -34,11 +34,11 @@ turndownService.addRule('unmaskedLink', {
 exports.module = {
 	command: {
 		name: "mastodon",
-		description: "Re-embeds a toot",
+		description: "Re-embeds a post",
 		options: [{
 			name: 'url',
 			type: ApplicationCommandOptionType.String,
-			description: "URL to toot",
+			description: "URL to post",
 			required: true,
 		},
 		{
@@ -49,16 +49,25 @@ exports.module = {
 		}],
 	},
 	process: function (interaction) {
-		var regex = /^https?:\/\/((?:[A-Za-z0-9-]{1,63}\.)+[A-Za-z0-9-]{1,62})\/(?:@|deck\/@|users\/)[a-zA-Z0-9_]{1,30}(?:@(?:[A-Za-z0-9-]{1,63}\.)+[A-Za-z]{1,62})?(?:\/statuses)?\/(\d{1,20})/;
+		var mastodonRegex = /^https?:\/\/((?:[A-Za-z0-9-]{1,63}\.)+[A-Za-z0-9-]{1,62})\/(?:@|deck\/@|users\/)[a-zA-Z0-9_]{1,30}(?:@(?:[A-Za-z0-9-]{1,63}\.)+[A-Za-z]{1,62})?(?:\/statuses)?\/(\d{1,20})/;
+		var pleromaRegex = /^https?:\/\/((?:[A-Za-z0-9-]{1,63}\.)+[A-Za-z0-9-]{1,62})\/notice\/([a-zA-Z0-9]{1,32})/;
+		
+		var apiURL = "";
 
-		if(!regex.test(interaction.options.getString('url'))) {
-			interaction.reply({content: "That doesn't appear to be a valid Mastodon post URL.", ephemeral: true});
+		if(mastodonRegex.test(interaction.options.getString('url'))) {
+			apiURL = `https://${mastodonRegex.exec(interaction.options.getString('url'))[1]}/api/v1/statuses/${mastodonRegex.exec(interaction.options.getString('url'))[2]}`
+		}
+		else if(pleromaRegex.test(interaction.options.getString('url'))) {
+			apiURL = `https://${pleromaRegex.exec(interaction.options.getString('url'))[1]}/api/v1/statuses?ids[]=${pleromaRegex.exec(interaction.options.getString('url'))[2]}`
+		}
+		else {
+			interaction.reply({content: "That doesn't appear to be a valid post URL.", ephemeral: true});
 			return;
 		}
 		
 		interaction.deferReply().then(response => {
 			interaction = response.interaction;
-			fetch(`https://${regex.exec(interaction.options.getString('url'))[1]}/api/v1/statuses/${regex.exec(interaction.options.getString('url'))[2]}`, {
+			fetch(apiURL, {
 				headers: {
 					'User-Agent': `${name}/${version} (+${contact.project_url})`
 				}
@@ -67,6 +76,13 @@ exports.module = {
 				return res.json()
 			})
 			.then((toot) => {
+				if(toot.length == 0) {
+					response.edit({content: "No post was found with that ID."});
+					return;
+				}
+				else if(toot.length !== undefined)
+					toot = toot[0]; // pleroma api differs from mastodon by putting the statuses in an array
+
 				if(toot.error) {
 					response.edit({content: toot.error});
 					return;
@@ -90,6 +106,7 @@ exports.module = {
 							text: (toot.application ? toot.application.name : new URL(toot.url).hostname),
 							iconURL: (toot.account.username !== toot.account.acct ? 
 								"https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Fediverse_logo_proposal.svg/128px-Fediverse_logo_proposal.svg.png" :
+								toot.pleroma ? new URL(toot.url).origin + "/favicon.png" :
 								"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d5/Mastodon_logotype_%28simple%29_new_hue.svg/128px-Mastodon_logotype_%28simple%29_new_hue.svg.png"
 							)
 						},
@@ -190,7 +207,7 @@ exports.module = {
 				response.edit({content: content, embeds: embeds})
 			})
 			.catch(err => {
-				response.edit({content: "Failed to fetch Mastodon post: ```js\n" + err + "```"})
+				response.edit({content: "Failed to fetch post: ```js\n" + err + "```"})
 				console.error("[Command Error: /mastodon]",err);
 			});
 		})
