@@ -58,7 +58,7 @@ exports.module = {
 			apiURL = `https://${mastodonRegex.exec(interaction.options.getString('url'))[1]}/api/v1/statuses/${mastodonRegex.exec(interaction.options.getString('url'))[2]}`
 		}
 		else if(pleromaRegex.test(interaction.options.getString('url'))) {
-			apiURL = `https://${pleromaRegex.exec(interaction.options.getString('url'))[1]}/api/v1/statuses?ids[]=${pleromaRegex.exec(interaction.options.getString('url'))[2]}`
+			apiURL = `https://${pleromaRegex.exec(interaction.options.getString('url'))[1]}/api/v1/statuses/${pleromaRegex.exec(interaction.options.getString('url'))[2]}`
 		}
 		else {
 			interaction.reply({content: "That doesn't appear to be a valid post URL.", ephemeral: true});
@@ -76,13 +76,6 @@ exports.module = {
 				return res.json()
 			})
 			.then((toot) => {
-				if(toot.length == 0) {
-					response.edit({content: "No post was found with that ID."});
-					return;
-				}
-				else if(toot.length !== undefined)
-					toot = toot[0]; // pleroma api differs from mastodon by putting the statuses in an array
-
 				if(toot.error) {
 					response.edit({content: toot.error});
 					return;
