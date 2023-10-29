@@ -77,7 +77,8 @@ exports.module = {
 			})
 			.then((toot) => {
 				if(toot.error) {
-					response.edit({content: toot.error});
+					interaction.followUp({content: toot.error, ephemeral:true})
+					.then(interaction.deleteReply());
 					return;
 				}
 				var showCW = interaction.options.getBoolean('cw');
@@ -197,10 +198,11 @@ exports.module = {
 						`${/\S/g.test(tootText) ? `>>> ${(tootText.length > 1024 ? tootText.substr(0,1023) + "…" : tootText).replace(/\[([^\[\]()]+)\]\(([^\[\]()]+)\)/g,"[$1](<$2>)")}` : ""}${toot.spoiler_text !== "" && !showCW ? "||" : ""}\n`;
 					}
 				}
-				response.edit({content: content, embeds: embeds})
+				interaction.editReply({content: content, embeds: embeds})
 			})
 			.catch(err => {
-				response.edit({content: "Failed to fetch post: ```js\n" + err + "```"})
+				response.followUp({content: "Failed to fetch post: ```js\n" + err + "```", ephemeral:true})
+				.then(interaction.deleteReply());
 				console.error("[Command Error: /mastodon]",err);
 			});
 		})
