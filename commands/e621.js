@@ -90,13 +90,13 @@ exports.module = {
 					artists = post.tags.artist.join(", ").replace(/_\(artist\)/g,"").replace(/_/g, " ");
 					var postEmbed = new Discord.EmbedBuilder({
 						author: {
-							name: (post.tags.artist.length ? (artists.length > 64 ? artists.substr(0,63) + "…" : artists) : (srcUrls ? srcUrls[0] : null)),
+							name: (post.tags.artist.length ? (artists.length > 64 ? artists.substring(0,63) + "…" : artists) : (srcUrls ? srcUrls[0] : null)),
 							url: (srcUrls ? srcUrls[0] : null),
 						},
 						title:
 						`e621 - #${post.id} (${rating})`,
 						url: `https://e621.net/posts/${post.id}${query !== null ? "?q=" + qs.escape(query) : ""}`,
-						description: (description.length > 512 ? description.substr(0,511) + "…" : description),
+						description: (description.length > 512 ? description.substring(0,511) + "…" : description),
 						color: 77398,
 						image: {
 							url: (
@@ -125,7 +125,7 @@ exports.module = {
 							.replace(/_/g, " "); // replace all underscores with spaces
 						postEmbed.addFields([{
 							name: `Character${post.tags.character.length > 1 ? `s (${post.tags.character.length})` : ''}`,
-							value: (chars.length > 200 ? chars.substr(0,199) + "…" : chars),
+							value: (chars.length > 200 ? chars.substring(0,199) + "…" : chars),
 							inline: true
 						}]);
 					}
@@ -135,7 +135,7 @@ exports.module = {
 							.replace(/_/g, " ");
 						postEmbed.addFields([{
 							name: `Copyright${post.tags.copyright.length > 1 ? `s (${post.tags.copyright.length})` : ''}`,
-							value: (copy.length > 200 ? copy.substr(0,199) + "…" : copy),
+							value: (copy.length > 200 ? copy.substring(0,199) + "…" : copy),
 							inline: true
 						}]);
 					}
@@ -145,7 +145,7 @@ exports.module = {
 							.replace(/_/g, " ");
 						postEmbed.addFields([{
 							name: `Lore`,
-							value: (lore.length > 200 ? lore.substr(0,199) + "…" : lore),
+							value: (lore.length > 200 ? lore.substring(0,199) + "…" : lore),
 							inline: true
 						}]);
 					}
@@ -155,7 +155,7 @@ exports.module = {
 							.replace(/_/g, " ");
 						postEmbed.addFields([{
 							name: `Species${post.tags.species.length > 4 ? ` (${post.tags.species.length})` : ''}`,
-							value: (species.length > 200 ? species.substr(0,199) + "…" : species),
+							value: (species.length > 200 ? species.substring(0,199) + "…" : species),
 							inline: false
 						}]);
 					}

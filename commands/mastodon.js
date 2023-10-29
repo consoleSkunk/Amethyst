@@ -82,7 +82,7 @@ exports.module = {
 					return;
 				}
 				var showCW = interaction.options.getBoolean('cw');
-				var cwText =  (toot.spoiler_text !== "" ? (toot.spoiler_text > 500 ? toot.spoiler_text.substr(0,499) + "…" : toot.spoiler_text) : "")
+				var cwText =  (toot.spoiler_text !== "" ? (toot.spoiler_text > 500 ? toot.spoiler_text.substring(0,499) + "…" : toot.spoiler_text) : "")
 				var content = (toot.spoiler_text !== "" ? `**CW: ${cwText}** ${showCW ? toot.url : `||${toot.url}||`}` : toot.url);
 				var tootText = turndownService.turndown(toot.content);
 
@@ -95,7 +95,7 @@ exports.module = {
 						},
 						url: toot.url,
 						color: toot.sensitive ? 0xf4212e : 0x00ba7c,
-						description: (tootText.length > 4096 ? tootText.substr(0,4095) + "…" : tootText),
+						description: (tootText.length > 4096 ? tootText.substring(0,4095) + "…" : tootText),
 						footer: {
 							text: (toot.application ? toot.application.name : new URL(toot.url).hostname),
 							iconURL: (toot.account.username !== toot.account.acct ? 
@@ -195,7 +195,7 @@ exports.module = {
 						content = (toot.spoiler_text !== "" ? `**CW: ${cwText}**\n${showCW ? "" : "||"}` : "") + 
 						`**[${toot.account.display_name} (@${toot.account.acct})](<${toot.url}>)**` +
 						` \[ ${mediaText.join(" ")} \]\n` +
-						`${/\S/g.test(tootText) ? `>>> ${(tootText.length > 1024 ? tootText.substr(0,1023) + "…" : tootText).replace(/\[([^\[\]()]+)\]\(([^\[\]()]+)\)/g,"[$1](<$2>)")}` : ""}${toot.spoiler_text !== "" && !showCW ? "||" : ""}\n`;
+						`${/\S/g.test(tootText) ? `>>> ${(tootText.length > 1024 ? tootText.substring(0,1023) + "…" : tootText).replace(/\[([^\[\]()]+)\]\(([^\[\]()]+)\)/g,"[$1](<$2>)")}` : ""}${toot.spoiler_text !== "" && !showCW ? "||" : ""}\n`;
 					}
 				}
 				interaction.editReply({content: content, embeds: embeds})
