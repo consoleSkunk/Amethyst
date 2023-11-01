@@ -201,7 +201,7 @@ exports.module = {
 				interaction.editReply({content: content, embeds: embeds})
 			})
 			.catch(err => {
-				response.followUp({content: "Failed to fetch post: ```js\n" + err + "```", ephemeral: true})
+				interaction.followUp({content: "Failed to fetch post: ```js\n" + err + "```", ephemeral: true})
 				.then(interaction.deleteReply());
 				console.error("[Command Error: /mastodon]",err);
 			});
