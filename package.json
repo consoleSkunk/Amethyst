@@ -6,7 +6,7 @@
   "dependencies": {
     "clear-module": "^4.1.2",
     "discord.js": "^14.13.0",
-    "node-fetch": "^2.6.11",
+    "node-fetch": "^2.7.0",
     "prettysize": "^2.0.0",
     "turndown": "^7.1.2"
   },
