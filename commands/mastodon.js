@@ -108,7 +108,7 @@ exports.module = {
 					})
 				];
 				
-				if(toot.edited_at && toot.edited_at !== null)
+				if(toot.edited_at)
 					embeds[0].addFields([{
 						name: "Last edited",
 						value: `<t:${Math.round(new Date(toot.edited_at).getTime() / 1000)}>`,
