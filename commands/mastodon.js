@@ -133,7 +133,7 @@ exports.module = {
 
 					// very old polls don't have voters_count set, use votes_count in that case
 					// voters_count is used for multiple choice percentage calculation
-					let votes = (toot.poll.voters_count !== null ? toot.poll.voters_count : toot.poll.votes_count);
+					let votes = (toot.poll.voters_count != null ? toot.poll.voters_count : toot.poll.votes_count);
 					for(let i=0; i < toot.poll.options.length; i++) {
 						// add each poll option to an array, which will later be joined by a newline
 						poll_array.push(`${"\u2588".repeat(Math.round((toot.poll.options[i].votes_count / votes) * 32))}\n` +
@@ -150,13 +150,13 @@ exports.module = {
 
 				if(toot.media_attachments.length > 0) {
 					if(toot.media_attachments[0].type == "image") {
-						embeds[0].setImage(toot.media_attachments[0].remote_url !== null ? toot.media_attachments[0].remote_url : toot.media_attachments[0].url);
+						embeds[0].setImage(toot.media_attachments[0].remote_url != null ? toot.media_attachments[0].remote_url : new URL(toot.media_attachments[0].url,toot.url).href);
 
 						if(toot.media_attachments.length > 1) {
 							for(let i = 1; i < toot.media_attachments.length; i++) {
 								embeds.push(new EmbedBuilder({
 									url: toot.url,
-									image: {url: toot.media_attachments[i].remote_url !== null ? toot.media_attachments[i].remote_url : toot.media_attachments[i].url}
+									image: {url: toot.media_attachments[i].remote_url != null ? toot.media_attachments[i].remote_url : new URL(toot.media_attachments[i].url,toot.url).href}
 								}))
 							}
 						}
@@ -175,7 +175,7 @@ exports.module = {
 					if(hasAttachments && !hasVideo) {
 						mediaText = [];
 						for(let i = 0; i < toot.media_attachments.length; i++) {
-							url = toot.media_attachments[i].remote_url !== null ? toot.media_attachments[i].remote_url : toot.media_attachments[i].url;
+							url = toot.media_attachments[i].remote_url != null ? toot.media_attachments[i].remote_url : new URL(toot.media_attachments[i].url,toot.url).href;
 							if(toot.media_attachments[i].type == "unknown" || toot.media_attachments[i].type == "audio")
 								mediaText.push(`${toot.media_attachments[i].type == "audio" ? "\u{1F50A}" : "\u{1F517}"} [${new URL(url).pathname.split('/').pop()}](${url})`);
 						}
@@ -188,7 +188,7 @@ exports.module = {
 					else if(hasVideo) {
 						mediaText = [];
 						for(let i = 0; i < toot.media_attachments.length; i++) {
-							mediaText.push(`[${toot.media_attachments[i].type}](${toot.media_attachments[i].remote_url !== null ? toot.media_attachments[i].remote_url : toot.media_attachments[i].url})`);
+							mediaText.push(`[${toot.media_attachments[i].type}](${toot.media_attachments[i].remote_url != null ? toot.media_attachments[i].remote_url : new URL(toot.media_attachments[i].url,toot.url).href})`);
 						}
 
 						embeds = [];
