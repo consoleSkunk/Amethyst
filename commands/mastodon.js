@@ -51,6 +51,7 @@ exports.module = {
 	process: function (interaction) {
 		var mastodonRegex = /^https?:\/\/((?:[A-Za-z0-9-]{1,63}\.)+[A-Za-z0-9-]{1,62})\/(?:@|deck\/@|users\/)[a-zA-Z0-9_]{1,30}(?:@(?:[A-Za-z0-9-]{1,63}\.)+[A-Za-z]{1,62})?(?:\/statuses)?\/(\d{1,20})/;
 		var pleromaRegex = /^https?:\/\/((?:[A-Za-z0-9-]{1,63}\.)+[A-Za-z0-9-]{1,62})\/notice\/([a-zA-Z0-9]{1,32})/;
+		var misskeyRegex = /^https?:\/\/((?:[A-Za-z0-9-]{1,63}\.)+[A-Za-z0-9-]{1,62})\/notes\/([a-zA-Z0-9]{1,32})/;
 		
 		var apiURL = "";
 
@@ -59,6 +60,11 @@ exports.module = {
 		}
 		else if(pleromaRegex.test(interaction.options.getString('url'))) {
 			apiURL = `https://${pleromaRegex.exec(interaction.options.getString('url'))[1]}/api/v1/statuses/${pleromaRegex.exec(interaction.options.getString('url'))[2]}`
+		}
+		else if(misskeyRegex.test(interaction.options.getString('url'))) {
+			// misskey API is incompatible so we're using misstodon as a proxy
+			// https://github.com/gizmo-ds/misstodon
+			apiURL = `https://misstodon.aika.dev/api/v1/statuses/${misskeyRegex.exec(interaction.options.getString('url'))[2]}?server=${misskeyRegex.exec(interaction.options.getString('url'))[1]}`
 		}
 		else {
 			interaction.reply({content: "That doesn't appear to be a valid post URL.", ephemeral: true});
