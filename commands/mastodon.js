@@ -82,6 +82,7 @@ exports.module = {
 				return res.json()
 			})
 			.then((toot) => {
+				console.log(toot);
 				if(toot.error) {
 					interaction.followUp({content: toot.error, ephemeral: true})
 					.then(interaction.deleteReply());
@@ -120,6 +121,15 @@ exports.module = {
 						value: `<t:${Math.round(new Date(toot.edited_at).getTime() / 1000)}>`,
 						inline: true
 					}])
+
+				if(toot.quote) {
+					var quoteText = turndownService.turndown(toot.quote.content);
+					embeds[0].addFields([{
+						name: `${toot.quote.account.display_name} (@${toot.quote.account.acct})`,
+						value: `>>> ${quoteText.length > 1024 ? quoteText.substring(0,1023) + "…" : quoteText}`,
+						inline: false
+					}])
+				}
 				
 				if(toot.favourites_count >= 100)
 					embeds[0].addFields([{
