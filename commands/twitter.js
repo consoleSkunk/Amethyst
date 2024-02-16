@@ -53,6 +53,7 @@ exports.module = {
 
 			var tweet = response.tweet;
 			var content = tweet.url;
+			var tweetText = parseTweet(tweet.text)
 
 			var embeds = [
 				new EmbedBuilder({
@@ -64,7 +65,7 @@ exports.module = {
 								.replaceAll("\uE000","\u2BA6")
 							} (@${tweet.author.screen_name})`,
 						url: `https://twitter.com/${tweet.author.screen_name}`,
-						iconURL: tweet.author.avatar_url
+						iconURL: (tweetText.length > 4096 ? tweetText.substring(0,4095) + "…" : tweetText)
 					},
 					url: tweet.url,
 					color: 0x1da1f2, // parseInt(tweet.color.replace("#","0x")),
