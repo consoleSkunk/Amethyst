@@ -65,11 +65,11 @@ exports.module = {
 								.replaceAll("\uE000","\u2BA6")
 							} (@${tweet.author.screen_name})`,
 						url: `https://twitter.com/${tweet.author.screen_name}`,
-						iconURL: (tweetText.length > 4096 ? tweetText.substring(0,4095) + "…" : tweetText)
+						iconURL: tweet.author.avatar_url
 					},
 					url: tweet.url,
 					color: 0x1da1f2, // parseInt(tweet.color.replace("#","0x")),
-					description: parseTweet(tweet.text),
+					description: (tweetText.length > 4096 ? tweetText.substring(0,4095) + "…" : tweetText),
 					footer: {
 						text: tweet.source,
 						iconURL: "https://abs.twimg.com/icons/apple-touch-icon-192x192.png"
