@@ -114,6 +114,13 @@ exports.module = {
 					})
 				];
 				
+				if(toot.account === undefined || Object.keys(toot.account).length === 0)
+					embeds[0].setAuthor({
+						name: `Unknown account`,
+						url: toot.url,
+						iconURL: "https://cdn.discordapp.com/embed/avatars/1.png"
+					});
+				
 				if(toot.edited_at)
 					embeds[0].addFields([{
 						name: "Last edited",
