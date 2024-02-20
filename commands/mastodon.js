@@ -82,7 +82,6 @@ exports.module = {
 				return res.json()
 			})
 			.then((toot) => {
-				console.log(toot);
 				if(toot.error) {
 					interaction.followUp({content: toot.error, ephemeral: true})
 					.then(interaction.deleteReply());
