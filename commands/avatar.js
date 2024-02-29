@@ -28,8 +28,8 @@ exports.module = {
 		)
 		var avatar = (
 			hasServerAvatar ? 
-			interaction.guild.members.resolve(user).displayAvatarURL({size:4096,format:"png",dynamic:true}) :
-			user.displayAvatarURL({size:4096,format:"png",dynamic:true})
+			interaction.guild.members.resolve(user).displayAvatarURL({size:4096,extension:"png"}) :
+			user.displayAvatarURL({size:4096,extension:"png"})
 		)
 
 		var colorId = (["0","0000",null,undefined].includes(user.discriminator)) ? (Number(BigInt(user.id) >> 22n) % 6) : user.discriminator % 5;
@@ -38,7 +38,7 @@ exports.module = {
 			interaction.reply({embeds: [new EmbedBuilder({
 				author: {
 					name: user.globalName !== null && user.globalName !== user.tag ? `${user.globalName} (@${user.tag})` : "@" + user.tag,
-					iconURL: (hasServerAvatar ? user.displayAvatarURL({size:4096,format:"png",dynamic:true}) : `https://cdn.discordapp.com/embed/avatars/${colorId}.png`)
+					iconURL: (hasServerAvatar ? user.displayAvatarURL({size:4096,extension:"png"}) : `https://cdn.discordapp.com/embed/avatars/${colorId}.png`)
 				},
 				image: {
 					url: avatar
