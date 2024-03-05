@@ -215,7 +215,7 @@ exports.module = {
 
 						embeds = [];
 						content = (toot.spoiler_text !== "" ? `**CW: ${cwText}**\n${showCW ? "" : "||"}` : "") + 
-						`**[${toot.account.display_name} (@${toot.account.acct})](<${toot.url}>)**` +
+						`**[${toot.account === undefined || Object.keys(toot.account).length === 0 ? `Unknown account](<${toot.url}>)**` : `${toot.account.display_name} (@${toot.account.acct})](<${toot.url}>)**`}` +
 						` \[ ${mediaText.join(" ")} \]\n` +
 						`${/\S/g.test(tootText) ? `>>> ${(tootText.length > 1024 ? tootText.substring(0,1023) + "…" : tootText).replace(/\[([^\[\]()]+)\]\(([^\[\]()]+)\)/g,"[$1](<$2>)")}` : ""}${toot.spoiler_text !== "" && !showCW ? "||" : ""}\n`;
 					}
