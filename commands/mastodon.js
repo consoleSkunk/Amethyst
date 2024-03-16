@@ -164,7 +164,7 @@ exports.module = {
 
 					embeds[0].addFields([{
 						name: `Poll \xB7 ${votes} votes`,
-						value: `**Close${toot.poll.expired ? "d" : "s"} <t:${Math.round(new Date(toot.poll.expires_at).getTime() / 1000)}:R>**\n\n` +
+						value: (toot.poll.expires_at === null ? "" : `**Close${toot.poll.expired ? "d" : "s"} <t:${Math.round(new Date(toot.poll.expires_at).getTime() / 1000)}:R>**\n\n`) +
 						poll_array.join("\n"),
 						inline: false
 					}])
