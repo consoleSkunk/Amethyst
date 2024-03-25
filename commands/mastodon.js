@@ -86,7 +86,11 @@ exports.module = {
 					interaction.followUp({content: toot.error, ephemeral: true})
 					.then(interaction.deleteReply());
 					return;
-				}
+				} else if(toot.errors) {
+					interaction.followUp({content: toot.errors.detail, ephemeral: true})
+					.then(interaction.deleteReply());
+					return;
+				} 
 				var showCW = interaction.options.getBoolean('cw');
 				var cwText =  (toot.spoiler_text !== "" ? (toot.spoiler_text > 500 ? toot.spoiler_text.substring(0,499) + "…" : toot.spoiler_text) : "")
 				var content = (toot.spoiler_text !== "" ? `**CW: ${cwText}** ${showCW ? toot.url : `||${toot.url}||`}` : toot.url);
